@@ -41,4 +41,4 @@
 
 ## Reference
 * [Medical-Device-Cybersecurity-Registration-Review-Guidelines](./refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines.docx)
-* [Vehicles cyber security]((./refer/R155e.pdf)
+* [Vehicles cyber security](./refer/R155e.pdf)

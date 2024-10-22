@@ -42,4 +42,4 @@
 
 ## 参考资料
 * [医疗器械网络安全注册审查指导原则（2022年修订版](./refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines.docx)
-* [关于车辆网络安全审批及网络安全管理系统的统一规定]((./refer/R155e.pdf)
+* [关于车辆网络安全审批及网络安全管理系统的统一规定](./refer/R155e.pdf)
