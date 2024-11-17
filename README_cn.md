@@ -1,5 +1,6 @@
 # 网络安全手册
 
+[英文版](./README.md) | [中文版](./README_cn.md)
 
 ## 安全特性
 ### 基本特性
@@ -39,6 +40,79 @@
 20. 紧急访问（EMRG）：产品在预期紧急情况下允许用户访问和使用的能力。
 21. 远程访问与控制（RMOT）：产品确保用户远程访问与控制（含远程维护与升级）的网络安全的能力。
 22. 恶意软件探测与防护（MLDP）：产品有效探测、阻止恶意软件的能力。
+
+## 2021 年 OWASP Top 10 安全风险
+
+1. A01:2021-访问控制失效
+
+排名从第五位上升；94% 的应用程序在测试中发现某种形式的访问控制失效。与访问控制失效相关的 34 个常见弱点枚举（CWEs）在应用程序中出现的频率比任何其他类别都高。
+
+2. A02:2021-加密失败
+
+排名上升一位至第二位，之前称为“敏感数据暴露”，这是一个广泛的症状描述，而非根本原因。本次更新的重点是与加密相关的失败，这些失败往往导致敏感数据泄露或系统受损。
+
+3. A03:2021-注入
+
+排名下降到第三位。94% 的应用程序在测试中发现某种形式的注入问题，与此类别相关的 33 个 CWEs 在应用程序中出现频率排名第二。本版本中，跨站脚本攻击（XSS）已被归入此类别。
+
+4. A04:2021-设计不安全
+
+这是 2021 年的新类别，聚焦于与设计缺陷相关的风险。如果行业想真正实现“左移”，需要更多地使用威胁建模、安全设计模式与原则，以及参考架构。
+
+5. A05:2021-安全配置错误
+
+从上一版的第六位上升；90% 的应用程序在测试中发现某种形式的配置错误。随着高度可配置软件的广泛使用，这一类别上升并不意外。之前的 XML 外部实体（XXE）类别已归入此类别。
+
+6. A06:2021-易受攻击和过时组件
+
+之前称为“使用已知漏洞的组件”，在 Top 10 社区调查中排名第二，但通过数据分析也有足够的数据进入 Top 10。此类别从 2017 年的第九位上升，是一个已知但难以测试和评估风险的问题。它是唯一一个未在相关 CWEs 中映射到任何常见漏洞（CVEs）的类别，因此默认情况下将漏洞和影响权重设置为 5.0 并计入分数。
+
+7. A07:2021-身份验证和认证失败
+
+之前称为“身份验证失效”，从第二位下降，现在包含更多与身份识别失败相关的 CWEs。此类别仍是 Top 10 的重要组成部分，但标准化框架的广泛可用性似乎有所帮助。
+
+8. A08:2021-软件和数据完整性失效
+
+这是 2021 年的新类别，重点关注在未经验证完整性的情况下对软件更新、关键数据和 CI/CD 流水线作出的假设。与此类别中 10 个 CWEs 相关的数据中，来自常见漏洞（CVEs）和常见漏洞评分系统（CVSS）的影响权重较高。2017 年的不安全反序列化已归入此更大的类别中。
+
+9. A09:2021-安全日志记录和监控失败
+
+之前称为“日志记录与监控不足”，根据行业调查（排名第三）从之前的第十位上升。此类别扩展到包含更多类型的失败，测试难度较大，在 CVE/CVSS 数据中代表性不足。然而，此类别中的失败可能直接影响可见性、事件警报和取证能力。
+
+10. A10:2021-服务器端请求伪造（SSRF）
+
+根据 Top 10 社区调查（排名第一）新增。数据显示此类别的发生率相对较低，但测试覆盖率和漏洞利用及影响潜力评分均高于平均水平。此类别代表了安全社区成员认为重要的场景，尽管目前数据中尚未充分体现其重要性。
+
+## 2023 CWE 25 个最危险的软件漏洞
+
+| 排名 | ID | 名称 | 分数 | KEV 中的 CVEs | 与 2022 年相比排名变化 |
+| --- | --- | --- | --- | --- | --- |
+| **1** | [CWE-787](https://cwe.mitre.org/data/definitions/787.html "Out-of-bounds Write") | 越界写入 (Out-of-bounds Write) | 63.72 | 70 | 0 |
+| **2** | [CWE-79](https://cwe.mitre.org/data/definitions/79.html "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')") | 网页生成期间输入未正确中和 ('跨站脚本') | 45.54 | 4 | 0 |
+| **3** | [CWE-89](https://cwe.mitre.org/data/definitions/89.html "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')") | SQL 命令中特殊元素未正确中和 ('SQL 注入') | 34.27 | 6 | 0 |
+| **4** | [CWE-416](https://cwe.mitre.org/data/definitions/416.html "Use After Free") | 释放后使用 (Use After Free) | 16.71 | 44 | +3 |
+| **5** | [CWE-78](https://cwe.mitre.org/data/definitions/78.html "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')") | 操作系统命令中特殊元素未正确中和 ('命令注入') | 15.65 | 23 | +1 |
+| **6** | [CWE-20](https://cwe.mitre.org/data/definitions/20.html "Improper Input Validation") | 输入验证不正确 | 15.50 | 35 | -2 |
+| **7** | [CWE-125](https://cwe.mitre.org/data/definitions/125.html "Out-of-bounds Read") | 越界读取 (Out-of-bounds Read) | 14.60 | 2 | -2 |
+| **8** | [CWE-22](https://cwe.mitre.org/data/definitions/22.html "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')") | 路径名限制到受限目录不正确 ('路径遍历') | 14.11 | 16 | 0 |
+| **9** | [CWE-352](https://cwe.mitre.org/data/definitions/352.html "Cross-Site Request Forgery (CSRF)") | 跨站请求伪造 (CSRF) | 11.73 | 0 | 0 |
+| **10** | [CWE-434](https://cwe.mitre.org/data/definitions/434.html "Unrestricted Upload of File with Dangerous Type") | 危险类型文件的无限制上传 | 10.41 | 5 | 0 |
+| **11** | [CWE-862](https://cwe.mitre.org/data/definitions/862.html "Missing Authorization") | 缺少授权 | 6.90 | 0 | +5 |
+| **12** | [CWE-476](https://cwe.mitre.org/data/definitions/476.html "NULL Pointer Dereference") | 空指针解引用 | 6.59 | 0 | -1 |
+| **13** | [CWE-287](https://cwe.mitre.org/data/definitions/287.html "Improper Authentication") | 身份验证不正确 | 6.39 | 10 | +1 |
+| **14** | [CWE-190](https://cwe.mitre.org/data/definitions/190.html "Integer Overflow or Wraparound") | 整数溢出或环绕 | 5.89 | 4 | -1 |
+| **15** | [CWE-502](https://cwe.mitre.org/data/definitions/502.html "Deserialization of Untrusted Data") | 不可信数据的反序列化 | 5.56 | 14 | -3 |
+| **16** | [CWE-77](https://cwe.mitre.org/data/definitions/77.html "Improper Neutralization of Special Elements used in a Command ('Command Injection')") | 命令中使用的特殊元素未正确中和 ('命令注入') | 4.95 | 4 | +1 |
+| **17** | [CWE-119](https://cwe.mitre.org/data/definitions/119.html "Improper Restriction of Operations within the Bounds of a Memory Buffer") | 内存缓冲区范围内操作限制不正确 | 4.75 | 7 | +2 |
+| **18** | [CWE-798](https://cwe.mitre.org/data/definitions/798.html "Use of Hard-coded Credentials") | 使用硬编码凭据 | 4.57 | 2 | -3 |
+| **19** | [CWE-918](https://cwe.mitre.org/data/definitions/918.html "Server-Side Request Forgery (SSRF)") | 服务器端请求伪造 (SSRF) | 4.56 | 16 | +2 |
+| **20** | [CWE-306](https://cwe.mitre.org/data/definitions/306.html "Missing Authentication for Critical Function") | 关键功能缺少身份验证 | 3.78 | 8 | -2 |
+| **21** | [CWE-362](https://cwe.mitre.org/data/definitions/362.html "Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition')") | 使用共享资源的并发执行中同步不正确 ('竞争条件') | 3.53 | 8 | +1 |
+| **22** | [CWE-269](https://cwe.mitre.org/data/definitions/269.html "Improper Privilege Management") | 权限管理不正确 | 3.31 | 5 | +7 |
+| **23** | [CWE-94](https://cwe.mitre.org/data/definitions/94.html "Improper Control of Generation of Code ('Code Injection')") | 代码生成的控制不正确 ('代码注入') | 3.30 | 6 | +2 |
+| **24** | [CWE-863](https://cwe.mitre.org/data/definitions/863.html "Incorrect Authorization") | 授权不正确 | 3.16 | 0 | +4 |
+| **25** | [CWE-276](https://cwe.mitre.org/data/definitions/276.html "Incorrect Default Permissions") | 默认权限不正确 | 3.16 | 0 | -5 |
+
 
 ## 参考资料
 * [医疗器械网络安全注册审查指导原则（2022年修订版](. /refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines. docx)

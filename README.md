@@ -1,19 +1,20 @@
 # Network Security Handbook
 
+[中文版](/README_cn.md) | [英文版](./README.md)
 
 ## Features
 ### Basic Features
 
-1. Confidentiality 保密性
-2. Integrity 完整性
-3. Availability 可用性
+1. Confidentiality
+2. Integrity
+3. Availability
 
 ### Other Features
 
-4. Authenticity 真实性
-5. Non-Repudiation 抗抵赖性
-6. Accountability 可核查性
-7. Reliability 可靠性
+4. Authenticity
+5. Non-Repudiation
+6. Accountability
+7. Reliability
 
 ## Capabilities
 1. Automatic Logout (ALOF):
