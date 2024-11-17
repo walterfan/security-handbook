@@ -43,3 +43,5 @@
 ## 参考资料
 * [医疗器械网络安全注册审查指导原则（2022年修订版](. /refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines. docx)
 * [关于车辆网络安全审批及网络安全管理系统的统一规定](. /refer/R155e. pdf)
+* [GB/T 34943-2017 C++语言源代码漏洞测试规范](https://www.doc88.com/p-19229466192168.html)
+* [GJB 8114-2013 C/C++语言编程安全子集](https://www.doc88.com/p-5631604036983.html)
