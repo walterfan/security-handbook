@@ -105,12 +105,6 @@ The ability of the product to ensure the network security of user remote access 
 
 The product’s ability to effectively detect and block malware.
 
-## Glossary
-
-* CVE (Common Vulnerabilities and Exposures)
-* CWE (Common Weakness Enumeration)
-* OWASP (Open Web Application Security Project)
-
 ## OWASP TOP 10
 
 ![owasp-top-10](./doc/owasp-top-10.png)
@@ -158,9 +152,8 @@ It is added from the Top 10 community survey (#1). The data shows a relatively l
 
 
 ## 2023 CWE Top 25 Most Dangerous Software Weaknesses
-2023 CWE Top 25
 
-[×](https://cwe.mitre.org/top25/archive/2023/2023_top25_list.html#top25list)
+[2023 CWE Top 25](https://cwe.mitre.org/top25/archive/2023/2023_top25_list.html#top25list)
 
 | Rank | ID | Name | Score | CVEs in KEV | Rank Change vs. 2022 |
 | --- | --- | --- | --- | --- | --- |
@@ -198,6 +191,13 @@ It is added from the Top 10 community survey (#1). The data shows a relatively l
 * [Juliet Test suites](https://samate.nist.gov/SARD/test-suites)
   - [Juliet C++ 1.3](https://samate.nist.gov/SARD/test-suites/112)
   - [Juliet Java 1.3](https://samate.nist.gov/SARD/test-suites/111)
+
+## Glossary
+
+* CVE (Common Vulnerabilities and Exposures)
+* CWE (Common Weakness Enumeration)
+* OWASP (Open Web Application Security Project)
+
 
 ## Reference
 * [Medical-Device-Cybersecurity-Registration-Review-Guidelines](./refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines.docx)

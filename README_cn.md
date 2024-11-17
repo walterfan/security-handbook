@@ -43,6 +43,8 @@
 
 ## 2021 年 OWASP Top 10 安全风险
 
+![owasp-top-10](./doc/owasp-top-10.png)
+
 1. A01:2021-访问控制失效
 
 排名从第五位上升；94% 的应用程序在测试中发现某种形式的访问控制失效。与访问控制失效相关的 34 个常见弱点枚举（CWEs）在应用程序中出现的频率比任何其他类别都高。
@@ -85,6 +87,8 @@
 
 ## 2023 CWE 25 个最危险的软件漏洞
 
+[2023 CWE Top 25](https://cwe.mitre.org/top25/archive/2023/2023_top25_list.html#top25list)
+
 | 排名 | ID | 名称 | 分数 | KEV 中的 CVEs | 与 2022 年相比排名变化 |
 | --- | --- | --- | --- | --- | --- |
 | **1** | [CWE-787](https://cwe.mitre.org/data/definitions/787.html "Out-of-bounds Write") | 越界写入 (Out-of-bounds Write) | 63.72 | 70 | 0 |
@@ -113,9 +117,46 @@
 | **24** | [CWE-863](https://cwe.mitre.org/data/definitions/863.html "Incorrect Authorization") | 授权不正确 | 3.16 | 0 | +4 |
 | **25** | [CWE-276](https://cwe.mitre.org/data/definitions/276.html "Incorrect Default Permissions") | 默认权限不正确 | 3.16 | 0 | -5 |
 
+## 实践和测试项目
+
+* OWASP Benchmark:
+
+ OWASP Benchmark 项目是一个 Java 测试套件，旨在评估自动化软件漏洞检测工具的准确性、覆盖范围和速度。如果无法对这些工具进行测量，就很难了解它们的优缺点，并进行相互比较。
+
+* WebGoat:
+
+WebGoat 是一个开源的 Web 应用程序，旨在教授 Web 应用程序安全。
+
+* OWASP Juice Shop:
+
+一个免费的开源不安全 Web 应用程序，易受 OWASP 前 10 名安全风险的攻击。
+
+* DVWA:
+
+Damn Vulnerable Web Application (DVWA) 是一个极度脆弱的 PHP/MySQL Web 应用程序。其主要目的是帮助安全专业人员在合法环境中测试其技能和工具，帮助 Web 开发人员更好地理解 Web 应用程序安全过程，并帮助学生和教师在受控的课堂环境中学习 Web 应用程序安全。
+
+* Juliet Test suites:
+
+    由 NIST 开发的一系列用于评估软件安全性的测试套件。
+    * Juliet C++ 1.3
+    * Juliet Java 1.3
+
+## 术语表
+
+* CVE (Common Vulnerabilities and Exposures)
+
+  一份公开披露的计算机安全漏洞清单。
+
+* CWE (Common Weakness Enumeration)
+
+  软件弱点和漏洞的分类系统。
+
+* OWASP (Open Web Application Security Project)
+
+  一个致力于提高软件安全性的非盈利组织。
 
 ## 参考资料
-* [医疗器械网络安全注册审查指导原则（2022年修订版](. /refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines. docx)
-* [关于车辆网络安全审批及网络安全管理系统的统一规定](. /refer/R155e. pdf)
+* [医疗器械网络安全注册审查指导原则（2022年修订版)](./refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines. docx)
+* [关于车辆网络安全审批及网络安全管理系统的统一规定](./refer/R155e. pdf)
 * [GB/T 34943-2017 C++语言源代码漏洞测试规范](https://www.doc88.com/p-19229466192168.html)
 * [GJB 8114-2013 C/C++语言编程安全子集](https://www.doc88.com/p-5631604036983.html)
