@@ -141,6 +141,12 @@ Damn Vulnerable Web Application (DVWA) 是一个极度脆弱的 PHP/MySQL Web �
     * Juliet C++ 1.3
     * Juliet Java 1.3
 
+## 方法
+
+* [STRIDE](./doc/stride.md): STRIDE代表Spoofing（欺骗）、Tampering（篡改）、Repudiation（否认）、Information disclosure（信息泄露）、Denial of service（拒绝服务）和Elevation of privilege（权限提升）
+* [Threat Modelling](./doc/threat-modelling.md): 威胁建模
+
+
 ## 术语表
 
 * CVE (Common Vulnerabilities and Exposures)
@@ -154,6 +160,40 @@ Damn Vulnerable Web Application (DVWA) 是一个极度脆弱的 PHP/MySQL Web �
 * OWASP (Open Web Application Security Project)
 
   一个致力于提高软件安全性的非盈利组织。
+
+* Authentication 认证要求
+
+  - 用户是不是通过认证的合法用户？
+
+* Authorization 授权要求
+
+ - 用户是不是经过授权的合法用户, 所访问的模块是在其权限范围之内的？
+
+* Audit 可审查和追溯要求
+
+  - 用户的访问和操作是不是可以审查和追溯的？
+
+* 资产: 需要构建防御机制加以保护的关键实体
+
+* 漏洞: 系统中可用来危害其安全性的地方
+
+* 威胁: 利用潜在漏洞危害系统安全的潜在负面行为或事件
+
+* 攻击: 在系统上执行的未经授权的破坏安全性的恶意行为
+
+* 风险: 风险是威胁业务成功的诸多因素的组合。
+
+比如，可以想象一个汽车窃贼（威胁代理）在停车场检查汽车（系统）是否有未上锁的门（漏洞），当他们找到一辆车时，他们打开车门（漏洞利用），并拿走里面的东西（影响）。
+
+9. SAST: static application security testing (SAST)
+
+  静态代码扫描，通过分析源代码，找出可能存在的安全漏洞。
+
+10. DAST:  dynamic application security testing (DAST)
+
+  动态代码扫描，通过运行程序，找出可能存在的安全漏洞。
+
+
 
 ## 参考资料
 * [医疗器械网络安全注册审查指导原则（2022年修订版)](./refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines.docx)

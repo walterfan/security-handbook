@@ -192,12 +192,55 @@ It is added from the Top 10 community survey (#1). The data shows a relatively l
   - [Juliet C++ 1.3](https://samate.nist.gov/SARD/test-suites/112)
   - [Juliet Java 1.3](https://samate.nist.gov/SARD/test-suites/111)
 
+
+## Methods
+
+* [STRIDE](./doc/stride.md): Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege
+* [Threat Modelling](./doc/threat-modelling.md)
+
 ## Glossary
 
 * CVE (Common Vulnerabilities and Exposures)
 * CWE (Common Weakness Enumeration)
 * OWASP (Open Web Application Security Project)
+* Authentication: Authentication requirements  
 
+  - Is the user a legitimate user who has been authenticated?  
+
+* Authorization: Authorization requirements  
+
+  - Is the user a legitimate user who has been authorized, and is the accessed module within their permission scope?  
+
+* Audit: Auditing and traceability requirements  
+
+  - Can the user's access and operations be audited and traced?  
+
+* Asset: Critical entities that need defensive mechanisms to protect them  
+
+* Vulnerability: Weak points in a system that could compromise its security  
+
+* Threat: Potential negative actions or events that exploit vulnerabilities to compromise system security  
+
+* Attack: Unauthorized malicious actions executed on a system to breach its security  
+
+* Risk: A combination of factors that threaten the success of a business.  
+
+  For example, imagine a car thief (threat actor) checking cars (system) in a parking lot for unlocked doors (vulnerabilities). When they find one, they open the door (exploit the vulnerability) and steal items inside (impact).  
+
+* SAST: Static Application Security Testing (SAST)  
+
+  - Static code scanning, which identifies potential security vulnerabilities by analyzing source code.  
+
+* DAST: Dynamic Application Security Testing (DAST)  
+
+  - Dynamic code scanning, which identifies potential security vulnerabilities by running the application.  
+
+## Tools  
+* [Burp Suite](https://portswigger.net/burp)  
+* [OWASP ZAP](https://www.zaproxy.org/)  
+* [Kali Linux](https://www.kali.org/)  
+* [Dependency-Check](https://jeremylong.github.io/DependencyCheck/)  
+* [Talisman](https://github.com/thoughtworks/talisman)  
 
 ## Reference
 * [Medical-Device-Cybersecurity-Registration-Review-Guidelines](./refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines.docx)
