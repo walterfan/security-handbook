@@ -1,6 +1,6 @@
 # 网络安全手册
 
-[英文版](./README.md) | [中文版](./README_cn.md)
+[English Version](./README.md) | [中文版](./README_cn.md)
 
 ## 安全特性
 ### 基本特性

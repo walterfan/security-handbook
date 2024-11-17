@@ -1,6 +1,6 @@
 # Network Security Handbook
 
-[中文版](/README_cn.md) | [英文版](./README.md)
+[中文版](/README_cn.md) | [English Version](./README.md)
 
 ## Features
 ### Basic Features
