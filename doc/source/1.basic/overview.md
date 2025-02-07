@@ -1,6 +1,4 @@
-# Network Security Handbook
-
-[中文版](/README_cn.md) | [English Version](./README.md)
+# Overview
 
 ## Features
 ### Basic Features
@@ -107,7 +105,7 @@ The product’s ability to effectively detect and block malware.
 
 ## OWASP TOP 10
 
-![owasp-top-10](./doc/source/1.basic/owasp-top-10.png)
+![owasp-top-10](./doc/owasp-top-10.png)
 
 1. A01:2021-Broken Access Control
 
@@ -195,8 +193,8 @@ It is added from the Top 10 community survey (#1). The data shows a relatively l
 
 ## Methods
 
-* [STRIDE](./doc/source/1.basic/stride.md): Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege
-* [Threat Modelling](./doc/source/1.basic/threat_modelling.md)
+* [STRIDE](stride.md): Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege
+* [Threat Modelling](threat_modelling.md)
 
 ## Glossary
 
@@ -243,6 +241,6 @@ It is added from the Top 10 community survey (#1). The data shows a relatively l
 * [Talisman](https://github.com/thoughtworks/talisman)  
 
 ## Reference
-* [Medical-Device-Cybersecurity-Registration-Review-Guidelines](./refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines.docx)
-* [Vehicles cyber security](./refer/R155e.pdf)
+* [Medical-Device-Cybersecurity-Registration-Review-Guidelines](https://github.com/walterfan/security-handbook/blob/master/refer/Medical-Device-Cybersecurity-Registration-Review-Guidelines.docx)
+* [Vehicles cyber security](https://github.com/walterfan/security-handbook/blob/master/refer/R155e.pdf)
 * [NIST Computer Security Resource Center](https://csrc.nist.gov/projects)

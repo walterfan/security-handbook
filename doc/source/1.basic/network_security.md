@@ -1,3 +1,5 @@
+# network security
+
 | # | Security Capability | Implementation Method | Inspection Method | Notes |
 | --- | --- | --- | --- | --- |
 | 1 | Automatic Logout (ALOF) | Web auto logout, Access token expire | - | - |

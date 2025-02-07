@@ -43,7 +43,7 @@
 
 ## 2021 年 OWASP Top 10 安全风险
 
-![owasp-top-10](./doc/owasp-top-10.png)
+![owasp-top-10](./doc/source/1.basic/owasp-top-10.png)
 
 1. A01:2021-访问控制失效
 
@@ -143,8 +143,8 @@ Damn Vulnerable Web Application (DVWA) 是一个极度脆弱的 PHP/MySQL Web �
 
 ## 方法
 
-* [STRIDE](./doc/stride.md): STRIDE代表Spoofing（欺骗）、Tampering（篡改）、Repudiation（否认）、Information disclosure（信息泄露）、Denial of service（拒绝服务）和Elevation of privilege（权限提升）
-* [Threat Modelling](./doc/threat-modelling.md): 威胁建模
+* [STRIDE](./doc/source/1.basic/stride.md): STRIDE代表Spoofing（欺骗）、Tampering（篡改）、Repudiation（否认）、Information disclosure（信息泄露）、Denial of service（拒绝服务）和Elevation of privilege（权限提升）
+* [Threat Modelling](./doc/source/1.basic/threat_modelling.md): 威胁建模
 
 
 ## 术语表
