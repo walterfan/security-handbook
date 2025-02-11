@@ -1,0 +1,203 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WIT (Workload Identity Token) &mdash; Security Handbook 1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2. Framework and Library" href="../3.library/index.html" />
+    <link rel="prev" title="WIMSE (Workload Identity in Multi-System Environments)" href="wimse.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1.basic/index.html">1. Basic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">2. Protocol</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="oauth2.html">oAuth2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jwt.html">JWT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="open_id.html">OIDC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spifee.html">SPIFFE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="x509.html">X.509 Certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wimse.html">WIMSE (Workload Identity in Multi-System Environments)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">WIT (Workload Identity Token)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1"><strong>概述</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2"><strong>工作原理</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3"><strong>使用场景</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4"><strong>优点</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#wimse-wit"><strong>WIMSE 和 WIT 的关系</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5"><strong>总结</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../3.library/index.html">2. Framework and Library</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">2. Protocol</a></li>
+      <li class="breadcrumb-item active">WIT (Workload Identity Token)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/2.protocol/wit.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="wit-workload-identity-token">
+<h1>WIT (Workload Identity Token)<a class="headerlink" href="#wit-workload-identity-token" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2><strong>概述</strong><a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>WIT（<strong>Workload Identity Token</strong>）是 WIMSE 中的一个重要组成部分，通常指的是工作负载在身份验证过程中获取的令牌。这个令牌用于代表工作负载的身份，并且可以用于访问受保护资源。在多系统环境中，工作负载的身份通常是通过某种形式的令牌来表示，WIT 即是这类令牌的典型实现。</p>
+<p>WIT 的主要作用是提供一个短期有效的、专门用于工作负载的身份令牌，使得工作负载能够在不同服务或平台之间进行认证和授权。</p>
+</section>
+<section id="id2">
+<h2><strong>工作原理</strong><a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>WIT 的工作原理通常与 OAuth 2.0、JWT（JSON Web Token）等身份认证和授权协议相结合。工作负载通常会通过一个身份提供者（如 Google Cloud 的 Workload Identity Federation）来请求一个 WIT，令牌内包含工作负载的身份信息、权限和有效期等信息。</p>
+<ul class="simple">
+<li><p><strong>身份声明（Claims）</strong>：WIT 包含工作负载的身份声明（如工作负载的唯一标识符、角色、权限等），这些声明用来授权工作负载访问特定的资源。</p></li>
+<li><p><strong>访问控制</strong>：WIT 与角色基础访问控制（RBAC）配合使用，允许工作负载在不同的系统和服务之间访问资源时，严格控制访问权限。</p></li>
+<li><p><strong>短期有效性</strong>：为了增加安全性，WIT 通常是短期有效的，工作负载可以定期请求新的令牌。</p></li>
+<li><p><strong>身份联合</strong>：在跨多个云平台和系统中，WIT 可以通过身份联合来简化身份验证过程。这意味着工作负载可以在不同的环境中使用相同的身份令牌进行身份验证。</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2><strong>使用场景</strong><a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Kubernetes 与云服务集成</strong>：在 Kubernetes 中，工作负载通常需要访问云平台的资源（如数据库、存储桶等）。通过 WIT，Kubernetes 中的 Pod 可以获得一个有效的令牌，从而访问这些资源。</p></li>
+<li><p><strong>多云身份联合</strong>：如果企业的工作负载在多个云平台上运行（如 AWS 和 Google Cloud），WIT 可以用于简化跨平台的身份验证和授权，避免了每个云环境都需要单独管理身份。</p></li>
+<li><p><strong>容器化应用</strong>：对于运行在容器中的应用程序，WIT 可以提供安全的身份认证和访问控制，使得容器能够在不同的环境中运行，而无需暴露敏感凭证。</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2><strong>优点</strong><a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>安全</strong>：WIT 令牌通常是短期有效的，减少了凭证泄漏的风险。</p></li>
+<li><p><strong>简化身份管理</strong>：通过使用 WIT，工作负载可以避免在每个系统中都需要单独配置和管理身份凭证。</p></li>
+<li><p><strong>统一认证机制</strong>：支持跨多个系统（如云平台、Kubernetes、微服务架构等）的一致身份认证。</p></li>
+<li><p><strong>集成性强</strong>：WIT 可以与现有的身份验证协议（如 OAuth 2.0、JWT）和服务（如 AWS IAM、Google IAM）无缝集成。</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="wimse-wit">
+<h1><strong>WIMSE 和 WIT 的关系</strong><a class="headerlink" href="#wimse-wit" title="Link to this heading"></a></h1>
+<p>WIMSE 和 WIT 紧密相关，可以看作是身份验证和访问控制的两个层面：</p>
+<ul class="simple">
+<li><p><strong>WIMSE</strong> 提供了一个跨多个系统的统一身份管理框架，确保工作负载可以在不同环境中保持一致的身份。</p></li>
+<li><p><strong>WIT</strong> 则是 WIMSE 框架中工作负载身份的具体表示，它是工作负载在请求访问受保护资源时使用的令牌。</p></li>
+</ul>
+<p>可以这样理解，<strong>WIMSE</strong> 定义了如何管理和分配工作负载身份，而 <strong>WIT</strong> 则是工作负载身份的载体，它用于证明工作负载的身份并使其获得相应的访问权限。</p>
+</section>
+<hr class="docutils" />
+<section id="id5">
+<h1><strong>总结</strong><a class="headerlink" href="#id5" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><strong>WIMSE</strong> 是解决多云、多系统环境下工作负载身份和访问控制问题的框架，提供统一的身份验证机制和跨系统的访问控制策略。</p></li>
+<li><p><strong>WIT</strong> 是工作负载身份的令牌，包含工作负载的身份信息和权限声明，允许工作负载安全地访问资源。</p></li>
+</ul>
+<p>这两者结合，能有效地管理在多个系统和云平台中运行的工作负载的身份与权限，增强了跨平台的安全性和可管理性。</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="wimse.html" class="btn btn-neutral float-left" title="WIMSE (Workload Identity in Multi-System Environments)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../3.library/index.html" class="btn btn-neutral float-right" title="2. Framework and Library" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overview &mdash; Security Handbook 1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="oAuth2" href="oauth2.html" />
+    <link rel="prev" title="2. Protocol" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1.basic/index.html">1. Basic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">2. Protocol</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#iam-identity-and-access-management">IAM (Identity and Access Management)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#oauth-2-0">1. <strong>OAuth 2.0</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#openid-connect-oidc">2. <strong>OpenID Connect (OIDC)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#saml-security-assertion-markup-language">3. <strong>SAML (Security Assertion Markup Language)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ldap-lightweight-directory-access-protocol">4. <strong>LDAP (Lightweight Directory Access Protocol)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kerberos">5. <strong>Kerberos</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#radius-remote-authentication-dial-in-user-service">6. <strong>RADIUS (Remote Authentication Dial-In User Service)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#x-509">7. <strong>X.509 证书</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#json-web-token-jwt">8. <strong>JSON Web Token (JWT)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wpa3-wi-fi-protected-access-3">9. <strong>WPA3 (Wi-Fi Protected Access 3)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfa-multi-factor-authentication">10. <strong>MFA (Multi-Factor Authentication)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">总结：</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">传输安全协议</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ssl-tls-secure-sockets-layer-transport-layer-security">1. <strong>SSL/TLS (Secure Sockets Layer / Transport Layer Security)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#https-hypertext-transfer-protocol-secure">2. <strong>HTTPS (Hypertext Transfer Protocol Secure)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ipsec-internet-protocol-security">3. <strong>IPsec (Internet Protocol Security)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ssh-secure-shell">4. <strong>SSH (Secure Shell)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dnssec-domain-name-system-security-extensions">5. <strong>DNSSEC (Domain Name System Security Extensions)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#s-mime-secure-multipurpose-internet-mail-extensions">6. <strong>S/MIME (Secure/Multipurpose Internet Mail Extensions)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hsts-http-strict-transport-security">7. <strong>HSTS (HTTP Strict Transport Security)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#content-security-policy-csp">8. <strong>Content Security Policy (CSP)</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="oauth2.html">oAuth2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jwt.html">JWT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="open_id.html">OIDC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spifee.html">SPIFFE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="x509.html">X.509 Certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wimse.html">WIMSE (Workload Identity in Multi-System Environments)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html">WIT (Workload Identity Token)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html#wimse-wit"><strong>WIMSE 和 WIT 的关系</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html#id5"><strong>总结</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../3.library/index.html">2. Framework and Library</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">2. Protocol</a></li>
+      <li class="breadcrumb-item active">Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/2.protocol/overview.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h1>
+<section id="iam-identity-and-access-management">
+<h2>IAM (Identity and Access Management)<a class="headerlink" href="#iam-identity-and-access-management" title="Link to this heading"></a></h2>
+<p>身份认证（Authentication）和访问控制（Authorization）是信息安全中两个至关重要的概念，它们分别用于确认用户的身份并控制用户访问系统资源的权限。常用的身份认证和访问控制协议主要包括以下几种：</p>
+<section id="oauth-2-0">
+<h3>1. <strong>OAuth 2.0</strong><a class="headerlink" href="#oauth-2-0" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：OAuth 2.0 是一种授权框架，允许第三方应用程序在不暴露用户密码的情况下访问用户的资源。它用于<strong>授权</strong>而非身份验证，通常与 OpenID Connect 一起使用来提供认证功能。</p></li>
+<li><p><strong>工作原理</strong>：</p>
+<ol class="arabic simple">
+<li><p>用户授权第三方应用访问他们的资源。</p></li>
+<li><p>第三方应用使用授权码交换访问令牌（Access Token）。</p></li>
+<li><p>访问令牌用于访问受保护的资源。</p></li>
+</ol>
+</li>
+<li><p><strong>使用场景</strong>：常用于社交登录（如 Google 登录、Facebook 登录）和其他 Web 应用的第三方授权。</p></li>
+</ul>
+</section>
+<section id="openid-connect-oidc">
+<h3>2. <strong>OpenID Connect (OIDC)</strong><a class="headerlink" href="#openid-connect-oidc" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：OpenID Connect 是基于 OAuth 2.0 构建的认证协议。它提供了一种标准方式，通过使用 OAuth 2.0 授权协议来实现用户身份认证。OIDC 为 OAuth 2.0 增加了身份层，允许客户端验证用户的身份并获取关于用户的基本信息。</p></li>
+<li><p><strong>工作原理</strong>：</p>
+<ol class="arabic simple">
+<li><p>用户登录并授权应用程序。</p></li>
+<li><p>OAuth 2.0 为应用程序发放访问令牌（Access Token）。</p></li>
+<li><p>同时，OpenID Connect 会发放一个 ID Token，用于确认用户身份。</p></li>
+</ol>
+</li>
+<li><p><strong>使用场景</strong>：用于支持单点登录（SSO）和多种身份认证需求，如 Google 登录、GitHub 登录等。</p></li>
+</ul>
+</section>
+<section id="saml-security-assertion-markup-language">
+<h3>3. <strong>SAML (Security Assertion Markup Language)</strong><a class="headerlink" href="#saml-security-assertion-markup-language" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：SAML 是基于 XML 的身份认证和授权协议，通常用于企业级单点登录（SSO）。它定义了一个开放标准用于在身份提供者（IdP）和服务提供者（SP）之间交换用户认证和授权数据。</p></li>
+<li><p><strong>工作原理</strong>：</p>
+<ol class="arabic simple">
+<li><p>用户访问服务提供者应用程序。</p></li>
+<li><p>如果用户没有登录，服务提供者将用户重定向到身份提供者。</p></li>
+<li><p>身份提供者验证用户身份后，生成一个 SAML 响应并将其传递给服务提供者。</p></li>
+<li><p>服务提供者验证 SAML 响应并允许用户访问应用。</p></li>
+</ol>
+</li>
+<li><p><strong>使用场景</strong>：广泛应用于企业级应用和跨域的单点登录（SSO）。</p></li>
+</ul>
+</section>
+<section id="ldap-lightweight-directory-access-protocol">
+<h3>4. <strong>LDAP (Lightweight Directory Access Protocol)</strong><a class="headerlink" href="#ldap-lightweight-directory-access-protocol" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：LDAP 是一种用于访问和管理目录服务的协议。它被广泛用于公司和组织中存储和管理用户信息，如用户名、密码和权限等。LDAP 通常与其他协议（如 Kerberos）结合使用来实现身份认证。</p></li>
+<li><p><strong>工作原理</strong>：</p>
+<ol class="arabic simple">
+<li><p>用户请求认证。</p></li>
+<li><p>LDAP 服务器通过查询目录服务来验证用户凭据（如用户名和密码）。</p></li>
+<li><p>LDAP 返回认证结果（通过或失败）。</p></li>
+</ol>
+</li>
+<li><p><strong>使用场景</strong>：用于公司或组织的内部身份验证和目录管理，如 Microsoft Active Directory。</p></li>
+</ul>
+</section>
+<section id="kerberos">
+<h3>5. <strong>Kerberos</strong><a class="headerlink" href="#kerberos" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：Kerberos 是一种基于对称密钥加密的认证协议，旨在提供强大的身份认证机制，通常用于分布式网络环境中。它由一个身份认证服务器（KDC）和一个票据授予服务器（TGS）组成。</p></li>
+<li><p><strong>工作原理</strong>：</p>
+<ol class="arabic simple">
+<li><p>用户登录并向身份认证服务器请求认证。</p></li>
+<li><p>身份认证服务器生成一个票据（Ticket Granting Ticket，TGT）并返回给用户。</p></li>
+<li><p>用户使用 TGT 向票据授予服务器请求服务票据。</p></li>
+<li><p>服务票据允许用户访问目标服务。</p></li>
+</ol>
+</li>
+<li><p><strong>使用场景</strong>：广泛用于企业网络、Windows 环境和基于票据的认证系统（如 Microsoft Active Directory）。</p></li>
+</ul>
+</section>
+<section id="radius-remote-authentication-dial-in-user-service">
+<h3>6. <strong>RADIUS (Remote Authentication Dial-In User Service)</strong><a class="headerlink" href="#radius-remote-authentication-dial-in-user-service" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：RADIUS 是一种远程认证协议，主要用于管理对网络服务的访问权限，如拨号连接、无线网络和 VPN 连接等。它结合身份认证、授权和计费功能。</p></li>
+<li><p><strong>工作原理</strong>：</p>
+<ol class="arabic simple">
+<li><p>用户通过远程设备连接到网络。</p></li>
+<li><p>用户提供凭证（如用户名和密码）进行身份认证。</p></li>
+<li><p>RADIUS 服务器验证凭证并返回授权信息。</p></li>
+</ol>
+</li>
+<li><p><strong>使用场景</strong>：广泛用于 VPN 认证、Wi-Fi 认证和其他网络设备的认证。</p></li>
+</ul>
+</section>
+<section id="x-509">
+<h3>7. <strong>X.509 证书</strong><a class="headerlink" href="#x-509" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：X.509 是一种标准的公钥证书格式，通常用于身份认证、数据加密和签名。它包含有关用户身份、公钥和证书颁发机构（CA）等信息。</p></li>
+<li><p><strong>工作原理</strong>：</p>
+<ol class="arabic simple">
+<li><p>用户使用公钥基础设施（PKI）生成公私密钥对。</p></li>
+<li><p>证书颁发机构（CA）为用户的公钥签发 X.509 证书。</p></li>
+<li><p>用户使用证书进行身份验证，确保其公钥和身份匹配。</p></li>
+</ol>
+</li>
+<li><p><strong>使用场景</strong>：用于 SSL/TLS（HTTPS）连接的安全认证和加密。</p></li>
+</ul>
+</section>
+<section id="json-web-token-jwt">
+<h3>8. <strong>JSON Web Token (JWT)</strong><a class="headerlink" href="#json-web-token-jwt" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：JWT 是一种用于在网络应用环境间安全地传递信息的 compact, URL-safe 的令牌。它可以用于身份认证和授权，尤其在 RESTful API 中广泛应用。</p></li>
+<li><p><strong>工作原理</strong>：</p>
+<ol class="arabic simple">
+<li><p>用户提供用户名和密码进行身份验证。</p></li>
+<li><p>服务器返回 JWT，包含用户身份和授权信息。</p></li>
+<li><p>客户端存储 JWT 并在每次请求时使用它进行认证。</p></li>
+</ol>
+</li>
+<li><p><strong>使用场景</strong>：常用于 Web 应用的身份认证（如使用 OAuth 2.0 和 OpenID Connect）、API 认证等。</p></li>
+</ul>
+</section>
+<section id="wpa3-wi-fi-protected-access-3">
+<h3>9. <strong>WPA3 (Wi-Fi Protected Access 3)</strong><a class="headerlink" href="#wpa3-wi-fi-protected-access-3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：WPA3 是 Wi-Fi 网络的最新安全协议，旨在替代 WPA2，提供更强的加密和认证保护。</p></li>
+<li><p><strong>工作原理</strong>：WPA3 引入了更强的加密算法和更安全的身份验证机制，如保护公共 Wi-Fi 网络的安全，防止暴力破解攻击。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>安全地保护家庭和企业的无线网络。</p></li>
+<li><p>防止中间人攻击和弱密码攻击。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：提高 Wi-Fi 网络的安全性，防止数据泄露和暴力破解。</p></li>
+</ul>
+</section>
+<section id="mfa-multi-factor-authentication">
+<h3>10. <strong>MFA (Multi-Factor Authentication)</strong><a class="headerlink" href="#mfa-multi-factor-authentication" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：多因素认证（MFA）是一个安全机制，通过要求多种不同类型的认证信息（如密码、短信验证码、指纹等）来增强身份验证的安全性。</p></li>
+<li><p><strong>工作原理</strong>：除了传统的用户名和密码外，MFA 还要求用户提供其他认证因素，如一次性密码（OTP）、生物特征等。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>用于 Web 应用、银行账户等需要高安全性的系统。</p></li>
+<li><p>通过多重验证来防止账户被盗用。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：大大增强身份认证的安全性，防止账号被暴力破解或钓鱼攻击。</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="id1">
+<h3>总结：<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>这些协议可以大致分为两类：</p>
+<ol class="arabic simple">
+<li><p><strong>身份认证协议</strong>：如 OpenID Connect、SAML、Kerberos、LDAP 和 X.509 等，主要用于验证用户身份。</p></li>
+<li><p><strong>访问控制协议</strong>：如 OAuth 2.0、RADIUS 和 JWT 等，主要用于控制用户对资源的访问权限。</p></li>
+</ol>
+<p>不同协议适用于不同的场景和需求，开发人员和系统管理员应根据具体的应用需求选择适合的协议，以确保系统的安全性和高效性。</p>
+</section>
+</section>
+<section id="id2">
+<h2>传输安全协议<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>在网络和 Web 安全领域，除了身份认证和访问控制协议之外，还有许多其他关键协议用于保护数据传输、保证隐私、保护系统免受攻击等。下面是一些常见的网络和 Web 安全协议：</p>
+<section id="ssl-tls-secure-sockets-layer-transport-layer-security">
+<h3>1. <strong>SSL/TLS (Secure Sockets Layer / Transport Layer Security)</strong><a class="headerlink" href="#ssl-tls-secure-sockets-layer-transport-layer-security" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：SSL（后来的 TLS）是一个加密协议，用于在计算机网络中提供数据加密、安全认证和数据完整性，尤其用于 Web 浏览器和服务器之间的通信。</p></li>
+<li><p><strong>工作原理</strong>：SSL/TLS 使用公钥基础设施（PKI）来建立一个安全的连接。客户端与服务器进行握手，交换密钥后，使用对称加密进行数据传输。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>HTTPS：用于 Web 浏览器和服务器之间的加密连接。</p></li>
+<li><p>电子邮件安全：如 SMTP、IMAP 和 POP3 的加密。</p></li>
+<li><p>虚拟私人网络（VPN）和其他加密通信。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：保护数据在传输过程中的机密性，防止中间人攻击。</p></li>
+</ul>
+</section>
+<section id="https-hypertext-transfer-protocol-secure">
+<h3>2. <strong>HTTPS (Hypertext Transfer Protocol Secure)</strong><a class="headerlink" href="#https-hypertext-transfer-protocol-secure" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：HTTPS 是 HTTP 的安全版本，通过 SSL/TLS 协议对 HTTP 数据进行加密，确保 Web 应用程序与客户端（浏览器）之间的数据传输是安全的。</p></li>
+<li><p><strong>工作原理</strong>：在 HTTP 协议之上，使用 TLS/SSL 加密通信，提供身份验证和加密，防止数据泄露和篡改。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>用于在线银行、购物网站等需要保护敏感信息的 Web 应用。</p></li>
+<li><p>确保网站的身份，防止钓鱼攻击。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：避免数据被窃听和篡改，保护用户隐私。</p></li>
+</ul>
+</section>
+<section id="ipsec-internet-protocol-security">
+<h3>3. <strong>IPsec (Internet Protocol Security)</strong><a class="headerlink" href="#ipsec-internet-protocol-security" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：IPsec 是一组协议，用于在 IP 网络中保护数据的安全。它在网络层对数据进行加密和认证。</p></li>
+<li><p><strong>工作原理</strong>：IPsec 使用加密算法（如 AES）和认证方法（如 HMAC）来保护传输的数据。它可以在传输模式或隧道模式下工作。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>保护 VPN 连接：如站点到站点、远程访问 VPN。</p></li>
+<li><p>提供对敏感数据流量的保护，如企业内部通信。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：提供数据加密、身份验证、数据完整性保护和抗重放攻击。</p></li>
+</ul>
+</section>
+<section id="ssh-secure-shell">
+<h3>4. <strong>SSH (Secure Shell)</strong><a class="headerlink" href="#ssh-secure-shell" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：SSH 是一种加密网络协议，用于在不安全的网络中进行安全的远程登录和其他网络服务。</p></li>
+<li><p><strong>工作原理</strong>：SSH 使用公钥加密进行身份验证，并使用对称加密加密数据通信。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>远程管理：安全地访问和管理服务器。</p></li>
+<li><p>文件传输：通过 SFTP 或 SCP 协议传输文件。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：提供加密的远程命令行访问和文件传输，避免信息泄露和中间人攻击。</p></li>
+</ul>
+</section>
+<section id="dnssec-domain-name-system-security-extensions">
+<h3>5. <strong>DNSSEC (Domain Name System Security Extensions)</strong><a class="headerlink" href="#dnssec-domain-name-system-security-extensions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：DNSSEC 是 DNS（域名系统）的安全扩展，用于保护 DNS 查询和响应的完整性，防止 DNS 篡改和伪造。</p></li>
+<li><p><strong>工作原理</strong>：DNSSEC 通过为 DNS 数据签名来确保数据的来源可靠，并防止篡改。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>防止 DNS 欺骗攻击和缓存投毒攻击。</p></li>
+<li><p>提供域名解析过程中的数据完整性验证。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：确保用户访问的 Web 网站是真实的，而不是被恶意篡改的。</p></li>
+</ul>
+</section>
+<section id="s-mime-secure-multipurpose-internet-mail-extensions">
+<h3>6. <strong>S/MIME (Secure/Multipurpose Internet Mail Extensions)</strong><a class="headerlink" href="#s-mime-secure-multipurpose-internet-mail-extensions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：S/MIME 是一种标准，用于电子邮件加密和签名。它为电子邮件提供端到端加密和身份验证。</p></li>
+<li><p><strong>工作原理</strong>：S/MIME 使用公钥加密技术对电子邮件进行加密，邮件内容对未授权的用户不可读。同时，S/MIME 还支持数字签名，确保邮件来源的真实性。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>保护电子邮件的内容免受窥探。</p></li>
+<li><p>提供电子邮件身份验证，防止伪造。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：保护电子邮件隐私和防止邮件篡改。</p></li>
+</ul>
+</section>
+<section id="hsts-http-strict-transport-security">
+<h3>7. <strong>HSTS (HTTP Strict Transport Security)</strong><a class="headerlink" href="#hsts-http-strict-transport-security" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：HSTS 是一种 Web 安全策略机制，旨在通过强制客户端（浏览器）使用 HTTPS 访问网站，防止中间人攻击（MITM）和协议降级攻击。</p></li>
+<li><p><strong>工作原理</strong>：服务器通过发送带有 HSTS 头的 HTTP 响应告知浏览器强制使用 HTTPS。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>确保用户访问网站时总是通过 HTTPS 加密连接，防止用户无意中访问到不安全的 HTTP 网站。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：增强网站的安全性，防止中间人攻击。</p></li>
+</ul>
+</section>
+<section id="content-security-policy-csp">
+<h3>8. <strong>Content Security Policy (CSP)</strong><a class="headerlink" href="#content-security-policy-csp" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>概述</strong>：CSP 是一种 Web 安全策略，用于防止跨站脚本攻击（XSS）和数据注入攻击。</p></li>
+<li><p><strong>工作原理</strong>：CSP 通过在 HTTP 响应头中发送安全指令，限制浏览器加载和执行资源的来源。</p></li>
+<li><p><strong>用途</strong>：</p>
+<ul>
+<li><p>防止恶意脚本和不安全的资源加载。</p></li>
+<li><p>提供保护，防止 XSS 攻击。</p></li>
+</ul>
+</li>
+<li><p><strong>重要性</strong>：通过定义允许加载的资源来限制潜在的攻击面，从而提高 Web 应用程序的安全性。</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="2. Protocol" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="oauth2.html" class="btn btn-neutral float-right" title="oAuth2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

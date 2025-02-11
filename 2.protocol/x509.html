@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X.509 Certificate &mdash; Security Handbook 1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="WIMSE (Workload Identity in Multi-System Environments)" href="wimse.html" />
+    <link rel="prev" title="SPIFFE" href="spifee.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1.basic/index.html">1. Basic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">2. Protocol</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="oauth2.html">oAuth2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jwt.html">JWT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="open_id.html">OIDC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spifee.html">SPIFFE</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">X.509 Certificate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#x-509"><strong>X.509 证书的结构</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#version"><strong>1. 版本 (Version)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#serial-number"><strong>2. 序列号 (Serial Number)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#signature-algorithm"><strong>3. 签名算法 (Signature Algorithm)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#issuer"><strong>4. 颁发者 (Issuer)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validity"><strong>5. 有效期 (Validity)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subject"><strong>6. 使用者 (Subject)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subject-public-key-info"><strong>7. 使用者公钥 (Subject Public Key Info)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extensions"><strong>8. 扩展字段 (Extensions)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#signature"><strong>9. 签名 (Signature)</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id1"><strong>X.509 证书的签发过程</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2"><strong>X.509 证书的验证过程</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3"><strong>可视化理解 X.509 证书</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4"><strong>树形结构</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="wimse.html">WIMSE (Workload Identity in Multi-System Environments)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html">WIT (Workload Identity Token)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html#wimse-wit"><strong>WIMSE 和 WIT 的关系</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html#id5"><strong>总结</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../3.library/index.html">2. Framework and Library</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">2. Protocol</a></li>
+      <li class="breadcrumb-item active">X.509 Certificate</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/2.protocol/x509.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="x-509-certificate">
+<h1>X.509 Certificate<a class="headerlink" href="#x-509-certificate" title="Link to this heading"></a></h1>
+<p>X.509 是一种通用的数字证书标准，广泛用于 TLS/SSL 协议、数字签名、加密通信等场景。它定义了数字证书的格式和验证方法。</p>
+<hr class="docutils" />
+<section id="x-509">
+<h2><strong>X.509 证书的结构</strong><a class="headerlink" href="#x-509" title="Link to this heading"></a></h2>
+<p>一个 X.509 证书的核心内容包含以下部分：</p>
+<section id="version">
+<h3><strong>1. 版本 (Version)</strong><a class="headerlink" href="#version" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>指明证书使用的 X.509 标准版本（通常为 v3）。</p></li>
+<li><p>当前广泛使用的是 v3，支持扩展字段。</p></li>
+</ul>
+</section>
+<section id="serial-number">
+<h3><strong>2. 序列号 (Serial Number)</strong><a class="headerlink" href="#serial-number" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>证书颁发机构 (CA) 分配的唯一标识，用于区分不同的证书。</p></li>
+</ul>
+</section>
+<section id="signature-algorithm">
+<h3><strong>3. 签名算法 (Signature Algorithm)</strong><a class="headerlink" href="#signature-algorithm" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>表明证书签名使用的算法，如 <code class="docutils literal notranslate"><span class="pre">SHA256-RSA</span></code>。</p></li>
+<li><p>此字段同时指示如何验证证书的合法性。</p></li>
+</ul>
+</section>
+<section id="issuer">
+<h3><strong>4. 颁发者 (Issuer)</strong><a class="headerlink" href="#issuer" title="Link to this heading"></a></h3>
+<ul>
+<li><p>表示签发此证书的证书颁发机构 (CA) 的信息（如国家、机构名等）。</p></li>
+<li><p>这是一个 X.500 格式的名称，如：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="o">=</span><span class="n">CN</span><span class="p">,</span> <span class="n">O</span><span class="o">=</span><span class="n">Example</span> <span class="n">CA</span><span class="p">,</span> <span class="n">CN</span><span class="o">=</span><span class="n">Example</span> <span class="n">Root</span> <span class="n">CA</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="validity">
+<h3><strong>5. 有效期 (Validity)</strong><a class="headerlink" href="#validity" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>包括两个字段：</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Not</span> <span class="pre">Before</span></code>: 证书开始生效的时间。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Not</span> <span class="pre">After</span></code>: 证书到期的时间。</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="subject">
+<h3><strong>6. 使用者 (Subject)</strong><a class="headerlink" href="#subject" title="Link to this heading"></a></h3>
+<ul>
+<li><p>表示此证书的持有者（如域名、组织名称等）。</p></li>
+<li><p>格式与 <code class="docutils literal notranslate"><span class="pre">Issuer</span></code> 类似，例如：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="o">=</span><span class="n">CN</span><span class="p">,</span> <span class="n">O</span><span class="o">=</span><span class="n">Example</span> <span class="n">Organization</span><span class="p">,</span> <span class="n">CN</span><span class="o">=</span><span class="n">www</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="subject-public-key-info">
+<h3><strong>7. 使用者公钥 (Subject Public Key Info)</strong><a class="headerlink" href="#subject-public-key-info" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>包含公钥的类型（如 RSA、ECDSA）和公钥数据。</p></li>
+<li><p>用于加密和签名验证。</p></li>
+</ul>
+</section>
+<section id="extensions">
+<h3><strong>8. 扩展字段 (Extensions)</strong><a class="headerlink" href="#extensions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>提供额外的功能和信息（v3 特有）。</p>
+<ul>
+<li><p><strong>Key Usage</strong>: 指明证书用途（如数字签名、密钥加密）。</p></li>
+<li><p><strong>Extended Key Usage (EKU)</strong>: 指明更具体的用途（如 HTTPS 服务器、代码签名）。</p></li>
+<li><p><strong>Subject Alternative Name (SAN)</strong>: 支持多个域名或 IP 地址。</p></li>
+<li><p><strong>CRL Distribution Points</strong>: 指定证书吊销列表 (CRL) 的 URL。</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="signature">
+<h3><strong>9. 签名 (Signature)</strong><a class="headerlink" href="#signature" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>由 CA 使用其私钥对上述内容签名，确保数据完整性和来源可信性。</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id1">
+<h2><strong>X.509 证书的签发过程</strong><a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>申请者生成密钥对 (Key Pair Generation)</strong></p>
+<ul class="simple">
+<li><p>用户生成一对密钥（公钥和私钥）。</p></li>
+<li><p>公钥会包含在证书中，私钥由用户自行保管。</p></li>
+</ul>
+</li>
+<li><p><strong>提交 CSR (Certificate Signing Request)</strong></p>
+<ul class="simple">
+<li><p>用户创建一个证书签名请求 (CSR)，包含以下信息：</p>
+<ul>
+<li><p>公钥</p></li>
+<li><p>使用者信息（如域名、组织）</p></li>
+<li><p>签名（由用户私钥签名）</p></li>
+</ul>
+</li>
+<li><p>CSR 提交给证书颁发机构 (CA)。</p></li>
+</ul>
+</li>
+<li><p><strong>CA 验证申请者身份</strong></p>
+<ul class="simple">
+<li><p>CA 验证用户提供的信息是否属实（如验证域名的所有权）。</p></li>
+</ul>
+</li>
+<li><p><strong>签发证书</strong></p>
+<ul class="simple">
+<li><p>CA 生成证书，包含申请者的公钥及其他信息。</p></li>
+<li><p>使用 CA 的私钥对证书内容签名。</p></li>
+</ul>
+</li>
+<li><p><strong>分发证书</strong></p>
+<ul class="simple">
+<li><p>签发后的证书交给用户，用于安全通信或身份验证。</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="id2">
+<h2><strong>X.509 证书的验证过程</strong><a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>验证证书链 (Certificate Chain)</strong></p>
+<ul class="simple">
+<li><p>检查证书是否由可信的根 CA 或中间 CA 签发。</p></li>
+<li><p>验证链条中的所有证书都有效且未过期。</p></li>
+</ul>
+</li>
+<li><p><strong>验证签名</strong></p>
+<ul class="simple">
+<li><p>使用颁发者（Issuer）字段对应 CA 的公钥，验证签名字段。</p></li>
+<li><p>确保证书内容未被篡改。</p></li>
+</ul>
+</li>
+<li><p><strong>检查有效期</strong></p>
+<ul class="simple">
+<li><p>确保证书的当前时间在有效期范围内。</p></li>
+</ul>
+</li>
+<li><p><strong>检查吊销状态</strong></p>
+<ul class="simple">
+<li><p>查询 CRL 或 OCSP，看证书是否被吊销。</p></li>
+</ul>
+</li>
+<li><p><strong>验证扩展字段</strong></p>
+<ul class="simple">
+<li><p>检查扩展字段是否符合期望用途（如服务器证书必须包含 <code class="docutils literal notranslate"><span class="pre">Extended</span> <span class="pre">Key</span> <span class="pre">Usage</span></code> 的 TLS 标记）。</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="id3">
+<h2><strong>可视化理解 X.509 证书</strong><a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="id4">
+<h3><strong>树形结构</strong><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>X.509 Certificate
+├── Version: v3
+├── Serial Number: 123456789
+├── Signature Algorithm: SHA256-RSA
+├── Issuer: C=CN, O=Example CA, CN=Root CA
+├── Validity
+│   ├── Not Before: 2025-01-01
+│   ├── Not After:  2026-01-01
+├── Subject: C=CN, O=Example Org, CN=www.example.com
+├── Public Key Info
+│   ├── Algorithm: RSA
+│   ├── Public Key: &lt;Key Data&gt;
+├── Extensions
+│   ├── Key Usage: Digital Signature, Key Encipherment
+│   ├── Subject Alternative Name: www.example.com, example.com
+│   ├── CRL Distribution Points: http://crl.example.com
+└── Signature: &lt;Signature Data&gt;
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spifee.html" class="btn btn-neutral float-left" title="SPIFFE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="wimse.html" class="btn btn-neutral float-right" title="WIMSE (Workload Identity in Multi-System Environments)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

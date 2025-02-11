@@ -1,0 +1,226 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OIDC &mdash; Security Handbook 1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SPIFFE" href="spifee.html" />
+    <link rel="prev" title="JWT" href="jwt.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1.basic/index.html">1. Basic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">2. Protocol</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="oauth2.html">oAuth2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jwt.html">JWT</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">OIDC</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#openid-connect">OpenID Connect的核心概念</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">OpenID Connect的认证流程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">OpenID Connect的安全性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openid-connectoauth-2-0">OpenID Connect与OAuth 2.0的关系</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spifee.html">SPIFFE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="x509.html">X.509 Certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wimse.html">WIMSE (Workload Identity in Multi-System Environments)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html">WIT (Workload Identity Token)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html#wimse-wit"><strong>WIMSE 和 WIT 的关系</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="wit.html#id5"><strong>总结</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../3.library/index.html">2. Framework and Library</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">2. Protocol</a></li>
+      <li class="breadcrumb-item active">OIDC</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/2.protocol/open_id.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oidc">
+<h1>OIDC<a class="headerlink" href="#oidc" title="Link to this heading"></a></h1>
+<p>OpenID Connect（OIDC）是一个基于OAuth 2.0协议的身份认证协议，它允许客户端应用程序通过第三方身份提供者（Identity Provider, IdP）验证用户身份并获取用户的基本信息。OpenID Connect建立在OAuth 2.0的授权框架之上，但它专注于身份认证，而OAuth 2.0主要用于授权。</p>
+<section id="openid-connect">
+<h2>OpenID Connect的核心概念<a class="headerlink" href="#openid-connect" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>身份提供者（Identity Provider, IdP）</strong>：负责验证用户身份的服务。常见的IdP有Google、Facebook、GitHub等。</p></li>
+<li><p><strong>客户端（Client）</strong>：想要验证用户身份的应用程序，通常是Web应用、移动应用或桌面应用。</p></li>
+<li><p><strong>授权服务器（Authorization Server）</strong>：通常与身份提供者相同，负责验证用户身份、颁发令牌（Token）等。</p></li>
+<li><p><strong>资源所有者（Resource Owner）</strong>：通常是应用程序的用户，身份验证过程的参与者。</p></li>
+<li><p><strong>令牌（Token）</strong>：</p>
+<ul class="simple">
+<li><p><strong>ID Token</strong>：身份令牌，包含用户身份信息，客户端通过它来确认用户的身份。它是JWT（JSON Web Token）格式。</p></li>
+<li><p><strong>Access Token</strong>：授权令牌，用于访问受保护资源（通常是API）。虽然它可以携带用户信息，但它的主要作用是授权。</p></li>
+<li><p><strong>Refresh Token</strong>：刷新令牌，用于获取新的Access Token和ID Token。</p></li>
+</ul>
+</li>
+<li><p><strong>端点（Endpoints）</strong>：</p>
+<ul class="simple">
+<li><p><strong>Authorization Endpoint</strong>：用于启动认证过程，用户通过该端点进行登录。</p></li>
+<li><p><strong>Token Endpoint</strong>：用于获取Access Token、ID Token和Refresh Token。</p></li>
+<li><p><strong>UserInfo Endpoint</strong>：用于获取用户的基本信息。</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="id1">
+<h2>OpenID Connect的认证流程<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>用户访问客户端应用</strong>：</p>
+<ul class="simple">
+<li><p>用户访问客户端应用程序，它会重定向用户到身份提供者的授权端点（Authorization Endpoint）。</p></li>
+</ul>
+</li>
+<li><p><strong>用户登录</strong>：</p>
+<ul class="simple">
+<li><p>用户在身份提供者的页面上输入用户名和密码进行登录。</p></li>
+</ul>
+</li>
+<li><p><strong>授权码交换</strong>：</p>
+<ul class="simple">
+<li><p>身份提供者验证用户身份后，将用户重定向回客户端，并在URL中附加一个授权码（Authorization Code）。</p></li>
+<li><p>客户端应用使用这个授权码向身份提供者的令牌端点（Token Endpoint）发送请求，以获取Access Token和ID Token。</p></li>
+</ul>
+</li>
+<li><p><strong>获取令牌</strong>：</p>
+<ul class="simple">
+<li><p>客户端从令牌端点获取Access Token、ID Token和可能的Refresh Token。</p></li>
+<li><p>ID Token是JWT格式的，它包含了用户的身份信息（如用户名、电子邮件等）。</p></li>
+</ul>
+</li>
+<li><p><strong>访问用户信息</strong>：</p>
+<ul class="simple">
+<li><p>客户端可以通过UserInfo Endpoint使用Access Token来获取用户的更多信息。</p></li>
+</ul>
+</li>
+<li><p><strong>刷新令牌</strong>（可选）：</p>
+<ul class="simple">
+<li><p>如果Access Token过期，客户端可以使用Refresh Token来请求新的Access Token和ID Token。</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="id2">
+<h2>OpenID Connect的安全性<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>JWT</strong>：OpenID Connect使用JWT格式的ID Token，这是一种自包含的令牌格式，它通过数字签名确保数据的完整性和来源的可靠性。</p></li>
+<li><p><strong>PKCE（Proof Key for Code Exchange）</strong>：为了防止授权码拦截攻击，OpenID Connect使用PKCE。它要求客户端在发送授权请求时生成一个“code verifier”，并将其与“code challenge”一起发送到授权服务器。授权服务器在授权码交换时验证该代码，确保请求来自合法客户端。</p></li>
+<li><p><strong>Scopes</strong>：OIDC通过使用“scope”参数来指定客户端希望请求的权限。例如，<code class="docutils literal notranslate"><span class="pre">openid</span></code>是一个基本的scope，用于指示这是一个身份验证请求，而<code class="docutils literal notranslate"><span class="pre">profile</span></code>和<code class="docutils literal notranslate"><span class="pre">email</span></code>则表示客户端希望访问用户的个人资料和电子邮件信息。</p></li>
+</ul>
+</section>
+<section id="openid-connectoauth-2-0">
+<h2>OpenID Connect与OAuth 2.0的关系<a class="headerlink" href="#openid-connectoauth-2-0" title="Link to this heading"></a></h2>
+<p>OpenID Connect是OAuth 2.0的扩展，OAuth 2.0主要解决授权问题，而OpenID Connect在此基础上加入了身份认证的功能。OAuth 2.0提供了一个框架来获取令牌，而OpenID Connect则定义了如何用这些令牌来认证用户身份。</p>
+<p>总结来说，OpenID Connect为Web应用和移动应用提供了一种安全的方式来认证用户身份，同时也通过JWT等机制确保数据的安全性和可靠性。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="jwt.html" class="btn btn-neutral float-left" title="JWT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="spifee.html" class="btn btn-neutral float-right" title="SPIFFE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>
