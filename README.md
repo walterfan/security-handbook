@@ -1,6 +1,7 @@
 # Network Security Handbook
 
-[中文版](/README_cn.md) | [English Version](./README.md)
+* [中文版](/README_cn.md) | [English Version](./README.md)
+* The published version: [Security Handbook](https://walterfan.github.io/security-handbook)
 
 ## Features
 ### Basic Features

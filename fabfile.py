@@ -51,7 +51,11 @@ def make_note(c):
 
 @task(hosts=default_hosts)
 def publish_note(c):
-    c.local("cd doc && touch ./build/html/.nojekyll")
-    c.local("git add doc")
+    c.local("touch ./doc/build/html/.nojekyll")
+    c.local("git add -f doc/build/html")
     c.local('git commit -m "update notes"')
     c.local("git subtree push --prefix doc/build/html origin gh-pages")
+
+@task(hosts=default_hosts)
+def publish_note_force(c):
+    c.local("git push origin `git subtree split --prefix doc/build/html master`:gh-pages --force")
