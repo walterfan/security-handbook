@@ -13,3 +13,6 @@
    open_id
    spifee
    x509
+
+   wimse
+   wit
