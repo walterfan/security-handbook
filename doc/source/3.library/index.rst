@@ -8,7 +8,4 @@
    :caption: Contents:
 
    overview
-   gradle
-   spring_ai
-   automation
-   ansible
+   spring_security

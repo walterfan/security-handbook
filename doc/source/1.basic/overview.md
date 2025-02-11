@@ -105,7 +105,7 @@ The product’s ability to effectively detect and block malware.
 
 ## OWASP TOP 10
 
-![owasp-top-10](./doc/owasp-top-10.png)
+![owasp-top-10](owasp-top-10.png)
 
 1. A01:2021-Broken Access Control
 

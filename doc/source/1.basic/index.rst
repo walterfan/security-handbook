@@ -9,8 +9,9 @@
 
    overview
    network_security
-
+   iam
    stride
-   thread_modelling
-
+   threat_modelling
+   secrets_manage
+   
    medical_software_cybersecurity

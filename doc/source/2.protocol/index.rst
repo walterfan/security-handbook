@@ -11,3 +11,5 @@
    oauth2
    jwt
    open_id
+   spifee
+   x509

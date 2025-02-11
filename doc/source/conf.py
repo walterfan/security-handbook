@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Java 江湖生存手册'
+project = 'Security Handbook'
 copyright = '2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License'
 author = 'Walter Fan'
 
@@ -34,7 +34,7 @@ release = '1'
 
 # refer to https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
 extensions = ['sphinx.ext.graphviz', 
-'myst_parser', 
+'myst_parser',
 'sphinx_design', 
 'sphinx_togglebutton', 
 'sphinxcontrib.mermaid',
@@ -44,7 +44,7 @@ extensions = ['sphinx.ext.graphviz',
 plantuml = 'java -jar /usr/local/bin/plantuml.jar'
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-
+myst_enable_extensions = ["colon_fence"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
