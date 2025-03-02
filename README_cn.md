@@ -164,10 +164,12 @@ Damn Vulnerable Web Application (DVWA) 是一个极度脆弱的 PHP/MySQL Web �
 * Authentication 认证要求
 
   - 用户是不是通过认证的合法用户？
+  - 用户通过提供用户名密码, 或者可验证的 JWT 令牌等类型的凭据声明自己的身份, 认证就是这样一个验证过程
 
 * Authorization 授权要求
 
  - 用户是不是经过授权的合法用户, 所访问的模块是在其权限范围之内的？
+ - 向用户授予资源访问权限的过程
 
 * Audit 可审查和追溯要求
 
@@ -200,3 +202,5 @@ Damn Vulnerable Web Application (DVWA) 是一个极度脆弱的 PHP/MySQL Web �
 * [关于车辆网络安全审批及网络安全管理系统的统一规定](./refer/R155e.pdf)
 * [GB/T 34943-2017 C++语言源代码漏洞测试规范](https://www.doc88.com/p-19229466192168.html)
 * [GJB 8114-2013 C/C++语言编程安全子集](https://www.doc88.com/p-5631604036983.html)
+
+

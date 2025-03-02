@@ -30,6 +30,8 @@ Security Handbook
    1.basic/index
    2.protocol/index
    3.library/index
+   4.threat/index
+   5.faq/index
 
 
 Indices and tables
