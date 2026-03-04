@@ -1,0 +1,130 @@
+# Envoy Sidecar Configuration (ch24: Service Mesh Security)
+#
+# Envoy acts as a sidecar proxy for each service:
+#   - Terminates mTLS (using SPIFFE SVIDs from SDS)
+#   - Enforces authorization policies (via ext_authz to OPA)
+#   - Provides observability (access logs, metrics)
+#
+# In production, use Istio or a service mesh control plane
+# to manage Envoy configuration automatically.
+
+admin:
+  address:
+    socket_address:
+      address: 127.0.0.1
+      port_value: 9901
+
+static_resources:
+  listeners:
+    # ── Inbound Listener (mTLS termination) ─────────────
+    - name: inbound
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8443
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: inbound
+                codec_type: AUTO
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: local_service
+                      domains: ["*"]
+                      routes:
+                        - match:
+                            prefix: "/"
+                          route:
+                            cluster: local_service
+                http_filters:
+                  # External authorization via OPA (ch15)
+                  - name: envoy.filters.http.ext_authz
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      grpc_service:
+                        envoy_grpc:
+                          cluster_name: opa_authz
+                        timeout: 1s
+                      failure_mode_allow: false  # Fail-closed (ch23)
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+          # mTLS configuration using SPIFFE SDS (ch19, ch24)
+          transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              require_client_certificate: true
+              common_tls_params:
+                tls_minimum_protocol_version: TLSv1_3
+                tls_certificate_sds_secret_configs:
+                  - name: "spiffe://mesh-guard"
+                    sds_config:
+                      api_config_source:
+                        api_type: GRPC
+                        grpc_services:
+                          - envoy_grpc:
+                              cluster_name: spire_agent
+                validation_context_sds_secret_config:
+                  name: "spiffe://mesh-guard"
+                  sds_config:
+                    api_config_source:
+                      api_type: GRPC
+                      grpc_services:
+                        - envoy_grpc:
+                            cluster_name: spire_agent
+
+  clusters:
+    # ── Local Service (the actual application) ──────────
+    - name: local_service
+      connect_timeout: 5s
+      type: STATIC
+      load_assignment:
+        cluster_name: local_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: 127.0.0.1
+                      port_value: 8080
+
+    # ── SPIRE Agent SDS (Secret Discovery Service) ──────
+    - name: spire_agent
+      connect_timeout: 5s
+      type: STATIC
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
+      load_assignment:
+        cluster_name: spire_agent
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    pipe:
+                      path: /tmp/spire-agent/public/api.sock
+
+    # ── OPA Authorization Service ───────────────────────
+    - name: opa_authz
+      connect_timeout: 5s
+      type: STATIC
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: {}
+      load_assignment:
+        cluster_name: opa_authz
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: 127.0.0.1
+                      port_value: 9191

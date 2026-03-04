@@ -1,0 +1,212 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "secret-detector",
+          "rules": [
+            {
+              "id": "SECRET-001",
+              "shortDescription": {
+                "text": "Potential API key"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SECRET-001",
+          "level": "error",
+          "message": {
+            "text": "Potential API key"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/app.py"
+                },
+                "region": {
+                  "startLine": 23,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SECRET-001",
+          "level": "error",
+          "message": {
+            "text": "Potential hardcoded secret"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/app.py"
+                },
+                "region": {
+                  "startLine": 24,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "trivy-config",
+          "rules": [
+            {
+              "id": "DS-0002",
+              "shortDescription": {
+                "text": "Image user should not be 'root'"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "DS-0005",
+              "shortDescription": {
+                "text": "ADD instead of COPY"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              }
+            },
+            {
+              "id": "DS-0026",
+              "shortDescription": {
+                "text": "No HEALTHCHECK defined"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "DS-0002",
+          "level": "error",
+          "message": {
+            "text": "Image user should not be 'root'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "Add 'USER <non root user name>' line to the Dockerfile"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DS-0005",
+          "level": "note",
+          "message": {
+            "text": "ADD instead of COPY"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "Use COPY instead of ADD"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DS-0005",
+          "level": "note",
+          "message": {
+            "text": "ADD instead of COPY"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "Use COPY instead of ADD"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DS-0026",
+          "level": "note",
+          "message": {
+            "text": "No HEALTHCHECK defined"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "Add HEALTHCHECK instruction in Dockerfile"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

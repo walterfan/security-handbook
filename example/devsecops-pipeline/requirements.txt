@@ -1,0 +1,9 @@
+# DevSecOps Pipeline dependencies
+bandit==1.8.3
+safety==3.2.14
+pip-audit==2.7.3
+semgrep==1.96.0
+detect-secrets==1.5.0
+pytest==8.3.4
+pydantic==2.10.5
+rich==13.9.4

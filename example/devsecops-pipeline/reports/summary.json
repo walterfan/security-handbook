@@ -1,0 +1,44 @@
+{
+  "pipeline": "devsecops-security-scan",
+  "started_at": "2026-03-04T04:31:54.450380+00:00",
+  "completed_at": "2026-03-04T04:32:15.462665+00:00",
+  "duration_seconds": 21.012338876724243,
+  "quality_gate": "PASSED",
+  "findings": {
+    "total": 6,
+    "critical": 0,
+    "high": 3,
+    "medium": 0,
+    "low": 3
+  },
+  "stages": [
+    {
+      "name": "sast",
+      "findings_count": 0,
+      "duration_seconds": 0.018131017684936523,
+      "skipped": false,
+      "error": null
+    },
+    {
+      "name": "sca",
+      "findings_count": 0,
+      "duration_seconds": 0.006243705749511719,
+      "skipped": false,
+      "error": null
+    },
+    {
+      "name": "secret-detection",
+      "findings_count": 2,
+      "duration_seconds": 0.002087116241455078,
+      "skipped": false,
+      "error": null
+    },
+    {
+      "name": "container-scan",
+      "findings_count": 4,
+      "duration_seconds": 20.984678745269775,
+      "skipped": false,
+      "error": null
+    }
+  ]
+}

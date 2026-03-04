@@ -44,7 +44,24 @@ extensions = ['sphinx.ext.graphviz',
 plantuml = 'java -jar /usr/local/bin/plantuml.jar'
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-myst_enable_extensions = ["colon_fence"]
+
+# MyST extensions for Markdown support
+myst_enable_extensions = [
+    "colon_fence",
+    "fieldlist",
+    "tasklist",
+]
+myst_fence_as_directive = ["mermaid"]
+
+# Mermaid configuration — use CDN (no local install needed)
+mermaid_version = "11"
+mermaid_init_js = """
+mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+});
+"""
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
