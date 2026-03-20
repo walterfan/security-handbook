@@ -89,7 +89,7 @@
    :maxdepth: 2
    :caption: 附录：专题笔记
 
-   1.basic/index
+   appendix/index
 
 
 Indices and tables

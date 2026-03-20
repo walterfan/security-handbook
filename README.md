@@ -77,7 +77,7 @@
 
 | 附录 | 标题 |
 |------|------|
-| 附录 | [医疗器械网络安全](doc/source/1.basic/medical_software_cybersecurity.md) |
+| 附录 | [医疗器械网络安全](doc/source/appendix/medical_software_cybersecurity.md) |
 
 ---
 
