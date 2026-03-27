@@ -4,7 +4,8 @@
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
 
+   appendix_practical_guide
    medical_software_cybersecurity
