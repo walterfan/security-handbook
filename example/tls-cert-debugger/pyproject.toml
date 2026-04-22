@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "tls-cert-debugger"
+version = "0.1.0"
+description = "A small toolkit for debugging TLS certificate chains and Python CA trust issues."
+authors = ["Walter Fan"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+requests = "^2.32.3"
+certifi = "^2025.1.31"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
