@@ -1,0 +1,1122 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第三章：PKI 与证书体系 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch03.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第四章：威胁建模与风险评估" href="ch04.html" />
+    <link rel="prev" title="第二章：密码学基础" href="ch02.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第三章：PKI 与证书体系</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">3.1 公钥基础设施（PKI）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">PKI 的核心组件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chain-of-trust">证书链（Chain of Trust）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#x-509">3.2 X.509 证书格式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">证书核心字段</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subject-alternative-name-san">Subject Alternative Name（SAN）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">3.3 证书生命周期</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">证书申请与签发</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ca">创建自签名 CA</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">3.4 证书吊销</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#crl-vs-ocsp-vs-ocsp-stapling">CRL vs OCSP vs OCSP Stapling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#let-s-encrypt-acme">3.5 Let’s Encrypt 与 ACME 协议</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#acme">ACME 验证流程</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mtls-tls">3.6 mTLS（双向 TLS）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mtls">mTLS 应用场景</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-mtls">Python mTLS 示例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ecc">3.7 使用 ECC 证书</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python">3.8 Python 证书操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">3.9 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第三章：PKI 与证书体系</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch03.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pki">
+<h1>第三章：PKI 与证书体系<a class="headerlink" href="#pki" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“在互联网上，没有人知道你是一条狗。但有了 PKI，至少可以证明你是哪条狗。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((PKI 与证书体系))
+    PKI 架构
+      CA
+      RA
+      证书链
+    X.509 证书
+      字段
+      扩展
+      SAN
+    证书生命周期
+      申请
+      签发
+      续期
+      吊销
+    实战
+      OpenSSL
+      Let's Encrypt
+      mTLS
+    </pre><section id="id1">
+<h2>3.1 公钥基础设施（PKI）<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>PKI（Public Key Infrastructure）是一套用于创建、管理、分发、使用、存储和撤销数字证书的系统。它解决了一个核心问题：<strong>如何信任一个公钥确实属于它声称的拥有者？</strong></p>
+<section id="id2">
+<h3>PKI 的核心组件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────────┐
+│                    PKI 架构                          │
+│                                                      │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────┐   │
+│  │  根 CA    │───▶│ 中间 CA  │───▶│  终端实体证书 │   │
+│  │(Root CA)  │    │(Sub CA)  │    │(End Entity)  │   │
+│  │ 离线保管  │    │ 在线签发  │    │ 服务器/客户端│   │
+│  └──────────┘    └──────────┘    └──────────────┘   │
+│       │                                              │
+│       ▼                                              │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────┐   │
+│  │  RA       │    │ CRL/OCSP │    │  证书存储库   │   │
+│  │(注册机构) │    │(吊销检查)│    │(Certificate  │   │
+│  │ 身份验证  │    │          │    │  Repository) │   │
+│  └──────────┘    └──────────┘    └──────────────┘   │
+└─────────────────────────────────────────────────────┘
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>职责</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CA（Certificate Authority）</p></td>
+<td><p>签发和管理证书</p></td>
+<td><p>信任的锚点</p></td>
+</tr>
+<tr class="row-odd"><td><p>RA（Registration Authority）</p></td>
+<td><p>验证申请者身份</p></td>
+<td><p>CA 的代理</p></td>
+</tr>
+<tr class="row-even"><td><p>证书存储库</p></td>
+<td><p>存储和分发证书</p></td>
+<td><p>LDAP、HTTP</p></td>
+</tr>
+<tr class="row-odd"><td><p>CRL/OCSP</p></td>
+<td><p>证书吊销状态查询</p></td>
+<td><p>实时验证证书有效性</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="chain-of-trust">
+<h3>证书链（Chain of Trust）<a class="headerlink" href="#chain-of-trust" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────┐
+│   根 CA 证书     │  ← 自签名，预装在操作系统/浏览器中
+│  (Root CA Cert)  │
+└────────┬────────┘
+         │ 签发
+         ▼
+┌─────────────────┐
+│  中间 CA 证书    │  ← 由根 CA 签发
+│ (Intermediate)   │
+└────────┬────────┘
+         │ 签发
+         ▼
+┌─────────────────┐
+│  服务器证书      │  ← 由中间 CA 签发
+│ (Server Cert)    │     包含服务器的公钥
+└─────────────────┘
+
+验证过程（从下往上）：
+1. 客户端收到服务器证书
+2. 用中间 CA 的公钥验证服务器证书的签名
+3. 用根 CA 的公钥验证中间 CA 证书的签名
+4. 根 CA 在本地信任库中 → 信任链建立 ✅
+</pre></div>
+</div>
+</section>
+</section>
+<section id="x-509">
+<h2>3.2 X.509 证书格式<a class="headerlink" href="#x-509" title="Link to this heading"></a></h2>
+<p>X.509 是最广泛使用的数字证书标准（ITU-T X.509 / RFC 5280）。</p>
+<section id="id3">
+<h3>证书核心字段<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Certificate</span><span class="p">:</span>
+    <span class="n">Data</span><span class="p">:</span>
+        <span class="n">Version</span><span class="p">:</span> <span class="mi">3</span> <span class="p">(</span><span class="mh">0x2</span><span class="p">)</span>
+        <span class="n">Serial</span> <span class="n">Number</span><span class="p">:</span> <span class="mi">04</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">01</span><span class="p">:</span><span class="mi">15</span><span class="p">:</span><span class="mi">4</span><span class="n">b</span><span class="p">:</span><span class="mi">5</span><span class="n">a</span><span class="p">:</span><span class="n">c3</span><span class="p">:</span><span class="mi">94</span>
+        <span class="n">Signature</span> <span class="n">Algorithm</span><span class="p">:</span> <span class="n">sha256WithRSAEncryption</span>
+        <span class="n">Issuer</span><span class="p">:</span> <span class="n">C</span><span class="o">=</span><span class="n">US</span><span class="p">,</span> <span class="n">O</span><span class="o">=</span><span class="n">Let</span><span class="s1">&#39;s Encrypt, CN=R3</span>
+        <span class="n">Validity</span><span class="p">:</span>
+            <span class="n">Not</span> <span class="n">Before</span><span class="p">:</span> <span class="n">Jan</span>  <span class="mi">1</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2024</span> <span class="n">GMT</span>
+            <span class="n">Not</span> <span class="n">After</span> <span class="p">:</span> <span class="n">Apr</span>  <span class="mi">1</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2024</span> <span class="n">GMT</span>
+        <span class="n">Subject</span><span class="p">:</span> <span class="n">CN</span><span class="o">=</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+        <span class="n">Subject</span> <span class="n">Public</span> <span class="n">Key</span> <span class="n">Info</span><span class="p">:</span>
+            <span class="n">Public</span> <span class="n">Key</span> <span class="n">Algorithm</span><span class="p">:</span> <span class="n">rsaEncryption</span>
+            <span class="n">RSA</span> <span class="n">Public</span><span class="o">-</span><span class="n">Key</span><span class="p">:</span> <span class="p">(</span><span class="mi">2048</span> <span class="n">bit</span><span class="p">)</span>
+        <span class="n">X509v3</span> <span class="n">extensions</span><span class="p">:</span>
+            <span class="n">X509v3</span> <span class="n">Subject</span> <span class="n">Alternative</span> <span class="n">Name</span><span class="p">:</span>
+                <span class="n">DNS</span><span class="p">:</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="p">,</span> <span class="n">DNS</span><span class="p">:</span><span class="o">*.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+            <span class="n">X509v3</span> <span class="n">Key</span> <span class="n">Usage</span><span class="p">:</span> <span class="n">critical</span>
+                <span class="n">Digital</span> <span class="n">Signature</span><span class="p">,</span> <span class="n">Key</span> <span class="n">Encipherment</span>
+            <span class="n">X509v3</span> <span class="n">Extended</span> <span class="n">Key</span> <span class="n">Usage</span><span class="p">:</span>
+                <span class="n">TLS</span> <span class="n">Web</span> <span class="n">Server</span> <span class="n">Authentication</span>
+            <span class="n">X509v3</span> <span class="n">Basic</span> <span class="n">Constraints</span><span class="p">:</span> <span class="n">critical</span>
+                <span class="n">CA</span><span class="p">:</span><span class="n">FALSE</span>
+            <span class="n">Authority</span> <span class="n">Information</span> <span class="n">Access</span><span class="p">:</span>
+                <span class="n">OCSP</span> <span class="o">-</span> <span class="n">URI</span><span class="p">:</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">r3</span><span class="o">.</span><span class="n">o</span><span class="o">.</span><span class="n">lencr</span><span class="o">.</span><span class="n">org</span>
+                <span class="n">CA</span> <span class="n">Issuers</span> <span class="o">-</span> <span class="n">URI</span><span class="p">:</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">r3</span><span class="o">.</span><span class="n">i</span><span class="o">.</span><span class="n">lencr</span><span class="o">.</span><span class="n">org</span><span class="o">/</span>
+    <span class="n">Signature</span> <span class="n">Algorithm</span><span class="p">:</span> <span class="n">sha256WithRSAEncryption</span>
+        <span class="p">[</span><span class="n">签名数据</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="subject-alternative-name-san">
+<h3>Subject Alternative Name（SAN）<a class="headerlink" href="#subject-alternative-name-san" title="Link to this heading"></a></h3>
+<p>SAN 扩展允许一个证书绑定多个身份：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X509v3</span> <span class="n">Subject</span> <span class="n">Alternative</span> <span class="n">Name</span><span class="p">:</span>
+    <span class="n">DNS</span><span class="p">:</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>          <span class="c1"># 域名</span>
+    <span class="n">DNS</span><span class="p">:</span><span class="o">*.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>        <span class="c1"># 通配符域名</span>
+    <span class="n">IP</span> <span class="n">Address</span><span class="p">:</span><span class="mf">192.168.1.1</span>   <span class="c1"># IP 地址</span>
+    <span class="n">URI</span><span class="p">:</span><span class="n">spiffe</span><span class="p">:</span><span class="o">//</span><span class="n">example</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">web</span><span class="o">-</span><span class="n">server</span>  <span class="c1"># SPIFFE ID</span>
+    <span class="n">email</span><span class="p">:</span><span class="n">admin</span><span class="nd">@example</span><span class="o">.</span><span class="n">com</span>  <span class="c1"># 邮箱</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id4">
+<h2>3.3 证书生命周期<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="id5">
+<h3>证书申请与签发<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. 生成私钥</span>
+openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>RSA<span class="w"> </span>-out<span class="w"> </span>server.key<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_keygen_bits:2048
+
+<span class="c1"># 2. 生成证书签名请求（CSR）</span>
+openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>server.key<span class="w"> </span>-out<span class="w"> </span>server.csr<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-subj<span class="w"> </span><span class="s2">&quot;/C=CN/ST=Anhui/L=Hefei/O=MyOrg/CN=example.com&quot;</span>
+
+<span class="c1"># 3. 查看 CSR 内容</span>
+openssl<span class="w"> </span>req<span class="w"> </span>-in<span class="w"> </span>server.csr<span class="w"> </span>-text<span class="w"> </span>-noout
+
+<span class="c1"># 4. CA 签发证书（使用 CA 的私钥和证书）</span>
+openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>server.csr<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span>-CAcreateserial<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-out<span class="w"> </span>server.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">365</span><span class="w"> </span>-sha256<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-extfile<span class="w"> </span>&lt;<span class="o">(</span>cat<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">subjectAltName = DNS:example.com, DNS:*.example.com</span>
+<span class="s">keyUsage = digitalSignature, keyEncipherment</span>
+<span class="s">extendedKeyUsage = serverAuth</span>
+<span class="s">EOF</span>
+<span class="o">)</span>
+
+<span class="c1"># 5. 验证证书</span>
+openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span>server.crt<span class="w"> </span>-text<span class="w"> </span>-noout
+openssl<span class="w"> </span>verify<span class="w"> </span>-CAfile<span class="w"> </span>ca.crt<span class="w"> </span>server.crt
+</pre></div>
+</div>
+</section>
+<section id="ca">
+<h3>创建自签名 CA<a class="headerlink" href="#ca" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 创建根 CA 私钥</span>
+openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>RSA<span class="w"> </span>-out<span class="w"> </span>ca.key<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_keygen_bits:4096
+
+<span class="c1"># 创建根 CA 自签名证书</span>
+openssl<span class="w"> </span>req<span class="w"> </span>-x509<span class="w"> </span>-new<span class="w"> </span>-nodes<span class="w"> </span>-key<span class="w"> </span>ca.key<span class="w"> </span>-sha256<span class="w"> </span>-days<span class="w"> </span><span class="m">3650</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-out<span class="w"> </span>ca.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-subj<span class="w"> </span><span class="s2">&quot;/C=CN/O=My Root CA/CN=My Root CA&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-addext<span class="w"> </span><span class="s2">&quot;basicConstraints=critical,CA:TRUE&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-addext<span class="w"> </span><span class="s2">&quot;keyUsage=critical,keyCertSign,cRLSign&quot;</span>
+
+<span class="c1"># 创建中间 CA</span>
+openssl<span class="w"> </span>genpkey<span class="w"> </span>-algorithm<span class="w"> </span>RSA<span class="w"> </span>-out<span class="w"> </span>intermediate.key<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_keygen_bits:2048
+openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>intermediate.key<span class="w"> </span>-out<span class="w"> </span>intermediate.csr<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-subj<span class="w"> </span><span class="s2">&quot;/C=CN/O=My Root CA/CN=My Intermediate CA&quot;</span>
+openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>intermediate.csr<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span>-CAcreateserial<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-out<span class="w"> </span>intermediate.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">1825</span><span class="w"> </span>-sha256<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-extfile<span class="w"> </span>&lt;<span class="o">(</span>cat<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">basicConstraints = critical, CA:TRUE, pathlen:0</span>
+<span class="s">keyUsage = critical, keyCertSign, cRLSign</span>
+<span class="s">EOF</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>3.4 证书吊销<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>当私钥泄露或证书信息变更时，需要吊销证书。</p>
+<section id="crl-vs-ocsp-vs-ocsp-stapling">
+<h3>CRL vs OCSP vs OCSP Stapling<a class="headerlink" href="#crl-vs-ocsp-vs-ocsp-stapling" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>方式</p></th>
+<th class="head"><p>原理</p></th>
+<th class="head"><p>优点</p></th>
+<th class="head"><p>缺点</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CRL</p></td>
+<td><p>CA 定期发布吊销列表</p></td>
+<td><p>简单</p></td>
+<td><p>列表可能很大，更新不及时</p></td>
+</tr>
+<tr class="row-odd"><td><p>OCSP</p></td>
+<td><p>实时查询证书状态</p></td>
+<td><p>实时</p></td>
+<td><p>隐私问题（CA 知道你访问了谁）</p></td>
+</tr>
+<tr class="row-even"><td><p>OCSP Stapling</p></td>
+<td><p>服务器预取 OCSP 响应</p></td>
+<td><p>实时 + 隐私</p></td>
+<td><p>需要服务器支持</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 查询 OCSP 状态</span>
+openssl<span class="w"> </span>ocsp<span class="w"> </span>-issuer<span class="w"> </span>intermediate.crt<span class="w"> </span>-cert<span class="w"> </span>server.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-url<span class="w"> </span>http://ocsp.example.com<span class="w"> </span>-resp_text
+
+<span class="c1"># Nginx 配置 OCSP Stapling</span>
+<span class="c1"># server {</span>
+<span class="c1">#     ssl_stapling on;</span>
+<span class="c1">#     ssl_stapling_verify on;</span>
+<span class="c1">#     ssl_trusted_certificate /path/to/chain.pem;</span>
+<span class="c1">#     resolver 8.8.8.8;</span>
+<span class="c1"># }</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="let-s-encrypt-acme">
+<h2>3.5 Let’s Encrypt 与 ACME 协议<a class="headerlink" href="#let-s-encrypt-acme" title="Link to this heading"></a></h2>
+<p>Let’s Encrypt 是免费的证书颁发机构，使用 ACME（Automatic Certificate Management Environment）协议自动化证书管理。</p>
+<section id="acme">
+<h3>ACME 验证流程<a class="headerlink" href="#acme" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌──────────┐                    ┌──────────────┐
+│  客户端   │                    │ Let&#39;s Encrypt│
+│ (certbot) │                    │   ACME 服务  │
+└─────┬────┘                    └──────┬───────┘
+      │  1. 请求证书                    │
+      │  (example.com)                 │
+      │────────────────────────────────▶│
+      │                                │
+      │  2. 返回挑战                    │
+      │  (HTTP-01 或 DNS-01)           │
+      │◀────────────────────────────────│
+      │                                │
+      │  3. 完成挑战                    │
+      │  (放置验证文件/DNS记录)         │
+      │────────────────────────────────▶│
+      │                                │
+      │  4. 验证通过，签发证书          │
+      │◀────────────────────────────────│
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 certbot 获取证书</span>
+sudo<span class="w"> </span>certbot<span class="w"> </span>certonly<span class="w"> </span>--nginx<span class="w"> </span>-d<span class="w"> </span>example.com<span class="w"> </span>-d<span class="w"> </span>www.example.com
+
+<span class="c1"># 自动续期（Let&#39;s Encrypt 证书有效期 90 天）</span>
+sudo<span class="w"> </span>certbot<span class="w"> </span>renew<span class="w"> </span>--dry-run
+
+<span class="c1"># 使用 DNS-01 验证（适合通配符证书）</span>
+sudo<span class="w"> </span>certbot<span class="w"> </span>certonly<span class="w"> </span>--manual<span class="w"> </span>--preferred-challenges<span class="w"> </span>dns<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;*.example.com&quot;</span><span class="w"> </span>-d<span class="w"> </span>example.com
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mtls-tls">
+<h2>3.6 mTLS（双向 TLS）<a class="headerlink" href="#mtls-tls" title="Link to this heading"></a></h2>
+<p>普通 TLS 只验证服务器身份，mTLS 同时验证客户端和服务器的身份。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>普通 TLS：
+客户端 ──▶ 验证服务器证书 ──▶ 建立加密连接
+（客户端不需要证书）
+
+mTLS：
+客户端 ◀──▶ 互相验证证书 ◀──▶ 服务器
+（双方都需要证书）
+
+┌──────────┐                         ┌──────────┐
+│  客户端   │                         │  服务器   │
+│          │  1. ClientHello          │          │
+│          │─────────────────────────▶│          │
+│          │  2. ServerHello +        │          │
+│          │     ServerCert +         │          │
+│          │     CertificateRequest   │          │
+│          │◀─────────────────────────│          │
+│          │  3. ClientCert +         │          │
+│          │     ClientKeyExchange    │          │
+│          │─────────────────────────▶│          │
+│          │  4. 双方验证对方证书      │          │
+│          │  5. 加密通信开始          │          │
+└──────────┘                         └──────────┘
+</pre></div>
+</div>
+<section id="mtls">
+<h3>mTLS 应用场景<a class="headerlink" href="#mtls" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>场景</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>微服务间通信</p></td>
+<td><p>Service Mesh（Istio）自动 mTLS</p></td>
+</tr>
+<tr class="row-odd"><td><p>API 认证</p></td>
+<td><p>客户端证书替代 API Key</p></td>
+</tr>
+<tr class="row-even"><td><p>IoT 设备认证</p></td>
+<td><p>设备出厂预装证书</p></td>
+</tr>
+<tr class="row-odd"><td><p>零信任网络</p></td>
+<td><p>每个连接都需要双向认证</p></td>
+</tr>
+<tr class="row-even"><td><p>SPIFFE/SPIRE</p></td>
+<td><p>工作负载身份基于 X.509-SVID</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="python-mtls">
+<h3>Python mTLS 示例<a class="headerlink" href="#python-mtls" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># === 服务端 ===</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ssl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">http.server</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPServer</span><span class="p">,</span> <span class="n">SimpleHTTPRequestHandler</span>
+
+<span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">PROTOCOL_TLS_SERVER</span><span class="p">)</span>
+<span class="n">context</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="s1">&#39;server.crt&#39;</span><span class="p">,</span> <span class="s1">&#39;server.key&#39;</span><span class="p">)</span>
+<span class="n">context</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="s1">&#39;ca.crt&#39;</span><span class="p">)</span>
+<span class="n">context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span>  <span class="c1"># 要求客户端证书</span>
+
+<span class="n">server</span> <span class="o">=</span> <span class="n">HTTPServer</span><span class="p">((</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="mi">8443</span><span class="p">),</span> <span class="n">SimpleHTTPRequestHandler</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">wrap_socket</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">socket</span><span class="p">,</span> <span class="n">server_side</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+
+<span class="c1"># === 客户端 ===</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+
+<span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">PROTOCOL_TLS_CLIENT</span><span class="p">)</span>
+<span class="n">context</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="s1">&#39;client.crt&#39;</span><span class="p">,</span> <span class="s1">&#39;client.key&#39;</span><span class="p">)</span>  <span class="c1"># 客户端证书</span>
+<span class="n">context</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="s1">&#39;ca.crt&#39;</span><span class="p">)</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span>
+    <span class="s1">&#39;https://localhost:8443&#39;</span><span class="p">,</span>
+    <span class="n">context</span><span class="o">=</span><span class="n">context</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ecc">
+<h2>3.7 使用 ECC 证书<a class="headerlink" href="#ecc" title="Link to this heading"></a></h2>
+<p>ECC 证书比 RSA 证书更小、更快：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 生成 ECC 私钥（P-256 曲线）</span>
+openssl<span class="w"> </span>ecparam<span class="w"> </span>-genkey<span class="w"> </span>-name<span class="w"> </span>prime256v1<span class="w"> </span>-out<span class="w"> </span>server-ecc.key
+
+<span class="c1"># 生成 CSR</span>
+openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>server-ecc.key<span class="w"> </span>-out<span class="w"> </span>server-ecc.csr<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-subj<span class="w"> </span><span class="s2">&quot;/CN=example.com&quot;</span>
+
+<span class="c1"># 签发证书</span>
+openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>server-ecc.csr<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span>-CAcreateserial<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-out<span class="w"> </span>server-ecc.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">365</span><span class="w"> </span>-sha256
+
+<span class="c1"># 查看证书信息</span>
+openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span>server-ecc.crt<span class="w"> </span>-text<span class="w"> </span>-noout
+</pre></div>
+</div>
+</section>
+<section id="python">
+<h2>3.8 Python 证书操作<a class="headerlink" href="#python" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cryptography</span><span class="w"> </span><span class="kn">import</span> <span class="n">x509</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.x509.oid</span><span class="w"> </span><span class="kn">import</span> <span class="n">NameOID</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">hashes</span><span class="p">,</span> <span class="n">serialization</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.asymmetric</span><span class="w"> </span><span class="kn">import</span> <span class="n">rsa</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+<span class="c1"># 生成 CA 密钥和证书</span>
+<span class="n">ca_key</span> <span class="o">=</span> <span class="n">rsa</span><span class="o">.</span><span class="n">generate_private_key</span><span class="p">(</span><span class="n">public_exponent</span><span class="o">=</span><span class="mi">65537</span><span class="p">,</span> <span class="n">key_size</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span>
+<span class="n">ca_name</span> <span class="o">=</span> <span class="n">x509</span><span class="o">.</span><span class="n">Name</span><span class="p">([</span>
+    <span class="n">x509</span><span class="o">.</span><span class="n">NameAttribute</span><span class="p">(</span><span class="n">NameOID</span><span class="o">.</span><span class="n">COUNTRY_NAME</span><span class="p">,</span> <span class="s2">&quot;CN&quot;</span><span class="p">),</span>
+    <span class="n">x509</span><span class="o">.</span><span class="n">NameAttribute</span><span class="p">(</span><span class="n">NameOID</span><span class="o">.</span><span class="n">ORGANIZATION_NAME</span><span class="p">,</span> <span class="s2">&quot;My CA&quot;</span><span class="p">),</span>
+    <span class="n">x509</span><span class="o">.</span><span class="n">NameAttribute</span><span class="p">(</span><span class="n">NameOID</span><span class="o">.</span><span class="n">COMMON_NAME</span><span class="p">,</span> <span class="s2">&quot;My Root CA&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="n">ca_cert</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">x509</span><span class="o">.</span><span class="n">CertificateBuilder</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">subject_name</span><span class="p">(</span><span class="n">ca_name</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">issuer_name</span><span class="p">(</span><span class="n">ca_name</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">public_key</span><span class="p">(</span><span class="n">ca_key</span><span class="o">.</span><span class="n">public_key</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">serial_number</span><span class="p">(</span><span class="n">x509</span><span class="o">.</span><span class="n">random_serial_number</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">not_valid_before</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">not_valid_after</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">3650</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">add_extension</span><span class="p">(</span><span class="n">x509</span><span class="o">.</span><span class="n">BasicConstraints</span><span class="p">(</span><span class="n">ca</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">path_length</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span> <span class="n">critical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">ca_key</span><span class="p">,</span> <span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">())</span>
+<span class="p">)</span>
+
+<span class="c1"># 生成服务器证书</span>
+<span class="n">server_key</span> <span class="o">=</span> <span class="n">rsa</span><span class="o">.</span><span class="n">generate_private_key</span><span class="p">(</span><span class="n">public_exponent</span><span class="o">=</span><span class="mi">65537</span><span class="p">,</span> <span class="n">key_size</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
+<span class="n">server_cert</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">x509</span><span class="o">.</span><span class="n">CertificateBuilder</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">subject_name</span><span class="p">(</span><span class="n">x509</span><span class="o">.</span><span class="n">Name</span><span class="p">([</span><span class="n">x509</span><span class="o">.</span><span class="n">NameAttribute</span><span class="p">(</span><span class="n">NameOID</span><span class="o">.</span><span class="n">COMMON_NAME</span><span class="p">,</span> <span class="s2">&quot;example.com&quot;</span><span class="p">)]))</span>
+    <span class="o">.</span><span class="n">issuer_name</span><span class="p">(</span><span class="n">ca_name</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">public_key</span><span class="p">(</span><span class="n">server_key</span><span class="o">.</span><span class="n">public_key</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">serial_number</span><span class="p">(</span><span class="n">x509</span><span class="o">.</span><span class="n">random_serial_number</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">not_valid_before</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">not_valid_after</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">365</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">add_extension</span><span class="p">(</span>
+        <span class="n">x509</span><span class="o">.</span><span class="n">SubjectAlternativeName</span><span class="p">([</span>
+            <span class="n">x509</span><span class="o">.</span><span class="n">DNSName</span><span class="p">(</span><span class="s2">&quot;example.com&quot;</span><span class="p">),</span>
+            <span class="n">x509</span><span class="o">.</span><span class="n">DNSName</span><span class="p">(</span><span class="s2">&quot;*.example.com&quot;</span><span class="p">),</span>
+            <span class="n">x509</span><span class="o">.</span><span class="n">UniformResourceIdentifier</span><span class="p">(</span><span class="s2">&quot;spiffe://example.org/web&quot;</span><span class="p">),</span>
+        <span class="p">]),</span>
+        <span class="n">critical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">ca_key</span><span class="p">,</span> <span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">())</span>
+<span class="p">)</span>
+
+<span class="c1"># 保存为 PEM 格式</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;server.crt&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">server_cert</span><span class="o">.</span><span class="n">public_bytes</span><span class="p">(</span><span class="n">serialization</span><span class="o">.</span><span class="n">Encoding</span><span class="o">.</span><span class="n">PEM</span><span class="p">))</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;server.key&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">server_key</span><span class="o">.</span><span class="n">private_bytes</span><span class="p">(</span>
+        <span class="n">serialization</span><span class="o">.</span><span class="n">Encoding</span><span class="o">.</span><span class="n">PEM</span><span class="p">,</span>
+        <span class="n">serialization</span><span class="o">.</span><span class="n">PrivateFormat</span><span class="o">.</span><span class="n">PKCS8</span><span class="p">,</span>
+        <span class="n">serialization</span><span class="o">.</span><span class="n">NoEncryption</span><span class="p">()</span>
+    <span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subject: </span><span class="si">{</span><span class="n">server_cert</span><span class="o">.</span><span class="n">subject</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Issuer: </span><span class="si">{</span><span class="n">server_cert</span><span class="o">.</span><span class="n">issuer</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Serial: </span><span class="si">{</span><span class="n">server_cert</span><span class="o">.</span><span class="n">serial_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not Before: </span><span class="si">{</span><span class="n">server_cert</span><span class="o">.</span><span class="n">not_valid_before_utc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not After: </span><span class="si">{</span><span class="n">server_cert</span><span class="o">.</span><span class="n">not_valid_after_utc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h2>3.9 小结<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>本章介绍了 PKI 和证书体系的核心概念：</p>
+<ul class="simple">
+<li><p><strong>PKI</strong> 通过 CA 层级结构建立信任链</p></li>
+<li><p><strong>X.509 证书</strong> 是数字身份的标准格式，SAN 扩展支持多种身份类型</p></li>
+<li><p>证书有完整的<strong>生命周期</strong>：申请、签发、使用、续期、吊销</p></li>
+<li><p><strong>Let’s Encrypt</strong> 和 ACME 协议实现了证书的自动化管理</p></li>
+<li><p><strong>mTLS</strong> 提供双向身份认证，是微服务安全和零信任的基础</p></li>
+<li><p>SPIFFE 使用 X.509 证书的 SAN 字段存储工作负载身份（SVID）</p></li>
+</ul>
+<p>在下一章中，我们将学习威胁建模方法，了解如何系统性地识别和评估安全风险。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch02.html" class="btn btn-neutral float-left" title="第二章：密码学基础" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch04.html" class="btn btn-neutral float-right" title="第四章：威胁建模与风险评估" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

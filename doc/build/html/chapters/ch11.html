@@ -1,0 +1,2241 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第十一章：单点登录（SSO）与联邦身份 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch11.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第十二章：API 认证模式" href="ch12.html" />
+    <link rel="prev" title="第十章：多因素认证（MFA）" href="ch10.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第十一章：单点登录（SSO）与联邦身份</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">11.1 SSO 解决什么问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">11.2 SSO 实现方式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cookie-sso">基于 Cookie 的 SSO（同域）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#token-sso">基于 Token 的 SSO（跨域）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#saml-2-0">11.3 SAML 2.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">核心概念</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sp-initiated">SP-Initiated 流程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#saml-vs-oidc">SAML vs OIDC 对比</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">11.4 联邦身份</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">联邦信任模型</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#kerberos">11.5 Kerberos 认证协议</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">11.6 企业 SSO 方案对比</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#keycloak-docker">Keycloak Docker 部署</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">11.7 SSO 方案选型指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#saml-vs-oidc-vs-cas">SAML vs OIDC vs CAS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">11.8 SSO 集成实战</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python-authlib-oidc-sso-fastapi">Python：Authlib OIDC SSO 集成（FastAPI）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-python3-saml-saml-sp">Python：python3-saml SAML SP 实现</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#java-spring-security-saml2">Java：Spring Security SAML2 配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#java-spring-security-oidc-sso">Java：Spring Security OIDC SSO 配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#java-keycloak-admin-client">Java：Keycloak Admin Client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#go-crewjam-saml-saml-sp">Go：crewjam/saml SAML SP 实现</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#go-go-oidc-sso">Go：go-oidc SSO 集成</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#keycloak">11.9 Keycloak 快速部署</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#docker-compose-yml">生产级 docker-compose.yml</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#admin-rest-api">初始化脚本（通过 Admin REST API）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">11.10 SSO 调试技巧</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#saml">SAML 调试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#oidc-jwt">OIDC / JWT 调试</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">常见问题排查清单</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">11.11 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第十一章：单点登录（SSO）与联邦身份</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch11.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sso">
+<h1>第十一章：单点登录（SSO）与联邦身份<a class="headerlink" href="#sso" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“一次登录，处处访问 — 这是 SSO 的承诺，也是安全工程的挑战。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((SSO 与联邦身份))
+    SSO 方式
+      Cookie SSO
+      Token SSO
+      SAML SSO
+      OIDC SSO
+    SAML 2.0
+      Assertion
+      SP-Initiated
+      IdP-Initiated
+    联邦身份
+      信任关系
+      身份映射
+      跨组织
+    方案对比
+      Keycloak
+      Okta
+      Azure AD
+    </pre><section id="id1">
+<h2>11.1 SSO 解决什么问题<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>在没有 SSO 的世界里，用户需要为每个应用维护独立的账号和密码：</p>
+<pre  class="mermaid">
+        flowchart LR
+    subgraph 没有SSO
+        U1[用户] --&gt;|用户名/密码 A| A1[App1]
+        U1 --&gt;|用户名/密码 B| A2[App2]
+        U1 --&gt;|用户名/密码 C| A3[App3]
+    end
+    style U1 fill:#f96,stroke:#333
+    style A1 fill:#fcc,stroke:#333
+    style A2 fill:#fcc,stroke:#333
+    style A3 fill:#fcc,stroke:#333
+    </pre><blockquote>
+<div><p>密码疲劳、弱密码、密码复用 — 这是没有 SSO 的代价。</p>
+</div></blockquote>
+<pre  class="mermaid">
+        flowchart LR
+    subgraph 有了SSO
+        U2[用户] --&gt;|一次登录| IdP[IdP 身份提供者]
+        IdP --&gt;|✅| B1[App1]
+        IdP --&gt;|✅| B2[App2]
+        IdP --&gt;|✅| B3[App3]
+    end
+    style U2 fill:#6f9,stroke:#333
+    style IdP fill:#69f,stroke:#333
+    style B1 fill:#cfc,stroke:#333
+    style B2 fill:#cfc,stroke:#333
+    style B3 fill:#cfc,stroke:#333
+    </pre><blockquote>
+<div><p>一套凭证、统一管理、更好的安全性。</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h2>11.2 SSO 实现方式<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="cookie-sso">
+<h3>基于 Cookie 的 SSO（同域）<a class="headerlink" href="#cookie-sso" title="Link to this heading"></a></h3>
+<p>适用场景：同一顶级域名下的多个子应用，例如 <code class="docutils literal notranslate"><span class="pre">app1.example.com</span></code>、<code class="docutils literal notranslate"><span class="pre">app2.example.com</span></code>。</p>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant U as 用户浏览器
+    participant Auth as auth.example.com
+    participant App1 as app1.example.com
+    participant App2 as app2.example.com
+
+    U-&gt;&gt;Auth: 1. 登录请求
+    Auth--&gt;&gt;U: 2. Set-Cookie: session=xxx&lt;br/&gt;Domain=.example.com
+    U-&gt;&gt;App1: 3. 访问（Cookie 自动携带）
+    App1--&gt;&gt;U: 4. ✅ 已认证
+    U-&gt;&gt;App2: 5. 访问（Cookie 自动携带）
+    App2--&gt;&gt;U: 6. ✅ 已认证
+    </pre><p><strong>局限</strong>：只能在同一顶级域名下使用。</p>
+</section>
+<section id="token-sso">
+<h3>基于 Token 的 SSO（跨域）<a class="headerlink" href="#token-sso" title="Link to this heading"></a></h3>
+<p>适用场景：不同域名的应用，使用 OIDC 或 OAuth2 实现。</p>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant U as 用户浏览器
+    participant IdP as IdP (Keycloak)
+    participant A1 as app1.com
+    participant A2 as app2.org
+    participant A3 as app3.io
+
+    U-&gt;&gt;IdP: 1. 登录
+    IdP--&gt;&gt;U: 2. 返回 id_token
+    U-&gt;&gt;A1: 3. 携带 Token 访问
+    A1--&gt;&gt;U: 4. ✅
+    U-&gt;&gt;A2: 5. 携带 Token 访问
+    A2--&gt;&gt;U: 6. ✅
+    U-&gt;&gt;A3: 7. 携带 Token 访问
+    A3--&gt;&gt;U: 8. ✅
+    </pre></section>
+</section>
+<section id="saml-2-0">
+<h2>11.3 SAML 2.0<a class="headerlink" href="#saml-2-0" title="Link to this heading"></a></h2>
+<p>SAML（Security Assertion Markup Language）是企业级 SSO 的标准协议。</p>
+<section id="id3">
+<h3>核心概念<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>概念</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>IdP（Identity Provider）</p></td>
+<td><p>身份提供者，负责认证用户</p></td>
+</tr>
+<tr class="row-odd"><td><p>SP（Service Provider）</p></td>
+<td><p>服务提供者，依赖 IdP 的认证结果</p></td>
+</tr>
+<tr class="row-even"><td><p>Assertion</p></td>
+<td><p>身份断言，包含用户身份信息</p></td>
+</tr>
+<tr class="row-odd"><td><p>Binding</p></td>
+<td><p>消息传输方式（HTTP-POST、HTTP-Redirect）</p></td>
+</tr>
+<tr class="row-even"><td><p>Metadata</p></td>
+<td><p>IdP 和 SP 的配置信息（XML 格式）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sp-initiated">
+<h3>SP-Initiated 流程<a class="headerlink" href="#sp-initiated" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant U as 用户浏览器
+    participant SP as SP (应用)
+    participant IdP as IdP (认证)
+
+    U-&gt;&gt;SP: 1. 访问受保护资源
+    SP--&gt;&gt;U: 2. 302 重定向（携带 AuthnRequest）
+    U-&gt;&gt;IdP: 3. 重定向到 IdP
+    IdP--&gt;&gt;U: 4. 显示登录页面
+    U-&gt;&gt;IdP: 5. 提交凭证
+    IdP-&gt;&gt;IdP: 6. 验证凭证
+    IdP--&gt;&gt;U: 7. 返回 SAML Response（HTTP-POST）
+    U-&gt;&gt;SP: 8. POST SAML Response
+    SP-&gt;&gt;SP: 9. 验证签名 &amp; 解析 Assertion
+    SP--&gt;&gt;U: 10. ✅ 登录成功，建立会话
+    </pre></section>
+<section id="saml-vs-oidc">
+<h3>SAML vs OIDC 对比<a class="headerlink" href="#saml-vs-oidc" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>SAML 2.0</p></th>
+<th class="head"><p>OIDC</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>数据格式</p></td>
+<td><p>XML</p></td>
+<td><p>JSON/JWT</p></td>
+</tr>
+<tr class="row-odd"><td><p>传输方式</p></td>
+<td><p>HTTP-POST/Redirect</p></td>
+<td><p>HTTP REST</p></td>
+</tr>
+<tr class="row-even"><td><p>Token 大小</p></td>
+<td><p>大（XML）</p></td>
+<td><p>小（JWT）</p></td>
+</tr>
+<tr class="row-odd"><td><p>移动端支持</p></td>
+<td><p>差</p></td>
+<td><p>好</p></td>
+</tr>
+<tr class="row-even"><td><p>实现复杂度</p></td>
+<td><p>高</p></td>
+<td><p>低</p></td>
+</tr>
+<tr class="row-odd"><td><p>适用场景</p></td>
+<td><p>企业 SSO</p></td>
+<td><p>Web/Mobile/API</p></td>
+</tr>
+<tr class="row-even"><td><p>标准组织</p></td>
+<td><p>OASIS</p></td>
+<td><p>OpenID Foundation</p></td>
+</tr>
+<tr class="row-odd"><td><p>年代</p></td>
+<td><p>2005</p></td>
+<td><p>2014</p></td>
+</tr>
+</tbody>
+</table>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph SAML[&quot;SAML 2.0 流程&quot;]
+        direction LR
+        SA[用户] --&gt;|访问| SSP[SP]
+        SSP --&gt;|AuthnRequest XML| SIdP[IdP]
+        SIdP --&gt;|SAML Response XML&lt;br/&gt;签名的 Assertion| SSP
+    end
+
+    subgraph OIDC[&quot;OIDC 流程&quot;]
+        direction LR
+        OA[用户] --&gt;|访问| ORP[RP 应用]
+        ORP --&gt;|Authorization Request| OOP[OP 提供者]
+        OOP --&gt;|Authorization Code| ORP
+        ORP --&gt;|Token Request| OOP
+        OOP --&gt;|id_token JWT + access_token| ORP
+    end
+
+    style SAML fill:#ffe0b2,stroke:#e65100
+    style OIDC fill:#b3e5fc,stroke:#01579b
+    </pre></section>
+</section>
+<section id="id4">
+<h2>11.4 联邦身份<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>联邦身份允许不同组织之间建立信任关系，实现跨组织的身份认证。</p>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph OrgA[&quot;组织 A&quot;]
+        IdPA[&quot;IdP A&lt;br/&gt;(Azure AD)&quot;]
+        UserA[&quot;用户 A&quot;]
+        IdPA --- UserA
+    end
+
+    subgraph OrgB[&quot;组织 B&quot;]
+        IdPB[&quot;IdP B&lt;br/&gt;(Okta)&quot;]
+        UserB[&quot;用户 B&quot;]
+        IdPB --- UserB
+    end
+
+    IdPA &lt;--&gt;|&quot;🤝 联邦信任关系&quot;| IdPB
+    UserA --&gt;|&quot;访问组织 B 资源&quot;| OrgB
+    UserB --&gt;|&quot;访问组织 A 资源&quot;| OrgA
+
+    style OrgA fill:#e3f2fd,stroke:#1565c0
+    style OrgB fill:#fce4ec,stroke:#c62828
+    </pre><section id="id5">
+<h3>联邦信任模型<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模型</p></th>
+<th class="head"><p>描述</p></th>
+<th class="head"><p>适用场景</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>点对点</p></td>
+<td><p>两个组织直接建立信任</p></td>
+<td><p>合作伙伴</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hub-and-Spoke</p></td>
+<td><p>中心 IdP 连接多个 SP</p></td>
+<td><p>企业集团</p></td>
+</tr>
+<tr class="row-even"><td><p>网状</p></td>
+<td><p>多个 IdP 互相信任</p></td>
+<td><p>行业联盟</p></td>
+</tr>
+<tr class="row-odd"><td><p>信任框架</p></td>
+<td><p>基于标准的多方信任</p></td>
+<td><p>政府/教育</p></td>
+</tr>
+</tbody>
+</table>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph HubSpoke[&quot;Hub-and-Spoke 模型&quot;]
+        Hub[&quot;中心 IdP&lt;br/&gt;(集团总部)&quot;]
+        SP1[&quot;SP 1&lt;br/&gt;子公司 A&quot;]
+        SP2[&quot;SP 2&lt;br/&gt;子公司 B&quot;]
+        SP3[&quot;SP 3&lt;br/&gt;合作伙伴&quot;]
+        Hub --&gt; SP1
+        Hub --&gt; SP2
+        Hub --&gt; SP3
+    end
+
+    subgraph Mesh[&quot;网状模型&quot;]
+        IdP1[&quot;IdP 1&quot;] &lt;--&gt; IdP2[&quot;IdP 2&quot;]
+        IdP2 &lt;--&gt; IdP3[&quot;IdP 3&quot;]
+        IdP1 &lt;--&gt; IdP3
+    end
+
+    style HubSpoke fill:#e8f5e9,stroke:#2e7d32
+    style Mesh fill:#fff3e0,stroke:#e65100
+    </pre></section>
+</section>
+<section id="kerberos">
+<h2>11.5 Kerberos 认证协议<a class="headerlink" href="#kerberos" title="Link to this heading"></a></h2>
+<p>Kerberos 是 Windows Active Directory 的核心认证协议：</p>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant C as 客户端
+    participant KDC as KDC (密钥分发中心)
+    participant S as 服务器
+
+    C-&gt;&gt;KDC: 1. AS-REQ (用户名)
+    KDC--&gt;&gt;C: 2. AS-REP (TGT)
+    C-&gt;&gt;KDC: 3. TGS-REQ (TGT + 服务名)
+    KDC--&gt;&gt;C: 4. TGS-REP (Service Ticket)
+    C-&gt;&gt;S: 5. AP-REQ (Service Ticket)
+    S--&gt;&gt;C: 6. AP-REP (认证成功)
+    </pre></section>
+<section id="id6">
+<h2>11.6 企业 SSO 方案对比<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特性</p></th>
+<th class="head"><p>Keycloak</p></th>
+<th class="head"><p>Okta</p></th>
+<th class="head"><p>Azure AD</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>类型</p></td>
+<td><p>开源自托管</p></td>
+<td><p>SaaS</p></td>
+<td><p>SaaS</p></td>
+</tr>
+<tr class="row-odd"><td><p>协议</p></td>
+<td><p>OIDC/SAML/OAuth2</p></td>
+<td><p>OIDC/SAML</p></td>
+<td><p>OIDC/SAML/WS-Fed</p></td>
+</tr>
+<tr class="row-even"><td><p>成本</p></td>
+<td><p>免费</p></td>
+<td><p>按用户付费</p></td>
+<td><p>Microsoft 365 含</p></td>
+</tr>
+<tr class="row-odd"><td><p>自定义</p></td>
+<td><p>高（SPI 扩展）</p></td>
+<td><p>中</p></td>
+<td><p>中</p></td>
+</tr>
+<tr class="row-even"><td><p>用户联邦</p></td>
+<td><p>LDAP/AD/Social</p></td>
+<td><p>广泛</p></td>
+<td><p>AD/B2B/B2C</p></td>
+</tr>
+<tr class="row-odd"><td><p>MFA</p></td>
+<td><p>内置</p></td>
+<td><p>内置</p></td>
+<td><p>内置</p></td>
+</tr>
+<tr class="row-even"><td><p>部署</p></td>
+<td><p>Docker/K8s</p></td>
+<td><p>云</p></td>
+<td><p>云</p></td>
+</tr>
+</tbody>
+</table>
+<section id="keycloak-docker">
+<h3>Keycloak Docker 部署<a class="headerlink" href="#keycloak-docker" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 快速启动 Keycloak</span>
+docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>keycloak<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">KEYCLOAK_ADMIN</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">KEYCLOAK_ADMIN_PASSWORD</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>quay.io/keycloak/keycloak:latest<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>start-dev
+
+<span class="c1"># 生产部署（PostgreSQL + HTTPS）</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># docker-compose.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:16</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak</span>
+<span class="w">      </span><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak</span>
+<span class="w">      </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak_password</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgdata:/var/lib/postgresql/data</span>
+
+<span class="w">  </span><span class="nt">keycloak</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">quay.io/keycloak/keycloak:latest</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">start</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">KC_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+<span class="w">      </span><span class="nt">KC_DB_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jdbc:postgresql://postgres:5432/keycloak</span>
+<span class="w">      </span><span class="nt">KC_DB_USERNAME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak</span>
+<span class="w">      </span><span class="nt">KC_DB_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak_password</span>
+<span class="w">      </span><span class="nt">KC_HOSTNAME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">auth.example.com</span>
+<span class="w">      </span><span class="nt">KC_HTTPS_CERTIFICATE_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/keycloak/conf/cert.pem</span>
+<span class="w">      </span><span class="nt">KC_HTTPS_CERTIFICATE_KEY_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/keycloak/conf/key.pem</span>
+<span class="w">      </span><span class="nt">KEYCLOAK_ADMIN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="w">      </span><span class="nt">KEYCLOAK_ADMIN_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">secure_password</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8443:8443&quot;</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pgdata</span><span class="p">:</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id7">
+<h2>11.7 SSO 方案选型指南<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<section id="saml-vs-oidc-vs-cas">
+<h3>SAML vs OIDC vs CAS<a class="headerlink" href="#saml-vs-oidc-vs-cas" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>SAML 2.0</p></th>
+<th class="head"><p>OIDC</p></th>
+<th class="head"><p>CAS</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>协议类型</p></td>
+<td><p>基于 XML 的断言</p></td>
+<td><p>基于 OAuth2 的身份层</p></td>
+<td><p>基于 Ticket 的认证</p></td>
+</tr>
+<tr class="row-odd"><td><p>数据格式</p></td>
+<td><p>XML</p></td>
+<td><p>JSON / JWT</p></td>
+<td><p>XML / JSON</p></td>
+</tr>
+<tr class="row-even"><td><p>适用场景</p></td>
+<td><p>企业 B2B SSO</p></td>
+<td><p>Web / Mobile / SPA</p></td>
+<td><p>高校 / 内部系统</p></td>
+</tr>
+<tr class="row-odd"><td><p>移动端友好</p></td>
+<td><p>❌ 差</p></td>
+<td><p>✅ 好</p></td>
+<td><p>⚠️ 一般</p></td>
+</tr>
+<tr class="row-even"><td><p>API 友好</p></td>
+<td><p>❌ 差</p></td>
+<td><p>✅ 好</p></td>
+<td><p>⚠️ 一般</p></td>
+</tr>
+<tr class="row-odd"><td><p>实现复杂度</p></td>
+<td><p>高</p></td>
+<td><p>低</p></td>
+<td><p>中</p></td>
+</tr>
+<tr class="row-even"><td><p>社区活跃度</p></td>
+<td><p>稳定（成熟）</p></td>
+<td><p>非常活跃</p></td>
+<td><p>活跃（Apereo）</p></td>
+</tr>
+<tr class="row-odd"><td><p>典型 IdP</p></td>
+<td><p>ADFS, Shibboleth</p></td>
+<td><p>Keycloak, Auth0</p></td>
+<td><p>Apereo CAS</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型建议</strong>：</p>
+<ul class="simple">
+<li><p><strong>新项目首选 OIDC</strong>：轻量、现代、移动端友好，生态丰富</p></li>
+<li><p><strong>企业 B2B 集成选 SAML</strong>：大量企业 IdP（ADFS、Okta）仍以 SAML 为主</p></li>
+<li><p><strong>高校/教育选 CAS</strong>：Apereo CAS 在教育行业有深厚积累</p></li>
+<li><p><strong>混合场景</strong>：Keycloak 同时支持 SAML + OIDC，可作为协议桥接</p></li>
+</ul>
+</section>
+</section>
+<section id="id8">
+<h2>11.8 SSO 集成实战<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<section id="python-authlib-oidc-sso-fastapi">
+<h3>Python：Authlib OIDC SSO 集成（FastAPI）<a class="headerlink" href="#python-authlib-oidc-sso-fastapi" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FastAPI + Authlib OIDC SSO 集成</span>
+<span class="sd">依赖: pip install fastapi uvicorn authlib httpx itsdangerous</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">RedirectResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">authlib.integrations.starlette_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">OAuth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.middleware.sessions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionMiddleware</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;OIDC SSO Demo&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">SessionMiddleware</span><span class="p">,</span> <span class="n">secret_key</span><span class="o">=</span><span class="s2">&quot;change-me-in-production&quot;</span><span class="p">)</span>
+
+<span class="c1"># ── 配置 OIDC Provider ──────────────────────────────────</span>
+<span class="n">oauth</span> <span class="o">=</span> <span class="n">OAuth</span><span class="p">()</span>
+<span class="n">oauth</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;keycloak&quot;</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;my-fastapi-app&quot;</span><span class="p">,</span>
+    <span class="n">client_secret</span><span class="o">=</span><span class="s2">&quot;my-client-secret&quot;</span><span class="p">,</span>
+    <span class="n">server_metadata_url</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;http://localhost:8080/realms/my-realm/&quot;</span>
+        <span class="s2">&quot;.well-known/openid-configuration&quot;</span>
+    <span class="p">),</span>
+    <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;openid email profile&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">homepage</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">user</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sub&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Not logged in&quot;</span><span class="p">,</span> <span class="s2">&quot;login_url&quot;</span><span class="p">:</span> <span class="s2">&quot;/login&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;重定向到 IdP 登录页面&quot;&quot;&quot;</span>
+    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;auth_callback&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">oauth</span><span class="o">.</span><span class="n">keycloak</span><span class="o">.</span><span class="n">authorize_redirect</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">)</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/callback&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">auth_callback</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;处理 IdP 回调，交换 Token 并建立会话&quot;&quot;&quot;</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">oauth</span><span class="o">.</span><span class="n">keycloak</span><span class="o">.</span><span class="n">authorize_access_token</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">userinfo</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;userinfo&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">userinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">userinfo</span> <span class="o">=</span> <span class="k">await</span> <span class="n">oauth</span><span class="o">.</span><span class="n">keycloak</span><span class="o">.</span><span class="n">userinfo</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="c1"># 将用户信息存入 Session</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="n">userinfo</span><span class="p">[</span><span class="s2">&quot;sub&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">userinfo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">userinfo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">RedirectResponse</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;登出：清除本地会话 + 重定向到 IdP 登出端点&quot;&quot;&quot;</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># 可选：重定向到 Keycloak 的 end_session_endpoint</span>
+    <span class="k">return</span> <span class="n">RedirectResponse</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">uvicorn</span>
+    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="python-python3-saml-saml-sp">
+<h3>Python：python3-saml SAML SP 实现<a class="headerlink" href="#python-python3-saml-saml-sp" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FastAPI + python3-saml SAML SP 实现</span>
+<span class="sd">依赖: pip install fastapi uvicorn python3-saml</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">RedirectResponse</span><span class="p">,</span> <span class="n">HTMLResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">onelogin.saml2.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneLogin_Saml2_Auth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">onelogin.saml2.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneLogin_Saml2_Utils</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;SAML SP Demo&quot;</span><span class="p">)</span>
+
+<span class="c1"># ── SAML 配置 ────────────────────────────────────────────</span>
+<span class="n">SAML_SETTINGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;strict&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">&quot;sp&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;entityId&quot;</span><span class="p">:</span> <span class="s2">&quot;https://myapp.example.com/metadata&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;assertionConsumerService&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://myapp.example.com/saml/acs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;binding&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;singleLogoutService&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://myapp.example.com/saml/sls&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;binding&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;x509cert&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;SP_CERT&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;privateKey&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;SP_PRIVATE_KEY&gt;&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;idp&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;entityId&quot;</span><span class="p">:</span> <span class="s2">&quot;https://idp.example.com/metadata&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;singleSignOnService&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://idp.example.com/sso&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;binding&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;x509cert&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;IDP_CERT&gt;&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;security&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;authnRequestsSigned&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;wantAssertionsSigned&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;wantNameIdEncrypted&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;signatureAlgorithm&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;http://www.w3.org/2001/04/xmldsig-more#rsa-sha256&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_saml_request</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;将 FastAPI Request 转换为 python3-saml 所需格式&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;https&quot;</span><span class="p">:</span> <span class="s2">&quot;on&quot;</span> <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="s2">&quot;https&quot;</span> <span class="k">else</span> <span class="s2">&quot;off&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;http_host&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span>
+        <span class="s2">&quot;script_name&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+        <span class="s2">&quot;get_data&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="p">),</span>
+        <span class="s2">&quot;post_data&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># POST 数据需异步读取后填入</span>
+    <span class="p">}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/saml/login&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">saml_login</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SP-Initiated SSO：生成 AuthnRequest 并重定向到 IdP&quot;&quot;&quot;</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">_prepare_saml_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">auth</span> <span class="o">=</span> <span class="n">OneLogin_Saml2_Auth</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">SAML_SETTINGS</span><span class="p">)</span>
+    <span class="n">sso_url</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">RedirectResponse</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">sso_url</span><span class="p">)</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/saml/acs&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">saml_acs</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assertion Consumer Service：处理 IdP 返回的 SAML Response&quot;&quot;&quot;</span>
+    <span class="n">form_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">()</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">_prepare_saml_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">req</span><span class="p">[</span><span class="s2">&quot;post_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">form_data</span><span class="p">)</span>
+
+    <span class="n">auth</span> <span class="o">=</span> <span class="n">OneLogin_Saml2_Auth</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">SAML_SETTINGS</span><span class="p">)</span>
+    <span class="n">auth</span><span class="o">.</span><span class="n">process_response</span><span class="p">()</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">get_errors</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HTMLResponse</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;SAML Error: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">400</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">auth</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">HTMLResponse</span><span class="p">(</span><span class="s2">&quot;Authentication failed&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">)</span>
+
+    <span class="c1"># 提取用户属性</span>
+    <span class="n">attributes</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">get_attributes</span><span class="p">()</span>
+    <span class="n">name_id</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">get_nameid</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;authenticated&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;name_id&quot;</span><span class="p">:</span> <span class="n">name_id</span><span class="p">,</span>
+        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="n">attributes</span><span class="p">,</span>
+        <span class="s2">&quot;session_index&quot;</span><span class="p">:</span> <span class="n">auth</span><span class="o">.</span><span class="n">get_session_index</span><span class="p">(),</span>
+    <span class="p">}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/saml/metadata&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">saml_metadata</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;暴露 SP Metadata 供 IdP 导入&quot;&quot;&quot;</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">_prepare_saml_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">auth</span> <span class="o">=</span> <span class="n">OneLogin_Saml2_Auth</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">SAML_SETTINGS</span><span class="p">)</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">get_settings</span><span class="p">()</span><span class="o">.</span><span class="n">get_sp_metadata</span><span class="p">()</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">get_settings</span><span class="p">()</span><span class="o">.</span><span class="n">validate_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HTMLResponse</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Metadata Error: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">500</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">HTMLResponse</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">media_type</span><span class="o">=</span><span class="s2">&quot;application/xml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="java-spring-security-saml2">
+<h3>Java：Spring Security SAML2 配置<a class="headerlink" href="#java-spring-security-saml2" title="Link to this heading"></a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Spring Boot 3 + Spring Security SAML2 SSO 配置</span>
+<span class="cm"> * 依赖: spring-boot-starter-security, spring-security-saml2-service-provider</span>
+<span class="cm"> */</span>
+
+<span class="c1">// ── application.yml ──</span>
+<span class="cm">/*</span>
+<span class="cm">spring:</span>
+<span class="cm">  security:</span>
+<span class="cm">    saml2:</span>
+<span class="cm">      relyingparty:</span>
+<span class="cm">        registration:</span>
+<span class="cm">          keycloak:</span>
+<span class="cm">            entity-id: my-saml-sp</span>
+<span class="cm">            assertingparty:</span>
+<span class="cm">              metadata-uri: &gt;-</span>
+<span class="cm">                http://localhost:8080/realms/my-realm/protocol/saml/descriptor</span>
+<span class="cm">            signing:</span>
+<span class="cm">              credentials:</span>
+<span class="cm">                - private-key-location: classpath:saml/sp-private.key</span>
+<span class="cm">                  certificate-location: classpath:saml/sp-cert.pem</span>
+<span class="cm">            acs:</span>
+<span class="cm">              location: &quot;{baseUrl}/login/saml2/sso/{registrationId}&quot;</span>
+<span class="cm">*/</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.builders.HttpSecurity</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.configuration.EnableWebSecurity</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.GrantedAuthority</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.authority.SimpleGrantedAuthority</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.web.SecurityFilterChain</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.stream.Collectors</span><span class="p">;</span>
+
+<span class="nd">@Configuration</span>
+<span class="nd">@EnableWebSecurity</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Saml2SecurityConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">securityFilterChain</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 自定义 SAML 认证提供者：从 Assertion 属性中提取角色</span>
+<span class="w">        </span><span class="n">OpenSaml4AuthenticationProvider</span><span class="w"> </span><span class="n">authProvider</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="k">new</span><span class="w"> </span><span class="n">OpenSaml4AuthenticationProvider</span><span class="p">();</span>
+
+<span class="w">        </span><span class="n">authProvider</span><span class="p">.</span><span class="na">setResponseAuthenticationConverter</span><span class="p">(</span><span class="n">responseToken</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 默认转换</span>
+<span class="w">            </span><span class="kd">var</span><span class="w"> </span><span class="n">authentication</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OpenSaml4AuthenticationProvider</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">createDefaultResponseAuthenticationConverter</span><span class="p">()</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">convert</span><span class="p">(</span><span class="n">responseToken</span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// 从 SAML 属性中提取角色</span>
+<span class="w">            </span><span class="n">Saml2AuthenticatedPrincipal</span><span class="w"> </span><span class="n">principal</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                    </span><span class="p">(</span><span class="n">Saml2AuthenticatedPrincipal</span><span class="p">)</span><span class="w"> </span><span class="n">authentication</span><span class="p">.</span><span class="na">getPrincipal</span><span class="p">();</span>
+<span class="w">            </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">principal</span><span class="p">.</span><span class="na">getAttribute</span><span class="p">(</span><span class="s">&quot;Role&quot;</span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">List</span><span class="o">&lt;</span><span class="n">GrantedAuthority</span><span class="o">&gt;</span><span class="w"> </span><span class="n">authorities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">roles</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">                    </span><span class="o">?</span><span class="w"> </span><span class="n">roles</span><span class="p">.</span><span class="na">stream</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SimpleGrantedAuthority</span><span class="p">(</span><span class="s">&quot;ROLE_&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">r</span><span class="p">))</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">collect</span><span class="p">(</span><span class="n">Collectors</span><span class="p">.</span><span class="na">toList</span><span class="p">())</span>
+<span class="w">                    </span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SimpleGrantedAuthority</span><span class="p">(</span><span class="s">&quot;ROLE_USER&quot;</span><span class="p">));</span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">springframework</span><span class="p">.</span><span class="na">security</span><span class="p">.</span><span class="na">saml2</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">service</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">authentication</span><span class="p">.</span><span class="na">Saml2Authentication</span><span class="p">(</span>
+<span class="w">                    </span><span class="n">principal</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">authentication</span><span class="p">.</span><span class="na">getSaml2Response</span><span class="p">(),</span>
+<span class="w">                    </span><span class="n">authorities</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">});</span>
+
+<span class="w">        </span><span class="n">http</span>
+<span class="w">            </span><span class="p">.</span><span class="na">authorizeHttpRequests</span><span class="p">(</span><span class="n">auth</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">auth</span>
+<span class="w">                </span><span class="p">.</span><span class="na">requestMatchers</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/public/**&quot;</span><span class="p">).</span><span class="na">permitAll</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">requestMatchers</span><span class="p">(</span><span class="s">&quot;/admin/**&quot;</span><span class="p">).</span><span class="na">hasRole</span><span class="p">(</span><span class="s">&quot;ADMIN&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">anyRequest</span><span class="p">().</span><span class="na">authenticated</span><span class="p">()</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">saml2Login</span><span class="p">(</span><span class="n">saml2</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">saml2</span>
+<span class="w">                </span><span class="p">.</span><span class="na">authenticationManager</span><span class="p">(</span>
+<span class="w">                    </span><span class="k">new</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">springframework</span><span class="p">.</span><span class="na">security</span><span class="p">.</span><span class="na">authentication</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">ProviderManager</span><span class="p">(</span><span class="n">authProvider</span><span class="p">)</span>
+<span class="w">                </span><span class="p">)</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">saml2Logout</span><span class="p">(</span><span class="n">logout</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{});</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="java-spring-security-oidc-sso">
+<h3>Java：Spring Security OIDC SSO 配置<a class="headerlink" href="#java-spring-security-oidc-sso" title="Link to this heading"></a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Spring Boot 3 + Spring Security OIDC SSO 配置</span>
+<span class="cm"> * 依赖: spring-boot-starter-oauth2-client</span>
+<span class="cm"> */</span>
+
+<span class="c1">// ── application.yml ──</span>
+<span class="cm">/*</span>
+<span class="cm">spring:</span>
+<span class="cm">  security:</span>
+<span class="cm">    oauth2:</span>
+<span class="cm">      client:</span>
+<span class="cm">        registration:</span>
+<span class="cm">          keycloak:</span>
+<span class="cm">            client-id: my-spring-app</span>
+<span class="cm">            client-secret: my-client-secret</span>
+<span class="cm">            scope: openid, email, profile</span>
+<span class="cm">            authorization-grant-type: authorization_code</span>
+<span class="cm">            redirect-uri: &quot;{baseUrl}/login/oauth2/code/{registrationId}&quot;</span>
+<span class="cm">        provider:</span>
+<span class="cm">          keycloak:</span>
+<span class="cm">            issuer-uri: http://localhost:8080/realms/my-realm</span>
+<span class="cm">*/</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.builders.HttpSecurity</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.configuration.EnableWebSecurity</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.GrantedAuthority</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.authority.SimpleGrantedAuthority</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.client.userinfo.OAuth2UserService</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.core.oidc.user.OidcUser</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.web.SecurityFilterChain</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.*</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.stream.Collectors</span><span class="p">;</span>
+
+<span class="nd">@Configuration</span>
+<span class="nd">@EnableWebSecurity</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">OidcSecurityConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">securityFilterChain</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">http</span>
+<span class="w">            </span><span class="p">.</span><span class="na">authorizeHttpRequests</span><span class="p">(</span><span class="n">auth</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">auth</span>
+<span class="w">                </span><span class="p">.</span><span class="na">requestMatchers</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/public/**&quot;</span><span class="p">).</span><span class="na">permitAll</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">requestMatchers</span><span class="p">(</span><span class="s">&quot;/admin/**&quot;</span><span class="p">).</span><span class="na">hasRole</span><span class="p">(</span><span class="s">&quot;ADMIN&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">anyRequest</span><span class="p">().</span><span class="na">authenticated</span><span class="p">()</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">oauth2Login</span><span class="p">(</span><span class="n">oauth2</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">oauth2</span>
+<span class="w">                </span><span class="p">.</span><span class="na">userInfoEndpoint</span><span class="p">(</span><span class="n">userInfo</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">userInfo</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">oidcUserService</span><span class="p">(</span><span class="n">oidcUserService</span><span class="p">())</span>
+<span class="w">                </span><span class="p">)</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">logout</span><span class="p">(</span><span class="n">logout</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">logout</span>
+<span class="w">                </span><span class="p">.</span><span class="na">logoutSuccessUrl</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 自定义 OIDC UserService：从 Keycloak Token 中提取 realm_roles</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">OAuth2UserService</span><span class="o">&lt;</span><span class="n">OidcUserRequest</span><span class="p">,</span><span class="w"> </span><span class="n">OidcUser</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">oidcUserService</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">OidcUserService</span><span class="w"> </span><span class="n">delegate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OidcUserService</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">userRequest</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">OidcUser</span><span class="w"> </span><span class="n">oidcUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delegate</span><span class="p">.</span><span class="na">loadUser</span><span class="p">(</span><span class="n">userRequest</span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// 从 Keycloak 的 realm_access.roles 中提取角色</span>
+<span class="w">            </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">realmAccess</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                    </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getClaimAsMap</span><span class="p">(</span><span class="s">&quot;realm_access&quot;</span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">GrantedAuthority</span><span class="o">&gt;</span><span class="w"> </span><span class="n">authorities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">realmAccess</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">realmAccess</span><span class="p">.</span><span class="na">containsKey</span><span class="p">(</span><span class="s">&quot;roles&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">&quot;unchecked&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="n">realmAccess</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;roles&quot;</span><span class="p">);</span>
+<span class="w">                </span><span class="n">authorities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">roles</span><span class="p">.</span><span class="na">stream</span><span class="p">()</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">role</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SimpleGrantedAuthority</span><span class="p">(</span><span class="s">&quot;ROLE_&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">role</span><span class="p">))</span>
+<span class="w">                        </span><span class="p">.</span><span class="na">collect</span><span class="p">(</span><span class="n">Collectors</span><span class="p">.</span><span class="na">toSet</span><span class="p">());</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultOidcUser</span><span class="p">(</span>
+<span class="w">                    </span><span class="n">authorities</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getIdToken</span><span class="p">(),</span>
+<span class="w">                    </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getUserInfo</span><span class="p">()</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="java-keycloak-admin-client">
+<h3>Java：Keycloak Admin Client<a class="headerlink" href="#java-keycloak-admin-client" title="Link to this heading"></a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Keycloak Admin Client — 创建 Realm、Client、User</span>
+<span class="cm"> * 依赖: org.keycloak:keycloak-admin-client:24.0.0</span>
+<span class="cm"> */</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.keycloak.admin.client.Keycloak</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.keycloak.admin.client.KeycloakBuilder</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.keycloak.representations.idm.*</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">jakarta.ws.rs.core.Response</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Map</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">KeycloakAdminExample</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Keycloak</span><span class="w"> </span><span class="n">keycloak</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">KeycloakAdminExample</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">serverUrl</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">adminUser</span><span class="p">,</span>
+<span class="w">                                 </span><span class="n">String</span><span class="w"> </span><span class="n">adminPassword</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">keycloak</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeycloakBuilder</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">serverUrl</span><span class="p">(</span><span class="n">serverUrl</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">realm</span><span class="p">(</span><span class="s">&quot;master&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">clientId</span><span class="p">(</span><span class="s">&quot;admin-cli&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">username</span><span class="p">(</span><span class="n">adminUser</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">password</span><span class="p">(</span><span class="n">adminPassword</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 创建新 Realm</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">createRealm</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">realmName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">RealmRepresentation</span><span class="w"> </span><span class="n">realm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RealmRepresentation</span><span class="p">();</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setRealm</span><span class="p">(</span><span class="n">realmName</span><span class="p">);</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setDisplayName</span><span class="p">(</span><span class="n">realmName</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; Realm&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setRegistrationAllowed</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setSslRequired</span><span class="p">(</span><span class="s">&quot;external&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setLoginWithEmailAllowed</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Token 配置</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setAccessTokenLifespan</span><span class="p">(</span><span class="mi">300</span><span class="p">);</span><span class="w">       </span><span class="c1">// 5 分钟</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setSsoSessionIdleTimeout</span><span class="p">(</span><span class="mi">1800</span><span class="p">);</span><span class="w">    </span><span class="c1">// 30 分钟</span>
+<span class="w">        </span><span class="n">realm</span><span class="p">.</span><span class="na">setSsoSessionMaxLifespan</span><span class="p">(</span><span class="mi">36000</span><span class="p">);</span><span class="w">   </span><span class="c1">// 10 小时</span>
+
+<span class="w">        </span><span class="n">keycloak</span><span class="p">.</span><span class="na">realms</span><span class="p">().</span><span class="na">create</span><span class="p">(</span><span class="n">realm</span><span class="p">);</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Realm created: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">realmName</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 创建 OIDC Client</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">createOidcClient</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">realmName</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">clientId</span><span class="p">,</span>
+<span class="w">                                  </span><span class="n">String</span><span class="w"> </span><span class="n">clientSecret</span><span class="p">,</span>
+<span class="w">                                  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">redirectUris</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ClientRepresentation</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientRepresentation</span><span class="p">();</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setClientId</span><span class="p">(</span><span class="n">clientId</span><span class="p">);</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setSecret</span><span class="p">(</span><span class="n">clientSecret</span><span class="p">);</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setProtocol</span><span class="p">(</span><span class="s">&quot;openid-connect&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setPublicClient</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setDirectAccessGrantsEnabled</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setRedirectUris</span><span class="p">(</span><span class="n">redirectUris</span><span class="p">);</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setWebOrigins</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;+&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setStandardFlowEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 在 Token 中包含角色</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">setDefaultClientScopes</span><span class="p">(</span>
+<span class="w">                </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;openid&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;profile&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;roles&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">Response</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keycloak</span><span class="p">.</span><span class="na">realm</span><span class="p">(</span><span class="n">realmName</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">clients</span><span class="p">().</span><span class="na">create</span><span class="p">(</span><span class="n">client</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="na">getStatus</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">201</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Client created: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">clientId</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">System</span><span class="p">.</span><span class="na">err</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Failed: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">getStatusInfo</span><span class="p">());</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 创建用户并设置密码</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">createUser</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">realmName</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">username</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">password</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">roles</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 创建用户</span>
+<span class="w">        </span><span class="n">UserRepresentation</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UserRepresentation</span><span class="p">();</span>
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setUsername</span><span class="p">(</span><span class="n">username</span><span class="p">);</span>
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setEmail</span><span class="p">(</span><span class="n">email</span><span class="p">);</span>
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setEmailVerified</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">Response</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keycloak</span><span class="p">.</span><span class="na">realm</span><span class="p">(</span><span class="n">realmName</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">users</span><span class="p">().</span><span class="na">create</span><span class="p">(</span><span class="n">user</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="na">getStatus</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">201</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">System</span><span class="p">.</span><span class="na">err</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Failed to create user: &quot;</span>
+<span class="w">                        </span><span class="o">+</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">getStatusInfo</span><span class="p">());</span>
+<span class="w">                </span><span class="k">return</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 获取用户 ID</span>
+<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">UserRepresentation</span><span class="o">&gt;</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keycloak</span><span class="p">.</span><span class="na">realm</span><span class="p">(</span><span class="n">realmName</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">users</span><span class="p">().</span><span class="na">searchByUsername</span><span class="p">(</span><span class="n">username</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">userId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">users</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="na">getId</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 设置密码</span>
+<span class="w">        </span><span class="n">CredentialRepresentation</span><span class="w"> </span><span class="n">credential</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CredentialRepresentation</span><span class="p">();</span>
+<span class="w">        </span><span class="n">credential</span><span class="p">.</span><span class="na">setType</span><span class="p">(</span><span class="n">CredentialRepresentation</span><span class="p">.</span><span class="na">PASSWORD</span><span class="p">);</span>
+<span class="w">        </span><span class="n">credential</span><span class="p">.</span><span class="na">setValue</span><span class="p">(</span><span class="n">password</span><span class="p">);</span>
+<span class="w">        </span><span class="n">credential</span><span class="p">.</span><span class="na">setTemporary</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+<span class="w">        </span><span class="n">keycloak</span><span class="p">.</span><span class="na">realm</span><span class="p">(</span><span class="n">realmName</span><span class="p">).</span><span class="na">users</span><span class="p">().</span><span class="na">get</span><span class="p">(</span><span class="n">userId</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">resetPassword</span><span class="p">(</span><span class="n">credential</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 分配 Realm 角色</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">roleName</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">roles</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">RoleRepresentation</span><span class="w"> </span><span class="n">role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keycloak</span><span class="p">.</span><span class="na">realm</span><span class="p">(</span><span class="n">realmName</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">roles</span><span class="p">().</span><span class="na">get</span><span class="p">(</span><span class="n">roleName</span><span class="p">).</span><span class="na">toRepresentation</span><span class="p">();</span>
+<span class="w">            </span><span class="n">keycloak</span><span class="p">.</span><span class="na">realm</span><span class="p">(</span><span class="n">realmName</span><span class="p">).</span><span class="na">users</span><span class="p">().</span><span class="na">get</span><span class="p">(</span><span class="n">userId</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">roles</span><span class="p">().</span><span class="na">realmLevel</span><span class="p">().</span><span class="na">add</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">role</span><span class="p">));</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;User created: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">username</span>
+<span class="w">                </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; with roles: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">roles</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// ── 使用示例 ──</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">admin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">KeycloakAdminExample</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;http://localhost:8080&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;admin&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 1. 创建 Realm</span>
+<span class="w">        </span><span class="n">admin</span><span class="p">.</span><span class="na">createRealm</span><span class="p">(</span><span class="s">&quot;my-app-realm&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 2. 创建 Client</span>
+<span class="w">        </span><span class="n">admin</span><span class="p">.</span><span class="na">createOidcClient</span><span class="p">(</span><span class="s">&quot;my-app-realm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;my-web-app&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;super-secret&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;http://localhost:3000/callback&quot;</span><span class="p">));</span>
+
+<span class="w">        </span><span class="c1">// 3. 创建用户</span>
+<span class="w">        </span><span class="n">admin</span><span class="p">.</span><span class="na">createUser</span><span class="p">(</span><span class="s">&quot;my-app-realm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;alice&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;alice@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;password123&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="n">admin</span><span class="p">.</span><span class="na">createUser</span><span class="p">(</span><span class="s">&quot;my-app-realm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bob&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;bob@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;password123&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="go-crewjam-saml-saml-sp">
+<h3>Go：crewjam/saml SAML SP 实现<a class="headerlink" href="#go-crewjam-saml-saml-sp" title="Link to this heading"></a></h3>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm"> * Go SAML SP 实现 — 使用 crewjam/saml</span>
+<span class="cm"> * 依赖: go get github.com/crewjam/saml</span>
+<span class="cm"> */</span>
+<span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;context&quot;</span>
+<span class="w">	</span><span class="s">&quot;crypto/rsa&quot;</span>
+<span class="w">	</span><span class="s">&quot;crypto/tls&quot;</span>
+<span class="w">	</span><span class="s">&quot;crypto/x509&quot;</span>
+<span class="w">	</span><span class="s">&quot;encoding/pem&quot;</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;log&quot;</span>
+<span class="w">	</span><span class="s">&quot;net/http&quot;</span>
+<span class="w">	</span><span class="s">&quot;net/url&quot;</span>
+<span class="w">	</span><span class="s">&quot;os&quot;</span>
+
+<span class="w">	</span><span class="s">&quot;github.com/crewjam/saml/samlsp&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="c1">// 加载 SP 证书和私钥</span>
+<span class="w">	</span><span class="nx">keyPair</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tls</span><span class="p">.</span><span class="nx">LoadX509KeyPair</span><span class="p">(</span><span class="s">&quot;sp-cert.pem&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;sp-key.pem&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;Failed to load key pair: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">keyPair</span><span class="p">.</span><span class="nx">Leaf</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">x509</span><span class="p">.</span><span class="nx">ParseCertificate</span><span class="p">(</span><span class="nx">keyPair</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;Failed to parse certificate: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// IdP Metadata URL</span>
+<span class="w">	</span><span class="nx">idpMetadataURL</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">url</span><span class="p">.</span><span class="nx">Parse</span><span class="p">(</span>
+<span class="w">		</span><span class="s">&quot;http://localhost:8080/realms/my-realm/protocol/saml/descriptor&quot;</span><span class="p">,</span>
+<span class="w">	</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">idpMetadata</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">samlsp</span><span class="p">.</span><span class="nx">FetchMetadata</span><span class="p">(</span>
+<span class="w">		</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">(),</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">DefaultClient</span><span class="p">,</span>
+<span class="w">		</span><span class="o">*</span><span class="nx">idpMetadataURL</span><span class="p">,</span>
+<span class="w">	</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;Failed to fetch IdP metadata: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// SP 根 URL</span>
+<span class="w">	</span><span class="nx">rootURL</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">url</span><span class="p">.</span><span class="nx">Parse</span><span class="p">(</span><span class="s">&quot;http://localhost:8000&quot;</span><span class="p">)</span>
+
+<span class="w">	</span><span class="c1">// 创建 SAML 中间件</span>
+<span class="w">	</span><span class="nx">samlSP</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">samlsp</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">samlsp</span><span class="p">.</span><span class="nx">Options</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">URL</span><span class="p">:</span><span class="w">         </span><span class="o">*</span><span class="nx">rootURL</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Key</span><span class="p">:</span><span class="w">         </span><span class="nx">keyPair</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">.(</span><span class="o">*</span><span class="nx">rsa</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">Certificate</span><span class="p">:</span><span class="w"> </span><span class="nx">keyPair</span><span class="p">.</span><span class="nx">Leaf</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">IDPMetadata</span><span class="p">:</span><span class="w"> </span><span class="nx">idpMetadata</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;Failed to create SAML SP: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 受保护的路由</span>
+<span class="w">	</span><span class="nx">protectedHandler</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">HandlerFunc</span><span class="p">(</span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="c1">// 从 SAML Session 中获取用户信息</span>
+<span class="w">		</span><span class="nx">session</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">samlsp</span><span class="p">.</span><span class="nx">SessionFromContext</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Context</span><span class="p">())</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">session</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No session&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">)</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">sa</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">session</span><span class="p">.(</span><span class="nx">samlsp</span><span class="p">.</span><span class="nx">SessionWithAttributes</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">ok</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid session type&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">attrs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">sa</span><span class="p">.</span><span class="nx">GetAttributes</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Hello, %s!\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">attrs</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;displayName&quot;</span><span class="p">))</span>
+<span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Email: %s\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">attrs</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;email&quot;</span><span class="p">))</span>
+<span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Roles: %v\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">attrs</span><span class="p">[</span><span class="s">&quot;Role&quot;</span><span class="p">])</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// 公开路由</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">`&lt;h1&gt;SAML SP Demo&lt;/h1&gt;&lt;a href=&quot;/protected&quot;&gt;Login&lt;/a&gt;`</span><span class="p">)</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// SAML 端点（/saml/acs, /saml/metadata 等由中间件自动处理）</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">Handle</span><span class="p">(</span><span class="s">&quot;/saml/&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">samlSP</span><span class="p">)</span>
+
+<span class="w">	</span><span class="c1">// 受保护路由使用 SAML 中间件</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">Handle</span><span class="p">(</span><span class="s">&quot;/protected&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">samlSP</span><span class="p">.</span><span class="nx">RequireAccount</span><span class="p">(</span><span class="nx">protectedHandler</span><span class="p">))</span>
+
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;SAML SP listening on :8000&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ListenAndServe</span><span class="p">(</span><span class="s">&quot;:8000&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="go-go-oidc-sso">
+<h3>Go：go-oidc SSO 集成<a class="headerlink" href="#go-go-oidc-sso" title="Link to this heading"></a></h3>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm"> * Go OIDC SSO 集成 — 使用 coreos/go-oidc + oauth2</span>
+<span class="cm"> * 依赖:</span>
+<span class="cm"> *   go get github.com/coreos/go-oidc/v3</span>
+<span class="cm"> *   go get golang.org/x/oauth2</span>
+<span class="cm"> */</span>
+<span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;context&quot;</span>
+<span class="w">	</span><span class="s">&quot;crypto/rand&quot;</span>
+<span class="w">	</span><span class="s">&quot;encoding/base64&quot;</span>
+<span class="w">	</span><span class="s">&quot;encoding/json&quot;</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;log&quot;</span>
+<span class="w">	</span><span class="s">&quot;net/http&quot;</span>
+<span class="w">	</span><span class="s">&quot;time&quot;</span>
+
+<span class="w">	</span><span class="s">&quot;github.com/coreos/go-oidc/v3/oidc&quot;</span>
+<span class="w">	</span><span class="s">&quot;golang.org/x/oauth2&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="nx">issuerURL</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;http://localhost:8080/realms/my-realm&quot;</span>
+<span class="w">	</span><span class="nx">clientID</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;my-go-app&quot;</span>
+<span class="w">	</span><span class="nx">clientSecret</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;my-client-secret&quot;</span>
+<span class="w">	</span><span class="nx">redirectURL</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;http://localhost:8080/callback&quot;</span>
+
+<span class="w">	</span><span class="nx">provider</span><span class="w">     </span><span class="o">*</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">Provider</span>
+<span class="w">	</span><span class="nx">oauth2Config</span><span class="w"> </span><span class="nx">oauth2</span><span class="p">.</span><span class="nx">Config</span>
+<span class="w">	</span><span class="nx">verifier</span><span class="w">     </span><span class="o">*</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">IDTokenVerifier</span>
+<span class="p">)</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">init</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="kt">error</span>
+
+<span class="w">	</span><span class="c1">// 发现 OIDC Provider 配置</span>
+<span class="w">	</span><span class="nx">provider</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">oidc</span><span class="p">.</span><span class="nx">NewProvider</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">issuerURL</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;Failed to discover OIDC provider: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">oauth2Config</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">oauth2</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ClientID</span><span class="p">:</span><span class="w">     </span><span class="nx">clientID</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">ClientSecret</span><span class="p">:</span><span class="w"> </span><span class="nx">clientSecret</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">RedirectURL</span><span class="p">:</span><span class="w">  </span><span class="nx">redirectURL</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Endpoint</span><span class="p">:</span><span class="w">     </span><span class="nx">provider</span><span class="p">.</span><span class="nx">Endpoint</span><span class="p">(),</span>
+<span class="w">		</span><span class="nx">Scopes</span><span class="p">:</span><span class="w">       </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">ScopeOpenID</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;profile&quot;</span><span class="p">},</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">verifier</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">provider</span><span class="p">.</span><span class="nx">Verifier</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span><span class="nx">ClientID</span><span class="p">:</span><span class="w"> </span><span class="nx">clientID</span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="c1">// 生成随机 state 防止 CSRF</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">generateState</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">b</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Read</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">base64</span><span class="p">.</span><span class="nx">URLEncoding</span><span class="p">.</span><span class="nx">EncodeToString</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">handleLogin</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">state</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">generateState</span><span class="p">()</span>
+<span class="w">	</span><span class="c1">// 实际项目中应将 state 存入 session 或加密 cookie</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">SetCookie</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Cookie</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Name</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;oauth_state&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Value</span><span class="p">:</span><span class="w">    </span><span class="nx">state</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Path</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;/&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">MaxAge</span><span class="p">:</span><span class="w">   </span><span class="mi">300</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">HttpOnly</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">SameSite</span><span class="p">:</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">SameSiteLaxMode</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">Redirect</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">,</span><span class="w"> </span><span class="nx">oauth2Config</span><span class="p">.</span><span class="nx">AuthCodeURL</span><span class="p">(</span><span class="nx">state</span><span class="p">),</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusFound</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">handleCallback</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Context</span><span class="p">()</span>
+
+<span class="w">	</span><span class="c1">// 验证 state</span>
+<span class="w">	</span><span class="nx">stateCookie</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Cookie</span><span class="p">(</span><span class="s">&quot;oauth_state&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Query</span><span class="p">().</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;state&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">stateCookie</span><span class="p">.</span><span class="nx">Value</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid state&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 用 authorization code 交换 token</span>
+<span class="w">	</span><span class="nx">code</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Query</span><span class="p">().</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;code&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">oauth2Config</span><span class="p">.</span><span class="nx">Exchange</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">code</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Token exchange failed: &quot;</span><span class="o">+</span><span class="nx">err</span><span class="p">.</span><span class="nx">Error</span><span class="p">(),</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 提取并验证 id_token</span>
+<span class="w">	</span><span class="nx">rawIDToken</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">token</span><span class="p">.</span><span class="nx">Extra</span><span class="p">(</span><span class="s">&quot;id_token&quot;</span><span class="p">).(</span><span class="kt">string</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">ok</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No id_token in response&quot;</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">idToken</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">verifier</span><span class="p">.</span><span class="nx">Verify</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">rawIDToken</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ID token verification failed: &quot;</span><span class="o">+</span><span class="nx">err</span><span class="p">.</span><span class="nx">Error</span><span class="p">(),</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 解析 Claims</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">claims</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Sub</span><span class="w">           </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;sub&quot;`</span>
+<span class="w">		</span><span class="nx">Name</span><span class="w">          </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;name&quot;`</span>
+<span class="w">		</span><span class="nx">Email</span><span class="w">         </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;email&quot;`</span>
+<span class="w">		</span><span class="nx">EmailVerified</span><span class="w"> </span><span class="kt">bool</span><span class="w">   </span><span class="s">`json:&quot;email_verified&quot;`</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">idToken</span><span class="p">.</span><span class="nx">Claims</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">claims</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Failed to parse claims&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">json</span><span class="p">.</span><span class="nx">NewEncoder</span><span class="p">(</span><span class="nx">w</span><span class="p">).</span><span class="nx">Encode</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{</span>
+<span class="w">		</span><span class="s">&quot;message&quot;</span><span class="p">:</span><span class="w">        </span><span class="s">&quot;Login successful!&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;sub&quot;</span><span class="p">:</span><span class="w">            </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Sub</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w">           </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;email&quot;</span><span class="p">:</span><span class="w">          </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Email</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;email_verified&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">claims</span><span class="p">.</span><span class="nx">EmailVerified</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;access_token&quot;</span><span class="p">:</span><span class="w">   </span><span class="nx">token</span><span class="p">.</span><span class="nx">AccessToken</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;token_expiry&quot;</span><span class="p">:</span><span class="w">   </span><span class="nx">token</span><span class="p">.</span><span class="nx">Expiry</span><span class="p">.</span><span class="nx">Format</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">RFC3339</span><span class="p">),</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">handleHome</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprintf</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">`&lt;h1&gt;Go OIDC SSO Demo&lt;/h1&gt;</span>
+<span class="s">&lt;a href=&quot;/login&quot;&gt;Login with Keycloak&lt;/a&gt;`</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleHome</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/login&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleLogin</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/callback&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleCallback</span><span class="p">)</span>
+
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;OIDC SSO demo listening on :8080&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ListenAndServe</span><span class="p">(</span><span class="s">&quot;:8080&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="keycloak">
+<h2>11.9 Keycloak 快速部署<a class="headerlink" href="#keycloak" title="Link to this heading"></a></h2>
+<section id="docker-compose-yml">
+<h3>生产级 docker-compose.yml<a class="headerlink" href="#docker-compose-yml" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># docker-compose.yml — Keycloak 生产部署</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.9&quot;</span>
+
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:16-alpine</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak-db</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak</span>
+<span class="w">      </span><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak</span>
+<span class="w">      </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${KC_DB_PASSWORD:-keycloak_secret}</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgdata:/var/lib/postgresql/data</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pg_isready</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">keycloak&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak-net</span>
+
+<span class="w">  </span><span class="nt">keycloak</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">quay.io/keycloak/keycloak:24.0</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">start --optimized</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># 数据库</span>
+<span class="w">      </span><span class="nt">KC_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+<span class="w">      </span><span class="nt">KC_DB_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jdbc:postgresql://postgres:5432/keycloak</span>
+<span class="w">      </span><span class="nt">KC_DB_USERNAME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak</span>
+<span class="w">      </span><span class="nt">KC_DB_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${KC_DB_PASSWORD:-keycloak_secret}</span>
+<span class="w">      </span><span class="c1"># 主机名</span>
+<span class="w">      </span><span class="nt">KC_HOSTNAME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${KC_HOSTNAME:-auth.example.com}</span>
+<span class="w">      </span><span class="nt">KC_HOSTNAME_STRICT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">      </span><span class="nt">KC_PROXY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge</span>
+<span class="w">      </span><span class="c1"># HTTPS（由反向代理终止 TLS 时可省略）</span>
+<span class="w">      </span><span class="c1"># KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/conf/cert.pem</span>
+<span class="w">      </span><span class="c1"># KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/conf/key.pem</span>
+<span class="w">      </span><span class="c1"># 管理员</span>
+<span class="w">      </span><span class="nt">KEYCLOAK_ADMIN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${KC_ADMIN:-admin}</span>
+<span class="w">      </span><span class="nt">KEYCLOAK_ADMIN_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${KC_ADMIN_PASSWORD:-change_me}</span>
+<span class="w">      </span><span class="c1"># 性能</span>
+<span class="w">      </span><span class="nt">KC_HEALTH_ENABLED</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">      </span><span class="nt">KC_METRICS_ENABLED</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8080:8080&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8443:8443&quot;</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;curl</span><span class="nv"> </span><span class="s">-f</span><span class="nv"> </span><span class="s">http://localhost:8080/health/ready</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keycloak-net</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pgdata</span><span class="p">:</span>
+
+<span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">keycloak-net</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bridge</span>
+</pre></div>
+</div>
+</section>
+<section id="admin-rest-api">
+<h3>初始化脚本（通过 Admin REST API）<a class="headerlink" href="#admin-rest-api" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># keycloak-init.sh — 初始化 Realm、Client、角色和测试用户</span>
+<span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+
+<span class="nv">KC_URL</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="k">:-</span><span class="nv">http</span><span class="p">://localhost:</span><span class="nv">8080</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">KC_ADMIN</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_ADMIN</span><span class="k">:-</span><span class="nv">admin</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">KC_ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_ADMIN_PASSWORD</span><span class="k">:-</span><span class="nv">change_me</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">REALM</span><span class="o">=</span><span class="s2">&quot;my-app&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⏳ Waiting for Keycloak to be ready...&quot;</span>
+<span class="k">until</span><span class="w"> </span>curl<span class="w"> </span>-sf<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/health/ready&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">2</span>
+<span class="k">done</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Keycloak is ready&quot;</span>
+
+<span class="c1"># 获取 Admin Token</span>
+<span class="nv">TOKEN</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/realms/master/protocol/openid-connect/token&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;client_id=admin-cli&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;username=</span><span class="si">${</span><span class="nv">KC_ADMIN</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;password=</span><span class="si">${</span><span class="nv">KC_ADMIN_PASSWORD</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;grant_type=password&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.access_token&#39;</span><span class="k">)</span>
+
+<span class="nv">AUTH</span><span class="o">=</span><span class="s2">&quot;Authorization: Bearer </span><span class="si">${</span><span class="nv">TOKEN</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># 1. 创建 Realm</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📦 Creating realm: </span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">&quot;</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/admin/realms&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">AUTH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">        &quot;realm&quot;: &quot;&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;,</span>
+<span class="s1">        &quot;enabled&quot;: true,</span>
+<span class="s1">        &quot;registrationAllowed&quot;: false,</span>
+<span class="s1">        &quot;loginWithEmailAllowed&quot;: true,</span>
+<span class="s1">        &quot;accessTokenLifespan&quot;: 300,</span>
+<span class="s1">        &quot;ssoSessionIdleTimeout&quot;: 1800</span>
+<span class="s1">    }&#39;</span>
+
+<span class="c1"># 2. 创建角色</span>
+<span class="k">for</span><span class="w"> </span>ROLE<span class="w"> </span><span class="k">in</span><span class="w"> </span>admin<span class="w"> </span>editor<span class="w"> </span>viewer<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔑 Creating role: </span><span class="si">${</span><span class="nv">ROLE</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/admin/realms/</span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">/roles&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-H<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">AUTH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;: &quot;&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ROLE</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;}&#39;</span>
+<span class="k">done</span>
+
+<span class="c1"># 3. 创建 OIDC Client</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔧 Creating OIDC client: my-web-app&quot;</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/admin/realms/</span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">/clients&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">AUTH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">        &quot;clientId&quot;: &quot;my-web-app&quot;,</span>
+<span class="s1">        &quot;secret&quot;: &quot;my-client-secret&quot;,</span>
+<span class="s1">        &quot;enabled&quot;: true,</span>
+<span class="s1">        &quot;protocol&quot;: &quot;openid-connect&quot;,</span>
+<span class="s1">        &quot;publicClient&quot;: false,</span>
+<span class="s1">        &quot;standardFlowEnabled&quot;: true,</span>
+<span class="s1">        &quot;directAccessGrantsEnabled&quot;: false,</span>
+<span class="s1">        &quot;redirectUris&quot;: [&quot;http://localhost:3000/callback&quot;, &quot;http://localhost:5000/callback&quot;],</span>
+<span class="s1">        &quot;webOrigins&quot;: [&quot;+&quot;]</span>
+<span class="s1">    }&#39;</span>
+
+<span class="c1"># 4. 创建测试用户</span>
+create_user<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">USERNAME</span><span class="o">=</span><span class="nv">$1</span><span class="w"> </span><span class="nv">EMAIL</span><span class="o">=</span><span class="nv">$2</span><span class="w"> </span><span class="nv">PASSWORD</span><span class="o">=</span><span class="nv">$3</span><span class="w"> </span><span class="nv">ROLE</span><span class="o">=</span><span class="nv">$4</span>
+
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;👤 Creating user: </span><span class="si">${</span><span class="nv">USERNAME</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/admin/realms/</span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">/users&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-H<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">AUTH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">            &quot;username&quot;: &quot;&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">USERNAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;,</span>
+<span class="s1">            &quot;email&quot;: &quot;&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EMAIL</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;,</span>
+<span class="s1">            &quot;enabled&quot;: true,</span>
+<span class="s1">            &quot;emailVerified&quot;: true,</span>
+<span class="s1">            &quot;credentials&quot;: [{&quot;type&quot;: &quot;password&quot;, &quot;value&quot;: &quot;&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PASSWORD</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;, &quot;temporary&quot;: false}]</span>
+<span class="s1">        }&#39;</span>
+
+<span class="w">    </span><span class="c1"># 获取用户 ID</span>
+<span class="w">    </span><span class="nv">USER_ID</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/admin/realms/</span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">/users?username=</span><span class="si">${</span><span class="nv">USERNAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-H<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">AUTH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.[0].id&#39;</span><span class="k">)</span>
+
+<span class="w">    </span><span class="c1"># 获取角色 ID</span>
+<span class="w">    </span><span class="nv">ROLE_JSON</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/admin/realms/</span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">/roles/</span><span class="si">${</span><span class="nv">ROLE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-H<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">AUTH</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span>
+
+<span class="w">    </span><span class="c1"># 分配角色</span>
+<span class="w">    </span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/admin/realms/</span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">/users/</span><span class="si">${</span><span class="nv">USER_ID</span><span class="si">}</span><span class="s2">/role-mappings/realm&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-H<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">AUTH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-d<span class="w"> </span><span class="s2">&quot;[</span><span class="si">${</span><span class="nv">ROLE_JSON</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  → Assigned role: </span><span class="si">${</span><span class="nv">ROLE</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="o">}</span>
+
+create_user<span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="w"> </span><span class="s2">&quot;alice@example.com&quot;</span><span class="w"> </span><span class="s2">&quot;password123&quot;</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span>
+create_user<span class="w"> </span><span class="s2">&quot;bob&quot;</span><span class="w">   </span><span class="s2">&quot;bob@example.com&quot;</span><span class="w">   </span><span class="s2">&quot;password123&quot;</span><span class="w"> </span><span class="s2">&quot;editor&quot;</span>
+create_user<span class="w"> </span><span class="s2">&quot;carol&quot;</span><span class="w"> </span><span class="s2">&quot;carol@example.com&quot;</span><span class="w"> </span><span class="s2">&quot;password123&quot;</span><span class="w"> </span><span class="s2">&quot;viewer&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🎉 Keycloak initialization complete!&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;   Realm:  </span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;   URL:    </span><span class="si">${</span><span class="nv">KC_URL</span><span class="si">}</span><span class="s2">/realms/</span><span class="si">${</span><span class="nv">REALM</span><span class="si">}</span><span class="s2">/.well-known/openid-configuration&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;   Users:  alice (admin), bob (editor), carol (viewer)&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id9">
+<h2>11.10 SSO 调试技巧<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<section id="saml">
+<h3>SAML 调试<a class="headerlink" href="#saml" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>工具</p></th>
+<th class="head"><p>用途</p></th>
+<th class="head"><p>安装方式</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>SAML Tracer</strong></p></td>
+<td><p>浏览器扩展，捕获 SAML Request/Response</p></td>
+<td><p>Firefox/Chrome 扩展商店</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>SAML Developer Tools</strong></p></td>
+<td><p>在线解码 SAML XML</p></td>
+<td><p>samltool.com</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>xmlsec1</strong></p></td>
+<td><p>命令行验证 SAML 签名</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apt</span> <span class="pre">install</span> <span class="pre">xmlsec1</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 解码 Base64 编码的 SAML Response</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&lt;base64_saml_response&gt;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span><span class="p">|</span><span class="w"> </span>xmllint<span class="w"> </span>--format<span class="w"> </span>-
+
+<span class="c1"># 验证 SAML 签名</span>
+xmlsec1<span class="w"> </span>--verify<span class="w"> </span>--pubkey-cert-pem<span class="w"> </span>idp-cert.pem<span class="w"> </span>saml-response.xml
+</pre></div>
+</div>
+</section>
+<section id="oidc-jwt">
+<h3>OIDC / JWT 调试<a class="headerlink" href="#oidc-jwt" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>工具</p></th>
+<th class="head"><p>用途</p></th>
+<th class="head"><p>地址</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>jwt.io</strong></p></td>
+<td><p>在线解码和验证 JWT</p></td>
+<td><p>https://jwt.io</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>jwt-cli</strong></p></td>
+<td><p>命令行 JWT 工具</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cargo</span> <span class="pre">install</span> <span class="pre">jwt-cli</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>oidc-client-ts</strong></p></td>
+<td><p>前端 OIDC 调试库</p></td>
+<td><p>npm 包</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 jwt-cli 解码 Token</span>
+jwt<span class="w"> </span>decode<span class="w"> </span>&lt;token&gt;
+
+<span class="c1"># 手动请求 Token（Resource Owner Password — 仅调试用）</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;http://localhost:8080/realms/my-realm/protocol/openid-connect/token&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;client_id=my-web-app&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;client_secret=my-client-secret&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;username=alice&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;password=password123&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;grant_type=password&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;scope=openid email profile&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+
+<span class="c1"># 查看 OIDC Discovery 文档</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost:8080/realms/my-realm/.well-known/openid-configuration&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+
+<span class="c1"># 内省 Token</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;http://localhost:8080/realms/my-realm/protocol/openid-connect/token/introspect&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;client_id=my-web-app&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;client_secret=my-client-secret&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s2">&quot;token=&lt;access_token&gt;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>常见问题排查清单<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>问题</p></th>
+<th class="head"><p>可能原因</p></th>
+<th class="head"><p>排查方法</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SAML 签名验证失败</p></td>
+<td><p>IdP 证书过期或不匹配</p></td>
+<td><p>检查 SP 配置中的 IdP 证书</p></td>
+</tr>
+<tr class="row-odd"><td><p>OIDC redirect_uri 不匹配</p></td>
+<td><p>Client 配置的 redirect_uri 与实际不一致</p></td>
+<td><p>检查 IdP Client 配置</p></td>
+</tr>
+<tr class="row-even"><td><p>Token 过期太快</p></td>
+<td><p>access_token_lifespan 设置过短</p></td>
+<td><p>调整 Realm Token 配置</p></td>
+</tr>
+<tr class="row-odd"><td><p>CORS 错误</p></td>
+<td><p>Web Origins 未配置</p></td>
+<td><p>在 Client 中添加 Web Origins</p></td>
+</tr>
+<tr class="row-even"><td><p>登出后仍可访问</p></td>
+<td><p>未清除 IdP Session</p></td>
+<td><p>使用 Front-Channel / Back-Channel Logout</p></td>
+</tr>
+<tr class="row-odd"><td><p>时钟偏差导致验证失败</p></td>
+<td><p>服务器时间不同步</p></td>
+<td><p>配置 NTP，增加 clockSkew 容忍度</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id11">
+<h2>11.11 小结<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>SSO</strong> 通过一次登录访问多个应用，提升用户体验和安全性</p></li>
+<li><p><strong>SAML 2.0</strong> 是企业级 SSO 标准，但较重；<strong>OIDC</strong> 更现代、更轻量</p></li>
+<li><p><strong>联邦身份</strong> 实现跨组织的身份互信</p></li>
+<li><p><strong>Keycloak</strong> 是最流行的开源 SSO 方案，支持 OIDC/SAML/OAuth2</p></li>
+<li><p><strong>方案选型</strong>：新项目首选 OIDC，企业 B2B 用 SAML，高校用 CAS</p></li>
+<li><p><strong>调试工具</strong>：SAML Tracer 抓包、jwt.io 解码、Discovery 端点验证配置</p></li>
+<li><p>选择 SSO 方案时需考虑：协议支持、部署方式、成本、扩展性</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch10.html" class="btn btn-neutral float-left" title="第十章：多因素认证（MFA）" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch12.html" class="btn btn-neutral float-right" title="第十二章：API 认证模式" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

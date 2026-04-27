@@ -1,0 +1,1270 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第六章：TLS 协议深入解析 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch06.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第七章：OAuth 2.0 授权框架" href="ch07.html" />
+    <link rel="prev" title="第五章：身份与访问管理（IAM）概论" href="ch05.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第六章：TLS 协议深入解析</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">6.1 TLS 的演进</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tls-1-2">6.2 TLS 1.2 握手流程</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cipher-suite">密码套件（Cipher Suite）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tls-1-3">6.3 TLS 1.3 的改进</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tls-1-3-vs-1-2">TLS 1.3 vs 1.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">TLS 1.3 密码套件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sni-alpn">6.4 SNI 与 ALPN</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sni-server-name-indication">SNI（Server Name Indication）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alpn-application-layer-protocol-negotiation">ALPN（Application-Layer Protocol Negotiation）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">6.5 TLS 常见攻击</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nginx-tls">6.6 Nginx TLS 最佳实践</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-tls">6.7 Python TLS 编程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#java-tls">6.8 Java TLS 编程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#go-tls">6.9 Go TLS 编程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">6.10 TLS 证书验证与调试工具</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#openssl-s-client">openssl s_client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#curl-verbose">curl –verbose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testssl-sh">testssl.sh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">其他实用命令</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">TLS 调试流程图</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">6.11 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第六章：TLS 协议深入解析</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch06.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tls">
+<h1>第六章：TLS 协议深入解析<a class="headerlink" href="#tls" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“TLS 是互联网安全的基石，每一次 HTTPS 请求背后都有它的身影。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((TLS 协议))
+    演进历史
+      SSL 3.0
+      TLS 1.0/1.1
+      TLS 1.2
+      TLS 1.3
+    握手流程
+      密钥交换
+      身份验证
+      密码协商
+    安全特性
+      前向保密
+      0-RTT
+      AEAD
+    mTLS
+      双向认证
+      Service Mesh
+      SPIFFE
+    </pre><section id="id1">
+<h2>6.1 TLS 的演进<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>版本</p></th>
+<th class="head"><p>年份</p></th>
+<th class="head"><p>状态</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SSL 2.0</p></td>
+<td><p>1995</p></td>
+<td><p>❌ 废弃</p></td>
+<td><p>严重安全缺陷</p></td>
+</tr>
+<tr class="row-odd"><td><p>SSL 3.0</p></td>
+<td><p>1996</p></td>
+<td><p>❌ 废弃</p></td>
+<td><p>POODLE 攻击</p></td>
+</tr>
+<tr class="row-even"><td><p>TLS 1.0</p></td>
+<td><p>1999</p></td>
+<td><p>❌ 废弃</p></td>
+<td><p>BEAST 攻击</p></td>
+</tr>
+<tr class="row-odd"><td><p>TLS 1.1</p></td>
+<td><p>2006</p></td>
+<td><p>❌ 废弃</p></td>
+<td><p>不支持 AEAD</p></td>
+</tr>
+<tr class="row-even"><td><p>TLS 1.2</p></td>
+<td><p>2008</p></td>
+<td><p>✅ 广泛使用</p></td>
+<td><p>支持 GCM、SHA-256</p></td>
+</tr>
+<tr class="row-odd"><td><p>TLS 1.3</p></td>
+<td><p>2018</p></td>
+<td><p>✅ 推荐</p></td>
+<td><p>1-RTT、移除不安全算法</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tls-1-2">
+<h2>6.2 TLS 1.2 握手流程<a class="headerlink" href="#tls-1-2" title="Link to this heading"></a></h2>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant C as 客户端
+    participant S as 服务器
+    C-&gt;&gt;S: 1. ClientHello (密码套件、随机数、SNI)
+    S-&gt;&gt;C: 2. ServerHello (选择的密码套件、随机数)
+    S-&gt;&gt;C: 3. Certificate (服务器证书)
+    S-&gt;&gt;C: 4. ServerKeyExchange (DH 参数)
+    S--&gt;&gt;C: 5. CertificateRequest (mTLS 时)
+    S-&gt;&gt;C: 6. ServerHelloDone
+    C--&gt;&gt;S: 7. Certificate (客户端证书, mTLS 时)
+    C-&gt;&gt;S: 8. ClientKeyExchange (DH 公钥)
+    C--&gt;&gt;S: 9. CertificateVerify (mTLS 时)
+    C-&gt;&gt;S: 10. ChangeCipherSpec + Finished
+    S-&gt;&gt;C: 11. ChangeCipherSpec + Finished
+    Note over C,S: 加密通信开始 (2-RTT)
+    </pre><section id="cipher-suite">
+<h3>密码套件（Cipher Suite）<a class="headerlink" href="#cipher-suite" title="Link to this heading"></a></h3>
+<p>TLS 1.2 密码套件格式：<code class="docutils literal notranslate"><span class="pre">TLS_密钥交换_WITH_加密算法_哈希算法</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>推荐的 TLS 1.2 密码套件：
+TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+│    │      │        │    │    │
+│    │      │        │    │    └── 哈希：SHA-384
+│    │      │        │    └─────── 模式：GCM（认证加密）
+│    │      │        └──────────── 加密：AES-256
+│    │      └───────────────────── 认证：RSA 证书
+│    └──────────────────────────── 密钥交换：ECDHE（前向保密）
+└───────────────────────────────── 协议：TLS
+</pre></div>
+</div>
+</section>
+</section>
+<section id="tls-1-3">
+<h2>6.3 TLS 1.3 的改进<a class="headerlink" href="#tls-1-3" title="Link to this heading"></a></h2>
+<p>TLS 1.3 做了大幅简化和安全增强：</p>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant C as 客户端
+    participant S as 服务器
+    C-&gt;&gt;S: 1. ClientHello (密码套件、密钥共享、SNI)
+    S-&gt;&gt;C: 2. ServerHello (密钥共享)
+    S-&gt;&gt;C: 3. {EncryptedExtensions}
+    S-&gt;&gt;C: 4. {Certificate}
+    S-&gt;&gt;C: 5. {CertificateVerify}
+    S-&gt;&gt;C: 6. {Finished}
+    C-&gt;&gt;S: 7. {Finished}
+    Note over C,S: 加密通信开始 (1-RTT)
+    </pre><section id="tls-1-3-vs-1-2">
+<h3>TLS 1.3 vs 1.2<a class="headerlink" href="#tls-1-3-vs-1-2" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特性</p></th>
+<th class="head"><p>TLS 1.2</p></th>
+<th class="head"><p>TLS 1.3</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>握手延迟</p></td>
+<td><p>2-RTT</p></td>
+<td><p>1-RTT（支持 0-RTT）</p></td>
+</tr>
+<tr class="row-odd"><td><p>密钥交换</p></td>
+<td><p>RSA/DHE/ECDHE</p></td>
+<td><p>仅 ECDHE/DHE</p></td>
+</tr>
+<tr class="row-even"><td><p>对称加密</p></td>
+<td><p>CBC/GCM</p></td>
+<td><p>仅 AEAD（GCM/ChaCha20）</p></td>
+</tr>
+<tr class="row-odd"><td><p>哈希算法</p></td>
+<td><p>MD5/SHA-1/SHA-256</p></td>
+<td><p>仅 SHA-256/SHA-384</p></td>
+</tr>
+<tr class="row-even"><td><p>前向保密</p></td>
+<td><p>可选</p></td>
+<td><p>强制</p></td>
+</tr>
+<tr class="row-odd"><td><p>0-RTT</p></td>
+<td><p>不支持</p></td>
+<td><p>支持（有重放风险）</p></td>
+</tr>
+<tr class="row-even"><td><p>压缩</p></td>
+<td><p>支持（CRIME 攻击）</p></td>
+<td><p>移除</p></td>
+</tr>
+<tr class="row-odd"><td><p>重协商</p></td>
+<td><p>支持</p></td>
+<td><p>移除</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id2">
+<h3>TLS 1.3 密码套件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>TLS 1.3 只有 5 个密码套件：
+TLS_AES_256_GCM_SHA384        ← 推荐
+TLS_AES_128_GCM_SHA256        ← 推荐
+TLS_CHACHA20_POLY1305_SHA256  ← 移动设备推荐
+TLS_AES_128_CCM_SHA256
+TLS_AES_128_CCM_8_SHA256
+</pre></div>
+</div>
+</section>
+</section>
+<section id="sni-alpn">
+<h2>6.4 SNI 与 ALPN<a class="headerlink" href="#sni-alpn" title="Link to this heading"></a></h2>
+<section id="sni-server-name-indication">
+<h3>SNI（Server Name Indication）<a class="headerlink" href="#sni-server-name-indication" title="Link to this heading"></a></h3>
+<p>SNI 允许客户端在 TLS 握手时指定要访问的主机名，使同一 IP 可以托管多个 HTTPS 站点：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ClientHello:
+  server_name: example.com    ← SNI 扩展
+  
+注意：SNI 是明文传输的！
+ECH（Encrypted Client Hello）是 TLS 1.3 的扩展，
+可以加密 SNI，防止网络监控者知道你访问了哪个网站。
+</pre></div>
+</div>
+</section>
+<section id="alpn-application-layer-protocol-negotiation">
+<h3>ALPN（Application-Layer Protocol Negotiation）<a class="headerlink" href="#alpn-application-layer-protocol-negotiation" title="Link to this heading"></a></h3>
+<p>ALPN 在 TLS 握手时协商应用层协议：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ClientHello:
+  alpn: [&quot;h2&quot;, &quot;http/1.1&quot;]   ← 支持 HTTP/2 和 HTTP/1.1
+
+ServerHello:
+  alpn: &quot;h2&quot;                  ← 选择 HTTP/2
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id3">
+<h2>6.5 TLS 常见攻击<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>攻击</p></th>
+<th class="head"><p>年份</p></th>
+<th class="head"><p>影响</p></th>
+<th class="head"><p>防御</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>BEAST</p></td>
+<td><p>2011</p></td>
+<td><p>TLS 1.0 CBC</p></td>
+<td><p>升级到 TLS 1.2+</p></td>
+</tr>
+<tr class="row-odd"><td><p>CRIME</p></td>
+<td><p>2012</p></td>
+<td><p>TLS 压缩</p></td>
+<td><p>禁用 TLS 压缩</p></td>
+</tr>
+<tr class="row-even"><td><p>Heartbleed</p></td>
+<td><p>2014</p></td>
+<td><p>OpenSSL 内存泄露</p></td>
+<td><p>更新 OpenSSL</p></td>
+</tr>
+<tr class="row-odd"><td><p>POODLE</p></td>
+<td><p>2014</p></td>
+<td><p>SSL 3.0</p></td>
+<td><p>禁用 SSL 3.0</p></td>
+</tr>
+<tr class="row-even"><td><p>FREAK</p></td>
+<td><p>2015</p></td>
+<td><p>出口级密码</p></td>
+<td><p>禁用弱密码套件</p></td>
+</tr>
+<tr class="row-odd"><td><p>Logjam</p></td>
+<td><p>2015</p></td>
+<td><p>弱 DH 参数</p></td>
+<td><p>使用 2048+ 位 DH</p></td>
+</tr>
+<tr class="row-even"><td><p>ROBOT</p></td>
+<td><p>2017</p></td>
+<td><p>RSA 密钥交换</p></td>
+<td><p>使用 ECDHE</p></td>
+</tr>
+<tr class="row-odd"><td><p>DROWN</p></td>
+<td><p>2016</p></td>
+<td><p>SSLv2 跨协议</p></td>
+<td><p>禁用 SSLv2</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="nginx-tls">
+<h2>6.6 Nginx TLS 最佳实践<a class="headerlink" href="#nginx-tls" title="Link to this heading"></a></h2>
+<div class="highlight-nginx notranslate"><div class="highlight"><pre><span></span><span class="k">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="w"> </span><span class="s">http2</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">example.com</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1"># 证书</span>
+<span class="w">    </span><span class="kn">ssl_certificate</span><span class="w">     </span><span class="s">/etc/nginx/ssl/fullchain.pem</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">ssl_certificate_key</span><span class="w"> </span><span class="s">/etc/nginx/ssl/privkey.pem</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1"># 协议版本：仅 TLS 1.2 和 1.3</span>
+<span class="w">    </span><span class="kn">ssl_protocols</span><span class="w"> </span><span class="s">TLSv1.2</span><span class="w"> </span><span class="s">TLSv1.3</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1"># 密码套件（服务器优先）</span>
+<span class="w">    </span><span class="kn">ssl_prefer_server_ciphers</span><span class="w"> </span><span class="no">on</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">ssl_ciphers</span><span class="w"> </span><span class="s">&#39;ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1"># DH 参数（2048 位以上）</span>
+<span class="w">    </span><span class="kn">ssl_dhparam</span><span class="w"> </span><span class="s">/etc/nginx/ssl/dhparam.pem</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1"># OCSP Stapling</span>
+<span class="w">    </span><span class="kn">ssl_stapling</span><span class="w"> </span><span class="no">on</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">ssl_stapling_verify</span><span class="w"> </span><span class="no">on</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">ssl_trusted_certificate</span><span class="w"> </span><span class="s">/etc/nginx/ssl/chain.pem</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1"># Session 缓存</span>
+<span class="w">    </span><span class="kn">ssl_session_cache</span><span class="w"> </span><span class="s">shared:SSL:10m</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">ssl_session_timeout</span><span class="w"> </span><span class="s">1d</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">ssl_session_tickets</span><span class="w"> </span><span class="no">off</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1"># HSTS（HTTP Strict Transport Security）</span>
+<span class="w">    </span><span class="kn">add_header</span><span class="w"> </span><span class="s">Strict-Transport-Security</span><span class="w"> </span><span class="s">&quot;max-age=63072000</span><span class="p">;</span><span class="w"> </span><span class="kn">includeSubDomains</span><span class="p">;</span><span class="w"> </span><span class="kn">preload&quot;</span><span class="w"> </span><span class="s">always</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1"># 安全头</span>
+<span class="w">    </span><span class="kn">add_header</span><span class="w"> </span><span class="s">X-Content-Type-Options</span><span class="w"> </span><span class="s">nosniff</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">add_header</span><span class="w"> </span><span class="s">X-Frame-Options</span><span class="w"> </span><span class="s">DENY</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">add_header</span><span class="w"> </span><span class="s">X-XSS-Protection</span><span class="w"> </span><span class="s">&quot;1</span><span class="p">;</span><span class="w"> </span><span class="kn">mode=block&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="python-tls">
+<h2>6.7 Python TLS 编程<a class="headerlink" href="#python-tls" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ssl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_tls_client</span><span class="p">(</span><span class="n">hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">443</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLSocket</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;创建安全的 TLS 客户端连接&quot;&quot;&quot;</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">PROTOCOL_TLS_CLIENT</span><span class="p">)</span>
+    
+    <span class="c1"># 设置最低 TLS 版本</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">minimum_version</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">TLSVersion</span><span class="o">.</span><span class="n">TLSv1_2</span>
+    
+    <span class="c1"># 加载系统 CA 证书</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">load_default_certs</span><span class="p">()</span>
+    
+    <span class="c1"># 启用证书验证</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">check_hostname</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="c1"># 创建连接</span>
+    <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">create_connection</span><span class="p">((</span><span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+    <span class="n">tls_sock</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">wrap_socket</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">server_hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">)</span>
+    
+    <span class="c1"># 打印连接信息</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;协议版本: </span><span class="si">{</span><span class="n">tls_sock</span><span class="o">.</span><span class="n">version</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;密码套件: </span><span class="si">{</span><span class="n">tls_sock</span><span class="o">.</span><span class="n">cipher</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">cert</span> <span class="o">=</span> <span class="n">tls_sock</span><span class="o">.</span><span class="n">getpeercert</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;证书主体: </span><span class="si">{</span><span class="n">cert</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;证书有效期: </span><span class="si">{</span><span class="n">cert</span><span class="p">[</span><span class="s1">&#39;notBefore&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">cert</span><span class="p">[</span><span class="s1">&#39;notAfter&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">tls_sock</span>
+
+<span class="c1"># mTLS 客户端</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_mtls_client</span><span class="p">(</span><span class="n">hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                       <span class="n">client_cert</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">client_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                       <span class="n">ca_cert</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLSocket</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;创建 mTLS 客户端连接&quot;&quot;&quot;</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">PROTOCOL_TLS_CLIENT</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">minimum_version</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">TLSVersion</span><span class="o">.</span><span class="n">TLSv1_2</span>
+    
+    <span class="c1"># 加载客户端证书</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">client_cert</span><span class="p">,</span> <span class="n">client_key</span><span class="p">)</span>
+    <span class="c1"># 加载 CA 证书</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="n">ca_cert</span><span class="p">)</span>
+    
+    <span class="n">context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">check_hostname</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">create_connection</span><span class="p">((</span><span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">wrap_socket</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">server_hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="java-tls">
+<h2>6.8 Java TLS 编程<a class="headerlink" href="#java-tls" title="Link to this heading"></a></h2>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">// Java TLS 客户端</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">javax.net.ssl.*</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.security.KeyStore</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.io.*</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TlsClient</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">SSLSocket</span><span class="w"> </span><span class="nf">createTlsConnection</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">port</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">SSLContext</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SSLContext</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;TLSv1.3&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ctx</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+<span class="w">        </span><span class="n">SSLSocketFactory</span><span class="w"> </span><span class="n">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="na">getSocketFactory</span><span class="p">();</span>
+<span class="w">        </span><span class="n">SSLSocket</span><span class="w"> </span><span class="n">socket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">SSLSocket</span><span class="p">)</span><span class="w"> </span><span class="n">factory</span><span class="p">.</span><span class="na">createSocket</span><span class="p">(</span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="n">port</span><span class="p">);</span>
+<span class="w">        </span><span class="n">socket</span><span class="p">.</span><span class="na">setEnabledProtocols</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="o">[]</span><span class="p">{</span><span class="s">&quot;TLSv1.3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;TLSv1.2&quot;</span><span class="p">});</span>
+<span class="w">        </span><span class="n">socket</span><span class="p">.</span><span class="na">startHandshake</span><span class="p">();</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Protocol: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">socket</span><span class="p">.</span><span class="na">getSession</span><span class="p">().</span><span class="na">getProtocol</span><span class="p">());</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Cipher: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">socket</span><span class="p">.</span><span class="na">getSession</span><span class="p">().</span><span class="na">getCipherSuite</span><span class="p">());</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">socket</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// mTLS 客户端</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">SSLSocket</span><span class="w"> </span><span class="nf">createMtlsConnection</span><span class="p">(</span>
+<span class="w">            </span><span class="n">String</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">port</span><span class="p">,</span>
+<span class="w">            </span><span class="n">String</span><span class="w"> </span><span class="n">keystorePath</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">keystorePass</span><span class="p">,</span>
+<span class="w">            </span><span class="n">String</span><span class="w"> </span><span class="n">truststorePath</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">truststorePass</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 加载客户端证书</span>
+<span class="w">        </span><span class="n">KeyStore</span><span class="w"> </span><span class="n">keyStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyStore</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;PKCS12&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">keyStore</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileInputStream</span><span class="p">(</span><span class="n">keystorePath</span><span class="p">),</span><span class="w"> </span><span class="n">keystorePass</span><span class="p">.</span><span class="na">toCharArray</span><span class="p">());</span>
+<span class="w">        </span><span class="n">KeyManagerFactory</span><span class="w"> </span><span class="n">kmf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyManagerFactory</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;SunX509&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">kmf</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">keyStore</span><span class="p">,</span><span class="w"> </span><span class="n">keystorePass</span><span class="p">.</span><span class="na">toCharArray</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// 加载信任的 CA 证书</span>
+<span class="w">        </span><span class="n">KeyStore</span><span class="w"> </span><span class="n">trustStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyStore</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;JKS&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">trustStore</span><span class="p">.</span><span class="na">load</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileInputStream</span><span class="p">(</span><span class="n">truststorePath</span><span class="p">),</span><span class="w"> </span><span class="n">truststorePass</span><span class="p">.</span><span class="na">toCharArray</span><span class="p">());</span>
+<span class="w">        </span><span class="n">TrustManagerFactory</span><span class="w"> </span><span class="n">tmf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TrustManagerFactory</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;SunX509&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">tmf</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">trustStore</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">SSLContext</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SSLContext</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;TLSv1.3&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ctx</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">kmf</span><span class="p">.</span><span class="na">getKeyManagers</span><span class="p">(),</span><span class="w"> </span><span class="n">tmf</span><span class="p">.</span><span class="na">getTrustManagers</span><span class="p">(),</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+<span class="w">        </span><span class="n">SSLSocket</span><span class="w"> </span><span class="n">socket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">SSLSocket</span><span class="p">)</span><span class="w"> </span><span class="n">ctx</span><span class="p">.</span><span class="na">getSocketFactory</span><span class="p">().</span><span class="na">createSocket</span><span class="p">(</span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="n">port</span><span class="p">);</span>
+<span class="w">        </span><span class="n">socket</span><span class="p">.</span><span class="na">startHandshake</span><span class="p">();</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">socket</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="go-tls">
+<h2>6.9 Go TLS 编程<a class="headerlink" href="#go-tls" title="Link to this heading"></a></h2>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;crypto/tls&quot;</span>
+<span class="w">    </span><span class="s">&quot;crypto/x509&quot;</span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">    </span><span class="s">&quot;os&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// TLS 客户端</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">createTLSConn</span><span class="p">(</span><span class="nx">host</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">conf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">MinVersion</span><span class="p">:</span><span class="w"> </span><span class="nx">tls</span><span class="p">.</span><span class="nx">VersionTLS12</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">CurvePreferences</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">tls</span><span class="p">.</span><span class="nx">CurveID</span><span class="p">{</span><span class="nx">tls</span><span class="p">.</span><span class="nx">X25519</span><span class="p">,</span><span class="w"> </span><span class="nx">tls</span><span class="p">.</span><span class="nx">CurveP256</span><span class="p">},</span>
+<span class="w">        </span><span class="nx">CipherSuites</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="kt">uint16</span><span class="p">{</span>
+<span class="w">            </span><span class="nx">tls</span><span class="p">.</span><span class="nx">TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">tls</span><span class="p">.</span><span class="nx">TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">addr</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;%s:%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">host</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tls</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">&quot;tcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">addr</span><span class="p">,</span><span class="w"> </span><span class="nx">conf</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">state</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">conn</span><span class="p">.</span><span class="nx">ConnectionState</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Protocol: %x\nCipher: %x\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">Version</span><span class="p">,</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">CipherSuite</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// mTLS 客户端</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">createMTLSConn</span><span class="p">(</span><span class="nx">host</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">certFile</span><span class="p">,</span><span class="w"> </span><span class="nx">keyFile</span><span class="p">,</span><span class="w"> </span><span class="nx">caFile</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">cert</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tls</span><span class="p">.</span><span class="nx">LoadX509KeyPair</span><span class="p">(</span><span class="nx">certFile</span><span class="p">,</span><span class="w"> </span><span class="nx">keyFile</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;load client cert: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">caCert</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">ReadFile</span><span class="p">(</span><span class="nx">caFile</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;read CA cert: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">caPool</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">x509</span><span class="p">.</span><span class="nx">NewCertPool</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">caPool</span><span class="p">.</span><span class="nx">AppendCertsFromPEM</span><span class="p">(</span><span class="nx">caCert</span><span class="p">)</span>
+
+<span class="w">    </span><span class="nx">conf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">Certificates</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">{</span><span class="nx">cert</span><span class="p">},</span>
+<span class="w">        </span><span class="nx">RootCAs</span><span class="p">:</span><span class="w">      </span><span class="nx">caPool</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">MinVersion</span><span class="p">:</span><span class="w">   </span><span class="nx">tls</span><span class="p">.</span><span class="nx">VersionTLS12</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">tls</span><span class="p">.</span><span class="nx">Dial</span><span class="p">(</span><span class="s">&quot;tcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;%s:%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">host</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="p">),</span><span class="w"> </span><span class="nx">conf</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>6.10 TLS 证书验证与调试工具<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>在排查 TLS 连接问题时，以下工具是不可或缺的利器。</p>
+<section id="openssl-s-client">
+<h3>openssl s_client<a class="headerlink" href="#openssl-s-client" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">openssl</span> <span class="pre">s_client</span></code> 是最常用的 TLS 调试工具，可以模拟客户端与服务器建立 TLS 连接，查看完整的握手过程和证书链。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 基本连接测试：查看证书链和握手信息</span>
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span>-servername<span class="w"> </span>example.com
+
+<span class="c1"># 指定 TLS 版本</span>
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span>-tls1_2
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span>-tls1_3
+
+<span class="c1"># 查看完整证书链（PEM 格式）</span>
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span>-showcerts
+
+<span class="c1"># 验证证书链是否正确</span>
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span>-verify<span class="w"> </span><span class="m">5</span><span class="w"> </span>-CAfile<span class="w"> </span>/etc/ssl/certs/ca-certificates.crt
+
+<span class="c1"># 检查证书过期时间</span>
+<span class="nb">echo</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>x509<span class="w"> </span>-noout<span class="w"> </span>-dates
+
+<span class="c1"># 查看证书详细信息（主体、颁发者、SAN 等）</span>
+<span class="nb">echo</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>x509<span class="w"> </span>-noout<span class="w"> </span>-text
+
+<span class="c1"># mTLS 调试：携带客户端证书连接</span>
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-cert<span class="w"> </span>client.crt<span class="w"> </span>-key<span class="w"> </span>client.key<span class="w"> </span>-CAfile<span class="w"> </span>ca.crt
+
+<span class="c1"># 检查支持的密码套件</span>
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>example.com:443<span class="w"> </span>-cipher<span class="w"> </span><span class="s1">&#39;ECDHE-RSA-AES256-GCM-SHA384&#39;</span>
+</pre></div>
+</div>
+<p><strong>关键输出字段解读：</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># 成功的连接会显示：
+Verify return code: 0 (ok)                    ← 证书验证通过
+---
+SSL-Session:
+    Protocol  : TLSv1.3                        ← 协商的协议版本
+    Cipher    : TLS_AES_256_GCM_SHA384         ← 协商的密码套件
+---
+Certificate chain
+ 0 s:CN = example.com                          ← 服务器证书
+   i:C = US, O = Let&#39;s Encrypt, CN = R3        ← 颁发者
+ 1 s:C = US, O = Let&#39;s Encrypt, CN = R3        ← 中间 CA
+   i:C = US, O = Internet Security Research Group, CN = ISRG Root X1
+</pre></div>
+</div>
+</section>
+<section id="curl-verbose">
+<h3>curl –verbose<a class="headerlink" href="#curl-verbose" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">curl</span></code> 的 verbose 模式可以展示 TLS 握手的关键信息，适合快速验证 HTTPS 端点。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 查看 TLS 握手详情</span>
+curl<span class="w"> </span>-v<span class="w"> </span>https://example.com<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-30
+
+<span class="c1"># 更详细的 TLS 调试信息（包括密钥交换细节）</span>
+curl<span class="w"> </span>-v<span class="w"> </span>--trace-ascii<span class="w"> </span>/dev/stdout<span class="w"> </span>https://example.com
+
+<span class="c1"># 指定 TLS 版本</span>
+curl<span class="w"> </span>--tlsv1.2<span class="w"> </span>--tls-max<span class="w"> </span><span class="m">1</span>.2<span class="w"> </span>-v<span class="w"> </span>https://example.com
+curl<span class="w"> </span>--tlsv1.3<span class="w"> </span>-v<span class="w"> </span>https://example.com
+
+<span class="c1"># 指定密码套件</span>
+curl<span class="w"> </span>--ciphers<span class="w"> </span><span class="s1">&#39;ECDHE-RSA-AES256-GCM-SHA384&#39;</span><span class="w"> </span>-v<span class="w"> </span>https://example.com
+
+<span class="c1"># 使用自定义 CA 证书验证</span>
+curl<span class="w"> </span>--cacert<span class="w"> </span>/path/to/ca.crt<span class="w"> </span>-v<span class="w"> </span>https://internal-service.example.com
+
+<span class="c1"># mTLS 连接</span>
+curl<span class="w"> </span>--cert<span class="w"> </span>client.crt<span class="w"> </span>--key<span class="w"> </span>client.key<span class="w"> </span>--cacert<span class="w"> </span>ca.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>https://mtls.example.com
+
+<span class="c1"># 忽略证书验证（仅调试用，切勿用于生产！）</span>
+curl<span class="w"> </span>-k<span class="w"> </span>-v<span class="w"> </span>https://self-signed.example.com
+</pre></div>
+</div>
+<p><strong>典型输出解读：</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="n">TLSv1</span><span class="mf">.3</span> <span class="p">(</span><span class="n">OUT</span><span class="p">),</span> <span class="n">TLS</span> <span class="n">handshake</span><span class="p">,</span> <span class="n">Client</span> <span class="n">hello</span> <span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+<span class="o">*</span> <span class="n">TLSv1</span><span class="mf">.3</span> <span class="p">(</span><span class="n">IN</span><span class="p">),</span> <span class="n">TLS</span> <span class="n">handshake</span><span class="p">,</span> <span class="n">Server</span> <span class="n">hello</span> <span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+<span class="o">*</span> <span class="n">TLSv1</span><span class="mf">.3</span> <span class="p">(</span><span class="n">IN</span><span class="p">),</span> <span class="n">TLS</span> <span class="n">handshake</span><span class="p">,</span> <span class="n">Encrypted</span> <span class="n">Extensions</span> <span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+<span class="o">*</span> <span class="n">TLSv1</span><span class="mf">.3</span> <span class="p">(</span><span class="n">IN</span><span class="p">),</span> <span class="n">TLS</span> <span class="n">handshake</span><span class="p">,</span> <span class="n">Certificate</span> <span class="p">(</span><span class="mi">11</span><span class="p">):</span>
+<span class="o">*</span> <span class="n">TLSv1</span><span class="mf">.3</span> <span class="p">(</span><span class="n">IN</span><span class="p">),</span> <span class="n">TLS</span> <span class="n">handshake</span><span class="p">,</span> <span class="n">CERT</span> <span class="n">verify</span> <span class="p">(</span><span class="mi">15</span><span class="p">):</span>
+<span class="o">*</span> <span class="n">TLSv1</span><span class="mf">.3</span> <span class="p">(</span><span class="n">IN</span><span class="p">),</span> <span class="n">TLS</span> <span class="n">handshake</span><span class="p">,</span> <span class="n">Finished</span> <span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+<span class="o">*</span> <span class="n">TLSv1</span><span class="mf">.3</span> <span class="p">(</span><span class="n">OUT</span><span class="p">),</span> <span class="n">TLS</span> <span class="n">handshake</span><span class="p">,</span> <span class="n">Finished</span> <span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+<span class="o">*</span> <span class="n">SSL</span> <span class="n">connection</span> <span class="n">using</span> <span class="n">TLSv1</span><span class="mf">.3</span> <span class="o">/</span> <span class="n">TLS_AES_256_GCM_SHA384</span>
+<span class="o">*</span> <span class="n">Server</span> <span class="n">certificate</span><span class="p">:</span>
+<span class="o">*</span>  <span class="n">subject</span><span class="p">:</span> <span class="n">CN</span><span class="o">=</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="o">*</span>  <span class="n">start</span> <span class="n">date</span><span class="p">:</span> <span class="n">Jan</span>  <span class="mi">1</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2025</span> <span class="n">GMT</span>
+<span class="o">*</span>  <span class="n">expire</span> <span class="n">date</span><span class="p">:</span> <span class="n">Apr</span>  <span class="mi">1</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2025</span> <span class="n">GMT</span>
+<span class="o">*</span>  <span class="n">issuer</span><span class="p">:</span> <span class="n">C</span><span class="o">=</span><span class="n">US</span><span class="p">;</span> <span class="n">O</span><span class="o">=</span><span class="n">Let</span><span class="s1">&#39;s Encrypt; CN=R3</span>
+<span class="o">*</span>  <span class="n">SSL</span> <span class="n">certificate</span> <span class="n">verify</span> <span class="n">ok</span><span class="o">.</span>
+</pre></div>
+</div>
+</section>
+<section id="testssl-sh">
+<h3>testssl.sh<a class="headerlink" href="#testssl-sh" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://github.com/drwetter/testssl.sh">testssl.sh</a> 是一个功能全面的 TLS 安全扫描工具，可以检测服务器的协议支持、密码套件、已知漏洞等。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 安装</span>
+git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>https://github.com/drwetter/testssl.sh.git
+<span class="nb">cd</span><span class="w"> </span>testssl.sh
+
+<span class="c1"># 完整扫描</span>
+./testssl.sh<span class="w"> </span>example.com
+
+<span class="c1"># 仅检查协议支持</span>
+./testssl.sh<span class="w"> </span>-p<span class="w"> </span>example.com
+
+<span class="c1"># 仅检查密码套件</span>
+./testssl.sh<span class="w"> </span>-E<span class="w"> </span>example.com
+
+<span class="c1"># 仅检查已知漏洞（Heartbleed、POODLE、ROBOT 等）</span>
+./testssl.sh<span class="w"> </span>-U<span class="w"> </span>example.com
+
+<span class="c1"># 检查证书信息</span>
+./testssl.sh<span class="w"> </span>-S<span class="w"> </span>example.com
+
+<span class="c1"># 输出 JSON 格式（便于自动化处理）</span>
+./testssl.sh<span class="w"> </span>--jsonfile<span class="w"> </span>result.json<span class="w"> </span>example.com
+
+<span class="c1"># 批量扫描（从文件读取目标列表）</span>
+./testssl.sh<span class="w"> </span>--file<span class="w"> </span>targets.txt
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>其他实用命令<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 查看本地证书文件内容</span>
+openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span>cert.pem<span class="w"> </span>-noout<span class="w"> </span>-text
+
+<span class="c1"># 验证证书与私钥是否匹配</span>
+openssl<span class="w"> </span>x509<span class="w"> </span>-noout<span class="w"> </span>-modulus<span class="w"> </span>-in<span class="w"> </span>cert.pem<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>md5
+openssl<span class="w"> </span>rsa<span class="w"> </span>-noout<span class="w"> </span>-modulus<span class="w"> </span>-in<span class="w"> </span>key.pem<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>md5
+<span class="c1"># 两个 MD5 值应相同</span>
+
+<span class="c1"># 验证证书链完整性</span>
+openssl<span class="w"> </span>verify<span class="w"> </span>-CAfile<span class="w"> </span>ca.crt<span class="w"> </span>-untrusted<span class="w"> </span>intermediate.crt<span class="w"> </span>server.crt
+
+<span class="c1"># 将 PFX/P12 转换为 PEM</span>
+openssl<span class="w"> </span>pkcs12<span class="w"> </span>-in<span class="w"> </span>cert.pfx<span class="w"> </span>-out<span class="w"> </span>cert.pem<span class="w"> </span>-nodes
+
+<span class="c1"># 生成自签名证书（测试用）</span>
+openssl<span class="w"> </span>req<span class="w"> </span>-x509<span class="w"> </span>-newkey<span class="w"> </span>rsa:4096<span class="w"> </span>-keyout<span class="w"> </span>key.pem<span class="w"> </span>-out<span class="w"> </span>cert.pem<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-sha256<span class="w"> </span>-days<span class="w"> </span><span class="m">365</span><span class="w"> </span>-nodes<span class="w"> </span>-subj<span class="w"> </span><span class="s1">&#39;/CN=localhost&#39;</span>
+
+<span class="c1"># 使用 nmap 扫描 TLS 配置</span>
+nmap<span class="w"> </span>--script<span class="w"> </span>ssl-enum-ciphers<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span><span class="w"> </span>example.com
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>TLS 调试流程图<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        flowchart TD
+    A[TLS 连接失败] --&gt; B{错误类型?}
+    B --&gt;|证书过期| C[检查证书有效期&lt;br/&gt;openssl x509 -noout -dates]
+    B --&gt;|证书不信任| D[检查证书链&lt;br/&gt;openssl s_client -showcerts]
+    B --&gt;|主机名不匹配| E[检查 SAN/CN&lt;br/&gt;openssl x509 -noout -text]
+    B --&gt;|协议版本不兼容| F[检查支持的协议&lt;br/&gt;openssl s_client -tls1_2/-tls1_3]
+    B --&gt;|密码套件不匹配| G[检查密码套件&lt;br/&gt;testssl.sh -E]
+    B --&gt;|mTLS 认证失败| H[检查客户端证书&lt;br/&gt;openssl s_client -cert -key]
+    C --&gt; I[更新证书]
+    D --&gt; J[补全中间 CA 证书]
+    E --&gt; K[重新签发含正确 SAN 的证书]
+    F --&gt; L[升级服务器/客户端 TLS 版本]
+    G --&gt; M[调整密码套件配置]
+    H --&gt; N[检查客户端证书链和私钥]
+    </pre></section>
+</section>
+<section id="id7">
+<h2>6.11 小结<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>TLS 1.3 是当前推荐版本：1-RTT 握手、强制前向保密、仅 AEAD 加密</p></li>
+<li><p><strong>mTLS</strong> 是微服务安全和零信任的基础，SPIFFE/SPIRE 自动化了 mTLS 证书管理</p></li>
+<li><p>正确配置 TLS 至关重要：禁用旧版本、选择安全密码套件、启用 HSTS</p></li>
+<li><p>TLS 1.3 的 ECH 扩展将进一步保护用户隐私</p></li>
+<li><p><strong>多语言 TLS 编程</strong>：Python（ssl 模块）、Java（JSSE/SSLContext）、Go（crypto/tls）均提供了完善的 TLS 和 mTLS 支持</p></li>
+<li><p><strong>善用调试工具</strong>：<code class="docutils literal notranslate"><span class="pre">openssl</span> <span class="pre">s_client</span></code> 查看握手细节、<code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-v</span></code> 快速验证、<code class="docutils literal notranslate"><span class="pre">testssl.sh</span></code> 全面扫描，是排查 TLS 问题的三板斧</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch05.html" class="btn btn-neutral float-left" title="第五章：身份与访问管理（IAM）概论" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch07.html" class="btn btn-neutral float-right" title="第七章：OAuth 2.0 授权框架" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

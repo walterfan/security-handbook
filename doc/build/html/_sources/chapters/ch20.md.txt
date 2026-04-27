@@ -1,0 +1,289 @@
+# 第二十章：SPIRE — SPIFFE 的参考实现
+
+> "SPIRE 让 SPIFFE 从标准变为现实，让工作负载身份从理论走向生产。"
+
+```{mermaid}
+mindmap
+  root((SPIRE))
+    Server
+      CA Manager
+      Registry
+      DataStore
+      Node Attestation
+    Agent
+      Workload API
+      Cache Manager
+      Workload Attestation
+      SDS
+    证明机制
+      Node Attestation
+      Workload Attestation
+    部署
+      Kubernetes
+      裸机
+      Docker
+```
+
+## 20.1 SPIRE 架构
+
+SPIRE（SPIFFE Runtime Environment）是 SPIFFE 标准的参考实现：
+
+```
+┌─────────────────────────────────────────────────┐
+│                  SPIRE Server                    │
+│  ┌────────────┐ ┌────────────┐ ┌─────────────┐ │
+│  │ CA Manager │ │  Registry  │ │  DataStore  │ │
+│  │ 签发 SVID  │ │ 注册项管理  │ │ SQLite/PG  │ │
+│  └────────────┘ └────────────┘ └─────────────┘ │
+│  ┌────────────────────────────────────────────┐ │
+│  │         Node Attestation Plugins           │ │
+│  │  AWS IID │ GCP IIT │ K8s PSAT │ Join Token│ │
+│  └────────────────────────────────────────────┘ │
+└──────────────────┬──────────────────────────────┘
+                   │ mTLS (Node SVID)
+┌──────────────────▼──────────────────────────────┐
+│                  SPIRE Agent                     │
+│  ┌────────────┐ ┌────────────┐ ┌─────────────┐ │
+│  │ Workload   │ │   Cache    │ │  Workload   │ │
+│  │ API Server │ │  Manager   │ │  Attestor   │ │
+│  └────────────┘ └────────────┘ └─────────────┘ │
+│  ┌────────────────────────────────────────────┐ │
+│  │              SDS Server                    │ │
+│  │         (Envoy 集成接口)                   │ │
+│  └────────────────────────────────────────────┘ │
+└──────────────────┬──────────────────────────────┘
+                   │ Unix Domain Socket
+┌──────────────────▼──────────────────────────────┐
+│              Workload (应用)                      │
+│         通过 Workload API 获取 SVID              │
+└─────────────────────────────────────────────────┘
+```
+
+## 20.2 Node Attestation（节点证明）
+
+Node Attestation 验证"这个 Agent 运行在哪个节点上"：
+
+| 插件 | 平台 | 原理 |
+|------|------|------|
+| aws_iid | AWS | 使用 EC2 Instance Identity Document |
+| gcp_iit | GCP | 使用 GCE Instance Identity Token |
+| azure_msi | Azure | 使用 Managed Service Identity |
+| k8s_psat | Kubernetes | 使用 Projected ServiceAccount Token |
+| k8s_sat | Kubernetes | 使用 ServiceAccount Token（旧版） |
+| join_token | 通用 | 使用预共享的一次性 Token |
+| x509pop | 通用 | 使用已有的 X.509 证书 |
+
+```bash
+# 使用 Join Token 进行节点证明
+# 1. Server 端生成 Token
+spire-server token generate -spiffeID spiffe://example.org/agent/node1
+# Token: aaaabbbb-cccc-dddd-eeee-ffffffffffff
+
+# 2. Agent 端使用 Token 加入
+spire-agent run \
+    -joinToken aaaabbbb-cccc-dddd-eeee-ffffffffffff \
+    -serverAddress spire-server:8081
+```
+
+## 20.3 Workload Registration（工作负载注册）
+
+注册项（Registration Entry）定义了"什么工作负载应该获得什么 SPIFFE ID"：
+
+```bash
+# 注册一个 Kubernetes 工作负载
+spire-server entry create \
+    -spiffeID spiffe://example.org/ns/production/sa/web-server \
+    -parentID spiffe://example.org/agent/node1 \
+    -selector k8s:ns:production \
+    -selector k8s:sa:web-server \
+    -ttl 3600
+
+# 注册一个 Docker 工作负载
+spire-server entry create \
+    -spiffeID spiffe://example.org/service/api \
+    -parentID spiffe://example.org/agent/node1 \
+    -selector docker:label:app:api-server
+
+# 注册一个 Unix 进程
+spire-server entry create \
+    -spiffeID spiffe://example.org/service/database \
+    -parentID spiffe://example.org/agent/node1 \
+    -selector unix:uid:1000
+
+# 查看所有注册项
+spire-server entry show
+
+# 删除注册项
+spire-server entry delete -entryID <entry-id>
+```
+
+### 选择器（Selector）类型
+
+| 选择器 | 格式 | 说明 |
+|--------|------|------|
+| k8s:ns | k8s:ns:production | Kubernetes 命名空间 |
+| k8s:sa | k8s:sa:web-server | Kubernetes ServiceAccount |
+| k8s:pod-label | k8s:pod-label:app:web | Pod 标签 |
+| docker:label | docker:label:app:api | Docker 容器标签 |
+| unix:uid | unix:uid:1000 | Unix 用户 ID |
+| unix:gid | unix:gid:1000 | Unix 组 ID |
+| unix:path | unix:path:/usr/bin/app | 可执行文件路径 |
+
+## 20.4 Workload Attestation（工作负载证明）
+
+当工作负载通过 Workload API 请求 SVID 时，Agent 需要验证"谁在调用"：
+
+```
+工作负载证明流程：
+┌──────────┐    ┌──────────────┐    ┌──────────────┐
+│ 工作负载  │───▶│  SPIRE Agent │───▶│ 工作负载证明  │
+│ (进程)    │    │              │    │ 插件         │
+│          │    │ 1. 接收连接   │    │              │
+│          │    │ 2. 获取 PID  │    │ 3. 查询进程   │
+│          │    │              │    │    信息       │
+│          │    │              │    │ 4. 匹配选择器 │
+│          │    │              │◀───│ 5. 返回匹配   │
+│          │    │              │    │    的 SPIFFE ID│
+│          │◀───│ 6. 签发 SVID │    │              │
+└──────────┘    └──────────────┘    └──────────────┘
+```
+
+## 20.5 CA Manager
+
+SPIRE Server 内置 CA，也可以对接外部 CA：
+
+| CA 类型 | 说明 | 适用场景 |
+|---------|------|---------|
+| 内置 CA | SPIRE 自己管理根密钥 | 开发/测试、小规模 |
+| Vault CA | 使用 HashiCorp Vault PKI | 已有 Vault 基础设施 |
+| AWS PCA | 使用 AWS Private CA | AWS 环境 |
+| Disk CA | 从磁盘加载 CA 密钥 | 自定义 CA |
+
+## 20.6 Kubernetes 部署
+
+```yaml
+# values.yaml (Helm Chart)
+global:
+  spire:
+    trustDomain: example.org
+
+spire-server:
+  replicaCount: 3  # 高可用
+  dataStore:
+    sql:
+      databaseType: postgres
+      connectionString: "postgres://spire:password@postgres:5432/spire"
+  nodeAttestor:
+    k8sPsat:
+      enabled: true
+  caManager:
+    default:
+      upstreamAuthority: {}  # 使用内置 CA
+
+spire-agent:
+  workloadAttestors:
+    - k8s  # Kubernetes 工作负载证明
+```
+
+```bash
+# 使用 Helm 部署
+helm repo add spiffe https://spiffe.github.io/helm-charts-hardened/
+helm install spire spiffe/spire \
+    --namespace spire-system \
+    --create-namespace \
+    -f values.yaml
+```
+
+## 20.7 完整实战：两个服务间 mTLS
+
+```
+目标：Service A ←→ Service B 通过 SPIFFE mTLS 通信
+
+1. 部署 SPIRE Server + Agent
+2. 注册两个工作负载
+3. 应用通过 Workload API 获取 SVID
+4. 使用 SVID 建立 mTLS 连接
+```
+
+### 注册工作负载
+
+```bash
+# 注册 Service A
+spire-server entry create \
+    -spiffeID spiffe://example.org/service-a \
+    -parentID spiffe://example.org/agent/node1 \
+    -selector k8s:ns:default \
+    -selector k8s:sa:service-a
+
+# 注册 Service B
+spire-server entry create \
+    -spiffeID spiffe://example.org/service-b \
+    -parentID spiffe://example.org/agent/node1 \
+    -selector k8s:ns:default \
+    -selector k8s:sa:service-b
+```
+
+### Python 应用代码
+
+```python
+# Service A (客户端)
+from pyspiffe.spiffe_id.spiffe_id import SpiffeId
+from pyspiffe.workloadapi.default_workload_api_client import DefaultWorkloadApiClient
+import ssl
+import httpx
+
+SPIRE_AGENT_SOCKET = "unix:///run/spire/sockets/agent.sock"
+
+async def call_service_b():
+    """使用 SPIFFE mTLS 调用 Service B"""
+    client = DefaultWorkloadApiClient(SPIRE_AGENT_SOCKET)
+    
+    # 获取 X.509 SVID
+    x509_context = client.fetch_x509_context()
+    svid = x509_context.default_svid
+    
+    print(f"My SPIFFE ID: {svid.spiffe_id}")
+    print(f"Certificate expires: {svid.leaf.not_valid_after}")
+    
+    # 构建 TLS 配置
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    # 加载自己的证书（客户端证书）
+    ssl_context.load_cert_chain(
+        certfile=svid.cert_chain_pem,
+        keyfile=svid.private_key_pem,
+    )
+    # 加载信任的 CA（Trust Bundle）
+    for bundle in x509_context.x509_bundles:
+        ssl_context.load_verify_locations(cadata=bundle.x509_authorities_pem)
+    
+    # 发起 mTLS 请求
+    async with httpx.AsyncClient(verify=ssl_context) as http_client:
+        response = await http_client.get("https://service-b:8443/api/data")
+        return response.json()
+```
+
+## 20.8 常用命令
+
+```bash
+# === SPIRE Server ===
+spire-server entry create ...     # 创建注册项
+spire-server entry show           # 查看所有注册项
+spire-server entry delete -entryID xxx  # 删除注册项
+spire-server token generate ...   # 生成 Join Token
+spire-server bundle show          # 查看 Trust Bundle
+spire-server healthcheck          # 健康检查
+
+# === SPIRE Agent ===
+spire-agent api fetch x509        # 获取 X.509 SVID
+spire-agent api fetch jwt -audience myapp  # 获取 JWT SVID
+spire-agent healthcheck           # 健康检查
+```
+
+## 20.9 小结
+
+- **SPIRE** 是 SPIFFE 的参考实现，提供完整的工作负载身份管理
+- **Server** 负责注册管理和 SVID 签发，**Agent** 负责工作负载证明和 SVID 分发
+- **Node Attestation** 验证节点身份，**Workload Attestation** 验证进程身份
+- 支持多种平台：Kubernetes、AWS、GCP、Azure、Docker、裸机
+- 通过 **Workload API** 实现零配置的 SVID 获取和自动轮换
+- 生产部署建议：高可用 Server + PostgreSQL + 外部 CA

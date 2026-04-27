@@ -1,0 +1,484 @@
+# 第二章：密码学基础
+
+> "密码学是信息安全的基石，没有密码学，就没有数字世界的信任。"
+
+```{mermaid}
+mindmap
+  root((密码学基础))
+    对称加密
+      AES
+      ChaCha20
+      工作模式
+    非对称加密
+      RSA
+      ECC
+      Ed25519
+    哈希函数
+      SHA-256
+      SHA-3
+      BLAKE3
+    数字签名
+      签名
+      验证
+    密钥交换
+      DH
+      ECDH
+```
+
+## 2.1 密码学概述
+
+密码学（Cryptography）是研究信息加密和解密的科学。在现代软件系统中，密码学无处不在：
+
+- **HTTPS** 使用 TLS 协议保护网络通信
+- **JWT** 使用数字签名确保令牌不被篡改
+- **密码存储** 使用哈希函数保护用户密码
+- **mTLS** 使用证书实现双向身份认证
+
+```
+密码学的分类：
+┌─────────────────────────────────────────────┐
+│                  密码学                       │
+├──────────────────┬──────────────────────────┤
+│    对称密码学     │     非对称密码学          │
+│  (同一密钥加解密) │  (公钥加密，私钥解密)     │
+├──────────────────┼──────────────────────────┤
+│  AES, ChaCha20   │  RSA, ECC, Ed25519       │
+├──────────────────┴──────────────────────────┤
+│              哈希函数（单向）                  │
+│         SHA-256, SHA-3, BLAKE3              │
+├─────────────────────────────────────────────┤
+│              消息认证码（MAC）                │
+│              HMAC-SHA256                     │
+├─────────────────────────────────────────────┤
+│              数字签名                        │
+│         RSA-PSS, ECDSA, EdDSA              │
+└─────────────────────────────────────────────┘
+```
+
+## 2.2 对称加密
+
+对称加密使用**同一个密钥**进行加密和解密。速度快，适合大量数据的加密。
+
+### AES（Advanced Encryption Standard）
+
+AES 是目前最广泛使用的对称加密算法，由 NIST 于 2001 年标准化。
+
+| 特性 | AES-128 | AES-192 | AES-256 |
+|------|---------|---------|---------|
+| 密钥长度 | 128 位 | 192 位 | 256 位 |
+| 轮数 | 10 | 12 | 14 |
+| 安全级别 | 高 | 很高 | 极高 |
+| 性能 | 最快 | 中等 | 较慢 |
+
+### 工作模式
+
+AES 本身只能加密固定长度（128 位）的数据块，工作模式决定了如何处理任意长度的数据：
+
+| 模式 | 全称 | 特点 | 推荐 |
+|------|------|------|------|
+| ECB | Electronic Codebook | 相同明文产生相同密文，不安全 | ❌ 禁止使用 |
+| CBC | Cipher Block Chaining | 需要 IV，串行加密 | ⚠️ 遗留系统 |
+| CTR | Counter | 可并行，流式加密 | ✅ 适合流数据 |
+| GCM | Galois/Counter Mode | 加密 + 认证，最推荐 | ✅ 首选 |
+
+### AES-GCM 实战
+
+```python
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+import os
+
+def encrypt_aes_gcm(plaintext: bytes, key: bytes) -> tuple[bytes, bytes]:
+    """AES-256-GCM 加密"""
+    # 生成 96 位随机 nonce（每次加密必须不同）
+    nonce = os.urandom(12)
+    aesgcm = AESGCM(key)
+    # 加密并生成认证标签（自动附加在密文末尾）
+    ciphertext = aesgcm.encrypt(nonce, plaintext, None)
+    return nonce, ciphertext
+
+def decrypt_aes_gcm(nonce: bytes, ciphertext: bytes, key: bytes) -> bytes:
+    """AES-256-GCM 解密"""
+    aesgcm = AESGCM(key)
+    # 解密并验证认证标签
+    plaintext = aesgcm.decrypt(nonce, ciphertext, None)
+    return plaintext
+
+# 使用示例
+key = AESGCM.generate_key(bit_length=256)  # 生成 256 位密钥
+message = b"Hello, Cryptography!"
+
+nonce, ciphertext = encrypt_aes_gcm(message, key)
+decrypted = decrypt_aes_gcm(nonce, ciphertext, key)
+assert decrypted == message
+print(f"密钥长度: {len(key)} bytes")
+print(f"Nonce: {nonce.hex()}")
+print(f"密文: {ciphertext.hex()}")
+```
+
+### ChaCha20-Poly1305
+
+ChaCha20-Poly1305 是 Google 推广的流密码，在没有 AES 硬件加速的设备上性能更好：
+
+```python
+from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+import os
+
+def encrypt_chacha20(plaintext: bytes, key: bytes) -> tuple[bytes, bytes]:
+    """ChaCha20-Poly1305 加密"""
+    nonce = os.urandom(12)
+    chacha = ChaCha20Poly1305(key)
+    ciphertext = chacha.encrypt(nonce, plaintext, None)
+    return nonce, ciphertext
+
+# ChaCha20 密钥固定为 256 位
+key = ChaCha20Poly1305.generate_key()
+nonce, ct = encrypt_chacha20(b"Secret message", key)
+```
+
+## 2.3 非对称加密
+
+非对称加密使用**一对密钥**：公钥（Public Key）和私钥（Private Key）。公钥可以公开分发，私钥必须保密。
+
+```
+非对称加密流程：
+┌─────────┐                      ┌─────────┐
+│  Alice   │                      │   Bob   │
+│          │   Bob 的公钥          │         │
+│  明文 ───┼──── 加密 ────────────▶│ 密文    │
+│          │                      │  │      │
+│          │                      │  ▼      │
+│          │                      │ Bob的私钥│
+│          │                      │ 解密    │
+│          │                      │  │      │
+│          │                      │  ▼      │
+│          │                      │ 明文    │
+└─────────┘                      └─────────┘
+```
+
+### RSA
+
+RSA 是最经典的非对称加密算法，基于大整数分解的困难性：
+
+```python
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes
+
+# 生成 RSA 密钥对
+private_key = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=2048,  # 生产环境建议 3072 或 4096
+)
+public_key = private_key.public_key()
+
+# 加密
+message = b"Hello RSA!"
+ciphertext = public_key.encrypt(
+    message,
+    padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None
+    )
+)
+
+# 解密
+plaintext = private_key.decrypt(
+    ciphertext,
+    padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None
+    )
+)
+assert plaintext == message
+```
+
+### 椭圆曲线密码学（ECC）
+
+ECC 在更短的密钥长度下提供与 RSA 相同的安全级别：
+
+| RSA 密钥长度 | ECC 密钥长度 | 安全级别（位） |
+|-------------|-------------|--------------|
+| 2048 | 256 | 112 |
+| 3072 | 384 | 128 |
+| 7680 | 521 | 192 |
+| 15360 | — | 256 |
+
+### Ed25519
+
+Ed25519 是基于 Edwards 曲线的签名算法，以高性能和安全性著称：
+
+```python
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+# 生成 Ed25519 密钥对
+private_key = Ed25519PrivateKey.generate()
+public_key = private_key.public_key()
+
+# 签名
+message = b"Important message"
+signature = private_key.sign(message)
+
+# 验证
+public_key.verify(signature, message)  # 验证失败会抛出异常
+print(f"签名长度: {len(signature)} bytes")  # 64 bytes
+```
+
+## 2.4 哈希函数
+
+哈希函数将任意长度的输入映射为固定长度的输出（摘要），具有以下特性：
+
+- **单向性**：无法从摘要反推原文
+- **抗碰撞性**：极难找到两个不同输入产生相同摘要
+- **雪崩效应**：输入的微小变化导致输出的巨大变化
+
+```python
+import hashlib
+
+# SHA-256
+message = b"Hello, World!"
+digest = hashlib.sha256(message).hexdigest()
+print(f"SHA-256: {digest}")
+# dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f
+
+# 雪崩效应：改变一个字符
+message2 = b"Hello, World?"
+digest2 = hashlib.sha256(message2).hexdigest()
+print(f"SHA-256: {digest2}")
+# 完全不同的输出
+```
+
+### 常用哈希函数对比
+
+| 算法 | 输出长度 | 速度 | 安全性 | 用途 |
+|------|---------|------|--------|------|
+| MD5 | 128 位 | 极快 | ❌ 已破解 | 仅用于校验和 |
+| SHA-1 | 160 位 | 快 | ❌ 已破解 | 不推荐 |
+| SHA-256 | 256 位 | 中等 | ✅ 安全 | 通用首选 |
+| SHA-3 | 可变 | 中等 | ✅ 安全 | SHA-2 的备选 |
+| BLAKE3 | 256 位 | 极快 | ✅ 安全 | 高性能场景 |
+
+### 密码哈希
+
+存储用户密码时，不能使用普通哈希函数（太快，容易暴力破解），应使用专门的密码哈希函数：
+
+```python
+import bcrypt
+import argon2
+
+# bcrypt — 经典选择
+password = b"my_secure_password"
+salt = bcrypt.gensalt(rounds=12)  # 工作因子
+hashed = bcrypt.hashpw(password, salt)
+# 验证
+assert bcrypt.checkpw(password, hashed)
+
+# Argon2 — 现代首选（2015 年密码哈希竞赛冠军）
+from argon2 import PasswordHasher
+ph = PasswordHasher(
+    time_cost=3,       # 迭代次数
+    memory_cost=65536,  # 内存使用（KB）
+    parallelism=4,      # 并行度
+)
+hash_value = ph.hash("my_secure_password")
+# 验证
+assert ph.verify(hash_value, "my_secure_password")
+```
+
+## 2.5 消息认证码（MAC）
+
+MAC 用于验证消息的完整性和真实性。最常用的是 HMAC（Hash-based MAC）：
+
+```python
+import hmac
+import hashlib
+
+def create_hmac(message: bytes, key: bytes) -> str:
+    """创建 HMAC-SHA256"""
+    return hmac.new(key, message, hashlib.sha256).hexdigest()
+
+def verify_hmac(message: bytes, key: bytes, expected_mac: str) -> bool:
+    """验证 HMAC（使用常量时间比较，防止时序攻击）"""
+    actual_mac = hmac.new(key, message, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(actual_mac, expected_mac)
+
+# 使用示例
+key = b"shared_secret_key"
+message = b"Transfer $1000 to Alice"
+mac = create_hmac(message, key)
+print(f"HMAC: {mac}")
+
+# 验证
+assert verify_hmac(message, key, mac)
+# 篡改消息后验证失败
+assert not verify_hmac(b"Transfer $9999 to Eve", key, mac)
+```
+
+## 2.6 数字签名
+
+数字签名结合了非对称加密和哈希函数，提供：
+
+- **认证**：证明消息来自特定发送者
+- **完整性**：证明消息未被篡改
+- **不可否认性**：发送者无法否认发送过该消息
+
+```
+数字签名流程：
+┌─────────────────────────────────────────────┐
+│  签名过程（发送方）                           │
+│                                              │
+│  消息 ──▶ [哈希] ──▶ 摘要 ──▶ [私钥加密] ──▶ 签名  │
+│                                              │
+│  发送：消息 + 签名                            │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│  验证过程（接收方）                           │
+│                                              │
+│  消息 ──▶ [哈希] ──▶ 摘要₁                   │
+│  签名 ──▶ [公钥解密] ──▶ 摘要₂               │
+│                                              │
+│  比较：摘要₁ == 摘要₂ ？                      │
+│  相等 → 签名有效 ✅                           │
+│  不等 → 签名无效 ❌                           │
+└─────────────────────────────────────────────┘
+```
+
+### RSA 签名示例
+
+```python
+from cryptography.hazmat.primitives.asymmetric import rsa, padding, utils
+from cryptography.hazmat.primitives import hashes, serialization
+
+# 生成密钥对
+private_key = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=2048,
+)
+
+# 签名
+message = b"This is an important document"
+signature = private_key.sign(
+    message,
+    padding.PSS(
+        mgf=padding.MGF1(hashes.SHA256()),
+        salt_length=padding.PSS.MAX_LENGTH
+    ),
+    hashes.SHA256()
+)
+
+# 验证
+public_key = private_key.public_key()
+try:
+    public_key.verify(
+        signature,
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+    print("签名验证成功 ✅")
+except Exception:
+    print("签名验证失败 ❌")
+```
+
+### ECDSA 签名
+
+```python
+from cryptography.hazmat.primitives.asymmetric import ec
+
+# 生成 ECDSA 密钥对（P-256 曲线）
+private_key = ec.generate_private_key(ec.SECP256R1())
+
+# 签名
+message = b"Transaction: send 100 BTC"
+signature = private_key.sign(message, ec.ECDSA(hashes.SHA256()))
+
+# 验证
+public_key = private_key.public_key()
+public_key.verify(signature, message, ec.ECDSA(hashes.SHA256()))
+```
+
+## 2.7 密钥交换
+
+密钥交换协议允许双方在不安全的信道上协商出一个共享密钥。
+
+### Diffie-Hellman 密钥交换
+
+```
+Alice                                    Bob
+  │                                       │
+  │  生成私钥 a                            │  生成私钥 b
+  │  计算 A = g^a mod p                   │  计算 B = g^b mod p
+  │                                       │
+  │  ──────── 发送 A ────────────────▶    │
+  │  ◀──────── 发送 B ────────────────    │
+  │                                       │
+  │  计算 K = B^a mod p                   │  计算 K = A^b mod p
+  │  K = g^(ab) mod p                     │  K = g^(ab) mod p
+  │                                       │
+  │  共享密钥 K 相同！                     │
+```
+
+### ECDH 密钥交换
+
+```python
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+
+# Alice 生成密钥对
+alice_private = ec.generate_private_key(ec.SECP256R1())
+alice_public = alice_private.public_key()
+
+# Bob 生成密钥对
+bob_private = ec.generate_private_key(ec.SECP256R1())
+bob_public = bob_private.public_key()
+
+# Alice 计算共享密钥
+alice_shared = alice_private.exchange(ec.ECDH(), bob_public)
+
+# Bob 计算共享密钥
+bob_shared = bob_private.exchange(ec.ECDH(), alice_public)
+
+# 两者相同
+assert alice_shared == bob_shared
+
+# 使用 HKDF 派生最终密钥
+derived_key = HKDF(
+    algorithm=hashes.SHA256(),
+    length=32,
+    salt=None,
+    info=b"handshake data",
+).derive(alice_shared)
+
+print(f"派生密钥: {derived_key.hex()}")
+```
+
+## 2.8 密码学在 AuthN/AuthZ 中的应用
+
+| 应用场景 | 使用的密码学技术 | 说明 |
+|---------|----------------|------|
+| HTTPS/TLS | 非对称加密 + 对称加密 + 证书 | 保护传输安全 |
+| JWT 签名 | HMAC 或 RSA/ECDSA 签名 | 确保令牌完整性 |
+| 密码存储 | bcrypt/Argon2 | 安全存储用户密码 |
+| mTLS | X.509 证书 + TLS | 双向身份认证 |
+| OAuth2 PKCE | SHA-256 哈希 | 防止授权码拦截 |
+| SPIFFE SVID | X.509 证书 | 工作负载身份 |
+| API 签名 | HMAC-SHA256 | 请求完整性验证 |
+| 数据加密 | AES-256-GCM | 保护静态数据 |
+
+## 2.9 小结
+
+本章介绍了密码学的核心概念和实践：
+
+- **对称加密**（AES-GCM）适合大量数据加密，速度快
+- **非对称加密**（RSA、ECC）适合密钥交换和数字签名
+- **哈希函数**（SHA-256）用于数据完整性验证
+- **密码哈希**（Argon2、bcrypt）专门用于安全存储密码
+- **数字签名**提供认证、完整性和不可否认性
+- **密钥交换**（ECDH）允许在不安全信道上建立安全通信
+
+密码学是后续所有安全协议的基础。在下一章中，我们将学习 PKI 和证书体系，了解如何在大规模系统中管理和分发密钥。

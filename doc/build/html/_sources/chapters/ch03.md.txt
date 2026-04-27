@@ -1,0 +1,426 @@
+# 第三章：PKI 与证书体系
+
+> "在互联网上，没有人知道你是一条狗。但有了 PKI，至少可以证明你是哪条狗。"
+
+```{mermaid}
+mindmap
+  root((PKI 与证书体系))
+    PKI 架构
+      CA
+      RA
+      证书链
+    X.509 证书
+      字段
+      扩展
+      SAN
+    证书生命周期
+      申请
+      签发
+      续期
+      吊销
+    实战
+      OpenSSL
+      Let's Encrypt
+      mTLS
+```
+
+## 3.1 公钥基础设施（PKI）
+
+PKI（Public Key Infrastructure）是一套用于创建、管理、分发、使用、存储和撤销数字证书的系统。它解决了一个核心问题：**如何信任一个公钥确实属于它声称的拥有者？**
+
+### PKI 的核心组件
+
+```
+┌─────────────────────────────────────────────────────┐
+│                    PKI 架构                          │
+│                                                      │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────┐   │
+│  │  根 CA    │───▶│ 中间 CA  │───▶│  终端实体证书 │   │
+│  │(Root CA)  │    │(Sub CA)  │    │(End Entity)  │   │
+│  │ 离线保管  │    │ 在线签发  │    │ 服务器/客户端│   │
+│  └──────────┘    └──────────┘    └──────────────┘   │
+│       │                                              │
+│       ▼                                              │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────┐   │
+│  │  RA       │    │ CRL/OCSP │    │  证书存储库   │   │
+│  │(注册机构) │    │(吊销检查)│    │(Certificate  │   │
+│  │ 身份验证  │    │          │    │  Repository) │   │
+│  └──────────┘    └──────────┘    └──────────────┘   │
+└─────────────────────────────────────────────────────┘
+```
+
+| 组件 | 职责 | 说明 |
+|------|------|------|
+| CA（Certificate Authority） | 签发和管理证书 | 信任的锚点 |
+| RA（Registration Authority） | 验证申请者身份 | CA 的代理 |
+| 证书存储库 | 存储和分发证书 | LDAP、HTTP |
+| CRL/OCSP | 证书吊销状态查询 | 实时验证证书有效性 |
+
+### 证书链（Chain of Trust）
+
+```
+┌─────────────────┐
+│   根 CA 证书     │  ← 自签名，预装在操作系统/浏览器中
+│  (Root CA Cert)  │
+└────────┬────────┘
+         │ 签发
+         ▼
+┌─────────────────┐
+│  中间 CA 证书    │  ← 由根 CA 签发
+│ (Intermediate)   │
+└────────┬────────┘
+         │ 签发
+         ▼
+┌─────────────────┐
+│  服务器证书      │  ← 由中间 CA 签发
+│ (Server Cert)    │     包含服务器的公钥
+└─────────────────┘
+
+验证过程（从下往上）：
+1. 客户端收到服务器证书
+2. 用中间 CA 的公钥验证服务器证书的签名
+3. 用根 CA 的公钥验证中间 CA 证书的签名
+4. 根 CA 在本地信任库中 → 信任链建立 ✅
+```
+
+## 3.2 X.509 证书格式
+
+X.509 是最广泛使用的数字证书标准（ITU-T X.509 / RFC 5280）。
+
+### 证书核心字段
+
+```
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 04:00:00:00:00:01:15:4b:5a:c3:94
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=US, O=Let's Encrypt, CN=R3
+        Validity:
+            Not Before: Jan  1 00:00:00 2024 GMT
+            Not After : Apr  1 00:00:00 2024 GMT
+        Subject: CN=example.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public-Key: (2048 bit)
+        X509v3 extensions:
+            X509v3 Subject Alternative Name:
+                DNS:example.com, DNS:*.example.com
+            X509v3 Key Usage: critical
+                Digital Signature, Key Encipherment
+            X509v3 Extended Key Usage:
+                TLS Web Server Authentication
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            Authority Information Access:
+                OCSP - URI:http://r3.o.lencr.org
+                CA Issuers - URI:http://r3.i.lencr.org/
+    Signature Algorithm: sha256WithRSAEncryption
+        [签名数据]
+```
+
+### Subject Alternative Name（SAN）
+
+SAN 扩展允许一个证书绑定多个身份：
+
+```
+X509v3 Subject Alternative Name:
+    DNS:example.com          # 域名
+    DNS:*.example.com        # 通配符域名
+    IP Address:192.168.1.1   # IP 地址
+    URI:spiffe://example.org/web-server  # SPIFFE ID
+    email:admin@example.com  # 邮箱
+```
+
+## 3.3 证书生命周期
+
+### 证书申请与签发
+
+```bash
+# 1. 生成私钥
+openssl genpkey -algorithm RSA -out server.key -pkeyopt rsa_keygen_bits:2048
+
+# 2. 生成证书签名请求（CSR）
+openssl req -new -key server.key -out server.csr \
+    -subj "/C=CN/ST=Anhui/L=Hefei/O=MyOrg/CN=example.com"
+
+# 3. 查看 CSR 内容
+openssl req -in server.csr -text -noout
+
+# 4. CA 签发证书（使用 CA 的私钥和证书）
+openssl x509 -req -in server.csr \
+    -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -out server.crt -days 365 -sha256 \
+    -extfile <(cat <<EOF
+subjectAltName = DNS:example.com, DNS:*.example.com
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+EOF
+)
+
+# 5. 验证证书
+openssl x509 -in server.crt -text -noout
+openssl verify -CAfile ca.crt server.crt
+```
+
+### 创建自签名 CA
+
+```bash
+# 创建根 CA 私钥
+openssl genpkey -algorithm RSA -out ca.key -pkeyopt rsa_keygen_bits:4096
+
+# 创建根 CA 自签名证书
+openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 \
+    -out ca.crt \
+    -subj "/C=CN/O=My Root CA/CN=My Root CA" \
+    -addext "basicConstraints=critical,CA:TRUE" \
+    -addext "keyUsage=critical,keyCertSign,cRLSign"
+
+# 创建中间 CA
+openssl genpkey -algorithm RSA -out intermediate.key -pkeyopt rsa_keygen_bits:2048
+openssl req -new -key intermediate.key -out intermediate.csr \
+    -subj "/C=CN/O=My Root CA/CN=My Intermediate CA"
+openssl x509 -req -in intermediate.csr \
+    -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -out intermediate.crt -days 1825 -sha256 \
+    -extfile <(cat <<EOF
+basicConstraints = critical, CA:TRUE, pathlen:0
+keyUsage = critical, keyCertSign, cRLSign
+EOF
+)
+```
+
+## 3.4 证书吊销
+
+当私钥泄露或证书信息变更时，需要吊销证书。
+
+### CRL vs OCSP vs OCSP Stapling
+
+| 方式 | 原理 | 优点 | 缺点 |
+|------|------|------|------|
+| CRL | CA 定期发布吊销列表 | 简单 | 列表可能很大，更新不及时 |
+| OCSP | 实时查询证书状态 | 实时 | 隐私问题（CA 知道你访问了谁） |
+| OCSP Stapling | 服务器预取 OCSP 响应 | 实时 + 隐私 | 需要服务器支持 |
+
+```bash
+# 查询 OCSP 状态
+openssl ocsp -issuer intermediate.crt -cert server.crt \
+    -url http://ocsp.example.com -resp_text
+
+# Nginx 配置 OCSP Stapling
+# server {
+#     ssl_stapling on;
+#     ssl_stapling_verify on;
+#     ssl_trusted_certificate /path/to/chain.pem;
+#     resolver 8.8.8.8;
+# }
+```
+
+## 3.5 Let's Encrypt 与 ACME 协议
+
+Let's Encrypt 是免费的证书颁发机构，使用 ACME（Automatic Certificate Management Environment）协议自动化证书管理。
+
+### ACME 验证流程
+
+```
+┌──────────┐                    ┌──────────────┐
+│  客户端   │                    │ Let's Encrypt│
+│ (certbot) │                    │   ACME 服务  │
+└─────┬────┘                    └──────┬───────┘
+      │  1. 请求证书                    │
+      │  (example.com)                 │
+      │────────────────────────────────▶│
+      │                                │
+      │  2. 返回挑战                    │
+      │  (HTTP-01 或 DNS-01)           │
+      │◀────────────────────────────────│
+      │                                │
+      │  3. 完成挑战                    │
+      │  (放置验证文件/DNS记录)         │
+      │────────────────────────────────▶│
+      │                                │
+      │  4. 验证通过，签发证书          │
+      │◀────────────────────────────────│
+```
+
+```bash
+# 使用 certbot 获取证书
+sudo certbot certonly --nginx -d example.com -d www.example.com
+
+# 自动续期（Let's Encrypt 证书有效期 90 天）
+sudo certbot renew --dry-run
+
+# 使用 DNS-01 验证（适合通配符证书）
+sudo certbot certonly --manual --preferred-challenges dns \
+    -d "*.example.com" -d example.com
+```
+
+## 3.6 mTLS（双向 TLS）
+
+普通 TLS 只验证服务器身份，mTLS 同时验证客户端和服务器的身份。
+
+```
+普通 TLS：
+客户端 ──▶ 验证服务器证书 ──▶ 建立加密连接
+（客户端不需要证书）
+
+mTLS：
+客户端 ◀──▶ 互相验证证书 ◀──▶ 服务器
+（双方都需要证书）
+
+┌──────────┐                         ┌──────────┐
+│  客户端   │                         │  服务器   │
+│          │  1. ClientHello          │          │
+│          │─────────────────────────▶│          │
+│          │  2. ServerHello +        │          │
+│          │     ServerCert +         │          │
+│          │     CertificateRequest   │          │
+│          │◀─────────────────────────│          │
+│          │  3. ClientCert +         │          │
+│          │     ClientKeyExchange    │          │
+│          │─────────────────────────▶│          │
+│          │  4. 双方验证对方证书      │          │
+│          │  5. 加密通信开始          │          │
+└──────────┘                         └──────────┘
+```
+
+### mTLS 应用场景
+
+| 场景 | 说明 |
+|------|------|
+| 微服务间通信 | Service Mesh（Istio）自动 mTLS |
+| API 认证 | 客户端证书替代 API Key |
+| IoT 设备认证 | 设备出厂预装证书 |
+| 零信任网络 | 每个连接都需要双向认证 |
+| SPIFFE/SPIRE | 工作负载身份基于 X.509-SVID |
+
+### Python mTLS 示例
+
+```python
+# === 服务端 ===
+import ssl
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+context.load_cert_chain('server.crt', 'server.key')
+context.load_verify_locations('ca.crt')
+context.verify_mode = ssl.CERT_REQUIRED  # 要求客户端证书
+
+server = HTTPServer(('0.0.0.0', 8443), SimpleHTTPRequestHandler)
+server.socket = context.wrap_socket(server.socket, server_side=True)
+server.serve_forever()
+
+# === 客户端 ===
+import urllib.request
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+context.load_cert_chain('client.crt', 'client.key')  # 客户端证书
+context.load_verify_locations('ca.crt')
+
+response = urllib.request.urlopen(
+    'https://localhost:8443',
+    context=context
+)
+print(response.read())
+```
+
+## 3.7 使用 ECC 证书
+
+ECC 证书比 RSA 证书更小、更快：
+
+```bash
+# 生成 ECC 私钥（P-256 曲线）
+openssl ecparam -genkey -name prime256v1 -out server-ecc.key
+
+# 生成 CSR
+openssl req -new -key server-ecc.key -out server-ecc.csr \
+    -subj "/CN=example.com"
+
+# 签发证书
+openssl x509 -req -in server-ecc.csr \
+    -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -out server-ecc.crt -days 365 -sha256
+
+# 查看证书信息
+openssl x509 -in server-ecc.crt -text -noout
+```
+
+## 3.8 Python 证书操作
+
+```python
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+import datetime
+
+# 生成 CA 密钥和证书
+ca_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
+ca_name = x509.Name([
+    x509.NameAttribute(NameOID.COUNTRY_NAME, "CN"),
+    x509.NameAttribute(NameOID.ORGANIZATION_NAME, "My CA"),
+    x509.NameAttribute(NameOID.COMMON_NAME, "My Root CA"),
+])
+
+ca_cert = (
+    x509.CertificateBuilder()
+    .subject_name(ca_name)
+    .issuer_name(ca_name)
+    .public_key(ca_key.public_key())
+    .serial_number(x509.random_serial_number())
+    .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
+    .not_valid_after(datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=3650))
+    .add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True)
+    .sign(ca_key, hashes.SHA256())
+)
+
+# 生成服务器证书
+server_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+server_cert = (
+    x509.CertificateBuilder()
+    .subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "example.com")]))
+    .issuer_name(ca_name)
+    .public_key(server_key.public_key())
+    .serial_number(x509.random_serial_number())
+    .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
+    .not_valid_after(datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365))
+    .add_extension(
+        x509.SubjectAlternativeName([
+            x509.DNSName("example.com"),
+            x509.DNSName("*.example.com"),
+            x509.UniformResourceIdentifier("spiffe://example.org/web"),
+        ]),
+        critical=False,
+    )
+    .sign(ca_key, hashes.SHA256())
+)
+
+# 保存为 PEM 格式
+with open("server.crt", "wb") as f:
+    f.write(server_cert.public_bytes(serialization.Encoding.PEM))
+with open("server.key", "wb") as f:
+    f.write(server_key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption()
+    ))
+
+print(f"Subject: {server_cert.subject}")
+print(f"Issuer: {server_cert.issuer}")
+print(f"Serial: {server_cert.serial_number}")
+print(f"Not Before: {server_cert.not_valid_before_utc}")
+print(f"Not After: {server_cert.not_valid_after_utc}")
+```
+
+## 3.9 小结
+
+本章介绍了 PKI 和证书体系的核心概念：
+
+- **PKI** 通过 CA 层级结构建立信任链
+- **X.509 证书** 是数字身份的标准格式，SAN 扩展支持多种身份类型
+- 证书有完整的**生命周期**：申请、签发、使用、续期、吊销
+- **Let's Encrypt** 和 ACME 协议实现了证书的自动化管理
+- **mTLS** 提供双向身份认证，是微服务安全和零信任的基础
+- SPIFFE 使用 X.509 证书的 SAN 字段存储工作负载身份（SVID）
+
+在下一章中，我们将学习威胁建模方法，了解如何系统性地识别和评估安全风险。

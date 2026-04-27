@@ -1,0 +1,200 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>附录：专题笔记 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/appendix/index.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="附录：安全工程实战指南" href="appendix_practical_guide.html" />
+    <link rel="prev" title="第三十章：安全工程的未来" href="../chapters/ch30.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters/ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">附录：专题笔记</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix_practical_guide.html">附录：安全工程实战指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medical_software_cybersecurity.html">医疗软件网络安全</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">附录：专题笔记</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/appendix/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>附录：专题笔记<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix_practical_guide.html">附录：安全工程实战指南</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix_practical_guide.html#a">A. 安全工程十大原则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix_practical_guide.html#b">B. 八大安全设计模式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix_practical_guide.html#c">C. 框架与库推荐</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix_practical_guide.html#d">D. 三个可直接落地的项目模板</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix_practical_guide.html#e">E. 安全检查清单</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="medical_software_cybersecurity.html">医疗软件网络安全</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="medical_software_cybersecurity.html#id2">医疗软件网络安全能力测试过程的要求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medical_software_cybersecurity.html#id3">医疗器械网络安全能力 – 22项能力</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medical_software_cybersecurity.html#id26">医疗软件网络安全能力测试过程的要求</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medical_software_cybersecurity.html#id27">参考资料</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../chapters/ch30.html" class="btn btn-neutral float-left" title="第三十章：安全工程的未来" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="appendix_practical_guide.html" class="btn btn-neutral float-right" title="附录：安全工程实战指南" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,1256 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第二章：密码学基础 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch02.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第三章：PKI 与证书体系" href="ch03.html" />
+    <link rel="prev" title="第一章：安全工程概论" href="ch01.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第二章：密码学基础</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">2.1 密码学概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">2.2 对称加密</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#aes-advanced-encryption-standard">AES（Advanced Encryption Standard）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">工作模式</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#aes-gcm">AES-GCM 实战</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chacha20-poly1305">ChaCha20-Poly1305</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">2.3 非对称加密</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rsa">RSA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ecc">椭圆曲线密码学（ECC）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ed25519">Ed25519</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">2.4 哈希函数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">常用哈希函数对比</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">密码哈希</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mac">2.5 消息认证码（MAC）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">2.6 数字签名</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id10">RSA 签名示例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ecdsa">ECDSA 签名</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">2.7 密钥交换</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#diffie-hellman">Diffie-Hellman 密钥交换</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ecdh">ECDH 密钥交换</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#authn-authz">2.8 密码学在 AuthN/AuthZ 中的应用</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">2.9 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第二章：密码学基础</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch02.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>第二章：密码学基础<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“密码学是信息安全的基石，没有密码学，就没有数字世界的信任。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((密码学基础))
+    对称加密
+      AES
+      ChaCha20
+      工作模式
+    非对称加密
+      RSA
+      ECC
+      Ed25519
+    哈希函数
+      SHA-256
+      SHA-3
+      BLAKE3
+    数字签名
+      签名
+      验证
+    密钥交换
+      DH
+      ECDH
+    </pre><section id="id2">
+<h2>2.1 密码学概述<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>密码学（Cryptography）是研究信息加密和解密的科学。在现代软件系统中，密码学无处不在：</p>
+<ul class="simple">
+<li><p><strong>HTTPS</strong> 使用 TLS 协议保护网络通信</p></li>
+<li><p><strong>JWT</strong> 使用数字签名确保令牌不被篡改</p></li>
+<li><p><strong>密码存储</strong> 使用哈希函数保护用户密码</p></li>
+<li><p><strong>mTLS</strong> 使用证书实现双向身份认证</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>密码学的分类：
+┌─────────────────────────────────────────────┐
+│                  密码学                       │
+├──────────────────┬──────────────────────────┤
+│    对称密码学     │     非对称密码学          │
+│  (同一密钥加解密) │  (公钥加密，私钥解密)     │
+├──────────────────┼──────────────────────────┤
+│  AES, ChaCha20   │  RSA, ECC, Ed25519       │
+├──────────────────┴──────────────────────────┤
+│              哈希函数（单向）                  │
+│         SHA-256, SHA-3, BLAKE3              │
+├─────────────────────────────────────────────┤
+│              消息认证码（MAC）                │
+│              HMAC-SHA256                     │
+├─────────────────────────────────────────────┤
+│              数字签名                        │
+│         RSA-PSS, ECDSA, EdDSA              │
+└─────────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>2.2 对称加密<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>对称加密使用<strong>同一个密钥</strong>进行加密和解密。速度快，适合大量数据的加密。</p>
+<section id="aes-advanced-encryption-standard">
+<h3>AES（Advanced Encryption Standard）<a class="headerlink" href="#aes-advanced-encryption-standard" title="Link to this heading"></a></h3>
+<p>AES 是目前最广泛使用的对称加密算法，由 NIST 于 2001 年标准化。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特性</p></th>
+<th class="head"><p>AES-128</p></th>
+<th class="head"><p>AES-192</p></th>
+<th class="head"><p>AES-256</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>密钥长度</p></td>
+<td><p>128 位</p></td>
+<td><p>192 位</p></td>
+<td><p>256 位</p></td>
+</tr>
+<tr class="row-odd"><td><p>轮数</p></td>
+<td><p>10</p></td>
+<td><p>12</p></td>
+<td><p>14</p></td>
+</tr>
+<tr class="row-even"><td><p>安全级别</p></td>
+<td><p>高</p></td>
+<td><p>很高</p></td>
+<td><p>极高</p></td>
+</tr>
+<tr class="row-odd"><td><p>性能</p></td>
+<td><p>最快</p></td>
+<td><p>中等</p></td>
+<td><p>较慢</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id4">
+<h3>工作模式<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>AES 本身只能加密固定长度（128 位）的数据块，工作模式决定了如何处理任意长度的数据：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模式</p></th>
+<th class="head"><p>全称</p></th>
+<th class="head"><p>特点</p></th>
+<th class="head"><p>推荐</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ECB</p></td>
+<td><p>Electronic Codebook</p></td>
+<td><p>相同明文产生相同密文，不安全</p></td>
+<td><p>❌ 禁止使用</p></td>
+</tr>
+<tr class="row-odd"><td><p>CBC</p></td>
+<td><p>Cipher Block Chaining</p></td>
+<td><p>需要 IV，串行加密</p></td>
+<td><p>⚠️ 遗留系统</p></td>
+</tr>
+<tr class="row-even"><td><p>CTR</p></td>
+<td><p>Counter</p></td>
+<td><p>可并行，流式加密</p></td>
+<td><p>✅ 适合流数据</p></td>
+</tr>
+<tr class="row-odd"><td><p>GCM</p></td>
+<td><p>Galois/Counter Mode</p></td>
+<td><p>加密 + 认证，最推荐</p></td>
+<td><p>✅ 首选</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="aes-gcm">
+<h3>AES-GCM 实战<a class="headerlink" href="#aes-gcm" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.ciphers.aead</span><span class="w"> </span><span class="kn">import</span> <span class="n">AESGCM</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encrypt_aes_gcm</span><span class="p">(</span><span class="n">plaintext</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;AES-256-GCM 加密&quot;&quot;&quot;</span>
+    <span class="c1"># 生成 96 位随机 nonce（每次加密必须不同）</span>
+    <span class="n">nonce</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">aesgcm</span> <span class="o">=</span> <span class="n">AESGCM</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="c1"># 加密并生成认证标签（自动附加在密文末尾）</span>
+    <span class="n">ciphertext</span> <span class="o">=</span> <span class="n">aesgcm</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nonce</span><span class="p">,</span> <span class="n">ciphertext</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">decrypt_aes_gcm</span><span class="p">(</span><span class="n">nonce</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">ciphertext</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;AES-256-GCM 解密&quot;&quot;&quot;</span>
+    <span class="n">aesgcm</span> <span class="o">=</span> <span class="n">AESGCM</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="c1"># 解密并验证认证标签</span>
+    <span class="n">plaintext</span> <span class="o">=</span> <span class="n">aesgcm</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">ciphertext</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">plaintext</span>
+
+<span class="c1"># 使用示例</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">AESGCM</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="n">bit_length</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>  <span class="c1"># 生成 256 位密钥</span>
+<span class="n">message</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;Hello, Cryptography!&quot;</span>
+
+<span class="n">nonce</span><span class="p">,</span> <span class="n">ciphertext</span> <span class="o">=</span> <span class="n">encrypt_aes_gcm</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+<span class="n">decrypted</span> <span class="o">=</span> <span class="n">decrypt_aes_gcm</span><span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">ciphertext</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">decrypted</span> <span class="o">==</span> <span class="n">message</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;密钥长度: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nonce: </span><span class="si">{</span><span class="n">nonce</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;密文: </span><span class="si">{</span><span class="n">ciphertext</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="chacha20-poly1305">
+<h3>ChaCha20-Poly1305<a class="headerlink" href="#chacha20-poly1305" title="Link to this heading"></a></h3>
+<p>ChaCha20-Poly1305 是 Google 推广的流密码，在没有 AES 硬件加速的设备上性能更好：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.ciphers.aead</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChaCha20Poly1305</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">encrypt_chacha20</span><span class="p">(</span><span class="n">plaintext</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ChaCha20-Poly1305 加密&quot;&quot;&quot;</span>
+    <span class="n">nonce</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">chacha</span> <span class="o">=</span> <span class="n">ChaCha20Poly1305</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">ciphertext</span> <span class="o">=</span> <span class="n">chacha</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nonce</span><span class="p">,</span> <span class="n">ciphertext</span>
+
+<span class="c1"># ChaCha20 密钥固定为 256 位</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">ChaCha20Poly1305</span><span class="o">.</span><span class="n">generate_key</span><span class="p">()</span>
+<span class="n">nonce</span><span class="p">,</span> <span class="n">ct</span> <span class="o">=</span> <span class="n">encrypt_chacha20</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;Secret message&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id5">
+<h2>2.3 非对称加密<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>非对称加密使用<strong>一对密钥</strong>：公钥（Public Key）和私钥（Private Key）。公钥可以公开分发，私钥必须保密。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>非对称加密流程：
+┌─────────┐                      ┌─────────┐
+│  Alice   │                      │   Bob   │
+│          │   Bob 的公钥          │         │
+│  明文 ───┼──── 加密 ────────────▶│ 密文    │
+│          │                      │  │      │
+│          │                      │  ▼      │
+│          │                      │ Bob的私钥│
+│          │                      │ 解密    │
+│          │                      │  │      │
+│          │                      │  ▼      │
+│          │                      │ 明文    │
+└─────────┘                      └─────────┘
+</pre></div>
+</div>
+<section id="rsa">
+<h3>RSA<a class="headerlink" href="#rsa" title="Link to this heading"></a></h3>
+<p>RSA 是最经典的非对称加密算法，基于大整数分解的困难性：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.asymmetric</span><span class="w"> </span><span class="kn">import</span> <span class="n">rsa</span><span class="p">,</span> <span class="n">padding</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">hashes</span>
+
+<span class="c1"># 生成 RSA 密钥对</span>
+<span class="n">private_key</span> <span class="o">=</span> <span class="n">rsa</span><span class="o">.</span><span class="n">generate_private_key</span><span class="p">(</span>
+    <span class="n">public_exponent</span><span class="o">=</span><span class="mi">65537</span><span class="p">,</span>
+    <span class="n">key_size</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>  <span class="c1"># 生产环境建议 3072 或 4096</span>
+<span class="p">)</span>
+<span class="n">public_key</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">public_key</span><span class="p">()</span>
+
+<span class="c1"># 加密</span>
+<span class="n">message</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;Hello RSA!&quot;</span>
+<span class="n">ciphertext</span> <span class="o">=</span> <span class="n">public_key</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span>
+    <span class="n">message</span><span class="p">,</span>
+    <span class="n">padding</span><span class="o">.</span><span class="n">OAEP</span><span class="p">(</span>
+        <span class="n">mgf</span><span class="o">=</span><span class="n">padding</span><span class="o">.</span><span class="n">MGF1</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">()),</span>
+        <span class="n">algorithm</span><span class="o">=</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">(),</span>
+        <span class="n">label</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># 解密</span>
+<span class="n">plaintext</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span>
+    <span class="n">ciphertext</span><span class="p">,</span>
+    <span class="n">padding</span><span class="o">.</span><span class="n">OAEP</span><span class="p">(</span>
+        <span class="n">mgf</span><span class="o">=</span><span class="n">padding</span><span class="o">.</span><span class="n">MGF1</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">()),</span>
+        <span class="n">algorithm</span><span class="o">=</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">(),</span>
+        <span class="n">label</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">plaintext</span> <span class="o">==</span> <span class="n">message</span>
+</pre></div>
+</div>
+</section>
+<section id="ecc">
+<h3>椭圆曲线密码学（ECC）<a class="headerlink" href="#ecc" title="Link to this heading"></a></h3>
+<p>ECC 在更短的密钥长度下提供与 RSA 相同的安全级别：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>RSA 密钥长度</p></th>
+<th class="head"><p>ECC 密钥长度</p></th>
+<th class="head"><p>安全级别（位）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2048</p></td>
+<td><p>256</p></td>
+<td><p>112</p></td>
+</tr>
+<tr class="row-odd"><td><p>3072</p></td>
+<td><p>384</p></td>
+<td><p>128</p></td>
+</tr>
+<tr class="row-even"><td><p>7680</p></td>
+<td><p>521</p></td>
+<td><p>192</p></td>
+</tr>
+<tr class="row-odd"><td><p>15360</p></td>
+<td><p>—</p></td>
+<td><p>256</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ed25519">
+<h3>Ed25519<a class="headerlink" href="#ed25519" title="Link to this heading"></a></h3>
+<p>Ed25519 是基于 Edwards 曲线的签名算法，以高性能和安全性著称：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.asymmetric.ed25519</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ed25519PrivateKey</span>
+
+<span class="c1"># 生成 Ed25519 密钥对</span>
+<span class="n">private_key</span> <span class="o">=</span> <span class="n">Ed25519PrivateKey</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">public_key</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">public_key</span><span class="p">()</span>
+
+<span class="c1"># 签名</span>
+<span class="n">message</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;Important message&quot;</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="c1"># 验证</span>
+<span class="n">public_key</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>  <span class="c1"># 验证失败会抛出异常</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;签名长度: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>  <span class="c1"># 64 bytes</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>2.4 哈希函数<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>哈希函数将任意长度的输入映射为固定长度的输出（摘要），具有以下特性：</p>
+<ul class="simple">
+<li><p><strong>单向性</strong>：无法从摘要反推原文</p></li>
+<li><p><strong>抗碰撞性</strong>：极难找到两个不同输入产生相同摘要</p></li>
+<li><p><strong>雪崩效应</strong>：输入的微小变化导致输出的巨大变化</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+
+<span class="c1"># SHA-256</span>
+<span class="n">message</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;Hello, World!&quot;</span>
+<span class="n">digest</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SHA-256: </span><span class="si">{</span><span class="n">digest</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f</span>
+
+<span class="c1"># 雪崩效应：改变一个字符</span>
+<span class="n">message2</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;Hello, World?&quot;</span>
+<span class="n">digest2</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">message2</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SHA-256: </span><span class="si">{</span><span class="n">digest2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># 完全不同的输出</span>
+</pre></div>
+</div>
+<section id="id7">
+<h3>常用哈希函数对比<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>算法</p></th>
+<th class="head"><p>输出长度</p></th>
+<th class="head"><p>速度</p></th>
+<th class="head"><p>安全性</p></th>
+<th class="head"><p>用途</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>MD5</p></td>
+<td><p>128 位</p></td>
+<td><p>极快</p></td>
+<td><p>❌ 已破解</p></td>
+<td><p>仅用于校验和</p></td>
+</tr>
+<tr class="row-odd"><td><p>SHA-1</p></td>
+<td><p>160 位</p></td>
+<td><p>快</p></td>
+<td><p>❌ 已破解</p></td>
+<td><p>不推荐</p></td>
+</tr>
+<tr class="row-even"><td><p>SHA-256</p></td>
+<td><p>256 位</p></td>
+<td><p>中等</p></td>
+<td><p>✅ 安全</p></td>
+<td><p>通用首选</p></td>
+</tr>
+<tr class="row-odd"><td><p>SHA-3</p></td>
+<td><p>可变</p></td>
+<td><p>中等</p></td>
+<td><p>✅ 安全</p></td>
+<td><p>SHA-2 的备选</p></td>
+</tr>
+<tr class="row-even"><td><p>BLAKE3</p></td>
+<td><p>256 位</p></td>
+<td><p>极快</p></td>
+<td><p>✅ 安全</p></td>
+<td><p>高性能场景</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id8">
+<h3>密码哈希<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>存储用户密码时，不能使用普通哈希函数（太快，容易暴力破解），应使用专门的密码哈希函数：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">bcrypt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argon2</span>
+
+<span class="c1"># bcrypt — 经典选择</span>
+<span class="n">password</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;my_secure_password&quot;</span>
+<span class="n">salt</span> <span class="o">=</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">gensalt</span><span class="p">(</span><span class="n">rounds</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>  <span class="c1"># 工作因子</span>
+<span class="n">hashed</span> <span class="o">=</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">salt</span><span class="p">)</span>
+<span class="c1"># 验证</span>
+<span class="k">assert</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">checkpw</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">hashed</span><span class="p">)</span>
+
+<span class="c1"># Argon2 — 现代首选（2015 年密码哈希竞赛冠军）</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">argon2</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasswordHasher</span>
+<span class="n">ph</span> <span class="o">=</span> <span class="n">PasswordHasher</span><span class="p">(</span>
+    <span class="n">time_cost</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>       <span class="c1"># 迭代次数</span>
+    <span class="n">memory_cost</span><span class="o">=</span><span class="mi">65536</span><span class="p">,</span>  <span class="c1"># 内存使用（KB）</span>
+    <span class="n">parallelism</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>      <span class="c1"># 并行度</span>
+<span class="p">)</span>
+<span class="n">hash_value</span> <span class="o">=</span> <span class="n">ph</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="s2">&quot;my_secure_password&quot;</span><span class="p">)</span>
+<span class="c1"># 验证</span>
+<span class="k">assert</span> <span class="n">ph</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">hash_value</span><span class="p">,</span> <span class="s2">&quot;my_secure_password&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mac">
+<h2>2.5 消息认证码（MAC）<a class="headerlink" href="#mac" title="Link to this heading"></a></h2>
+<p>MAC 用于验证消息的完整性和真实性。最常用的是 HMAC（Hash-based MAC）：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">hmac</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_hmac</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;创建 HMAC-SHA256&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_hmac</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">expected_mac</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验证 HMAC（使用常量时间比较，防止时序攻击）&quot;&quot;&quot;</span>
+    <span class="n">actual_mac</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">hmac</span><span class="o">.</span><span class="n">compare_digest</span><span class="p">(</span><span class="n">actual_mac</span><span class="p">,</span> <span class="n">expected_mac</span><span class="p">)</span>
+
+<span class="c1"># 使用示例</span>
+<span class="n">key</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;shared_secret_key&quot;</span>
+<span class="n">message</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;Transfer $1000 to Alice&quot;</span>
+<span class="n">mac</span> <span class="o">=</span> <span class="n">create_hmac</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HMAC: </span><span class="si">{</span><span class="n">mac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 验证</span>
+<span class="k">assert</span> <span class="n">verify_hmac</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">mac</span><span class="p">)</span>
+<span class="c1"># 篡改消息后验证失败</span>
+<span class="k">assert</span> <span class="ow">not</span> <span class="n">verify_hmac</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;Transfer $9999 to Eve&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">mac</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h2>2.6 数字签名<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<p>数字签名结合了非对称加密和哈希函数，提供：</p>
+<ul class="simple">
+<li><p><strong>认证</strong>：证明消息来自特定发送者</p></li>
+<li><p><strong>完整性</strong>：证明消息未被篡改</p></li>
+<li><p><strong>不可否认性</strong>：发送者无法否认发送过该消息</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>数字签名流程：
+┌─────────────────────────────────────────────┐
+│  签名过程（发送方）                           │
+│                                              │
+│  消息 ──▶ [哈希] ──▶ 摘要 ──▶ [私钥加密] ──▶ 签名  │
+│                                              │
+│  发送：消息 + 签名                            │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│  验证过程（接收方）                           │
+│                                              │
+│  消息 ──▶ [哈希] ──▶ 摘要₁                   │
+│  签名 ──▶ [公钥解密] ──▶ 摘要₂               │
+│                                              │
+│  比较：摘要₁ == 摘要₂ ？                      │
+│  相等 → 签名有效 ✅                           │
+│  不等 → 签名无效 ❌                           │
+└─────────────────────────────────────────────┘
+</pre></div>
+</div>
+<section id="id10">
+<h3>RSA 签名示例<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.asymmetric</span><span class="w"> </span><span class="kn">import</span> <span class="n">rsa</span><span class="p">,</span> <span class="n">padding</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">hashes</span><span class="p">,</span> <span class="n">serialization</span>
+
+<span class="c1"># 生成密钥对</span>
+<span class="n">private_key</span> <span class="o">=</span> <span class="n">rsa</span><span class="o">.</span><span class="n">generate_private_key</span><span class="p">(</span>
+    <span class="n">public_exponent</span><span class="o">=</span><span class="mi">65537</span><span class="p">,</span>
+    <span class="n">key_size</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># 签名</span>
+<span class="n">message</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;This is an important document&quot;</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span>
+    <span class="n">message</span><span class="p">,</span>
+    <span class="n">padding</span><span class="o">.</span><span class="n">PSS</span><span class="p">(</span>
+        <span class="n">mgf</span><span class="o">=</span><span class="n">padding</span><span class="o">.</span><span class="n">MGF1</span><span class="p">(</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">()),</span>
+        <span class="n">salt_length</span><span class="o">=</span><span class="n">padding</span><span class="o">.</span><span class="n">PSS</span><span class="o">.</span><span class="n">MAX_LENGTH</span>
+    <span class="p">),</span>
+    <span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># 验证</span>
+<span class="n">public_key</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">public_key</span><span class="p">()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">public_key</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span>
+        <span class="n">signature</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">.</span><span class="n">PSS</span><span class="p">(</span>
+            <span class="n">mgf</span><span class="o">=</span><span class="n">padding</span><span class="o">.</span><span class="n">MGF1</span><span class="p">(</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">()),</span>
+            <span class="n">salt_length</span><span class="o">=</span><span class="n">padding</span><span class="o">.</span><span class="n">PSS</span><span class="o">.</span><span class="n">MAX_LENGTH</span>
+        <span class="p">),</span>
+        <span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;签名验证成功 ✅&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;签名验证失败 ❌&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="ecdsa">
+<h3>ECDSA 签名<a class="headerlink" href="#ecdsa" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.asymmetric</span><span class="w"> </span><span class="kn">import</span> <span class="n">ec</span>
+
+<span class="c1"># 生成 ECDSA 密钥对（P-256 曲线）</span>
+<span class="n">private_key</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">generate_private_key</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">SECP256R1</span><span class="p">())</span>
+
+<span class="c1"># 签名</span>
+<span class="n">message</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;Transaction: send 100 BTC&quot;</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">ec</span><span class="o">.</span><span class="n">ECDSA</span><span class="p">(</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">()))</span>
+
+<span class="c1"># 验证</span>
+<span class="n">public_key</span> <span class="o">=</span> <span class="n">private_key</span><span class="o">.</span><span class="n">public_key</span><span class="p">()</span>
+<span class="n">public_key</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">ec</span><span class="o">.</span><span class="n">ECDSA</span><span class="p">(</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">()))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id11">
+<h2>2.7 密钥交换<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<p>密钥交换协议允许双方在不安全的信道上协商出一个共享密钥。</p>
+<section id="diffie-hellman">
+<h3>Diffie-Hellman 密钥交换<a class="headerlink" href="#diffie-hellman" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Alice                                    Bob
+  │                                       │
+  │  生成私钥 a                            │  生成私钥 b
+  │  计算 A = g^a mod p                   │  计算 B = g^b mod p
+  │                                       │
+  │  ──────── 发送 A ────────────────▶    │
+  │  ◀──────── 发送 B ────────────────    │
+  │                                       │
+  │  计算 K = B^a mod p                   │  计算 K = A^b mod p
+  │  K = g^(ab) mod p                     │  K = g^(ab) mod p
+  │                                       │
+  │  共享密钥 K 相同！                     │
+</pre></div>
+</div>
+</section>
+<section id="ecdh">
+<h3>ECDH 密钥交换<a class="headerlink" href="#ecdh" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.asymmetric</span><span class="w"> </span><span class="kn">import</span> <span class="n">ec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">hashes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.kdf.hkdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">HKDF</span>
+
+<span class="c1"># Alice 生成密钥对</span>
+<span class="n">alice_private</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">generate_private_key</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">SECP256R1</span><span class="p">())</span>
+<span class="n">alice_public</span> <span class="o">=</span> <span class="n">alice_private</span><span class="o">.</span><span class="n">public_key</span><span class="p">()</span>
+
+<span class="c1"># Bob 生成密钥对</span>
+<span class="n">bob_private</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">generate_private_key</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">SECP256R1</span><span class="p">())</span>
+<span class="n">bob_public</span> <span class="o">=</span> <span class="n">bob_private</span><span class="o">.</span><span class="n">public_key</span><span class="p">()</span>
+
+<span class="c1"># Alice 计算共享密钥</span>
+<span class="n">alice_shared</span> <span class="o">=</span> <span class="n">alice_private</span><span class="o">.</span><span class="n">exchange</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">ECDH</span><span class="p">(),</span> <span class="n">bob_public</span><span class="p">)</span>
+
+<span class="c1"># Bob 计算共享密钥</span>
+<span class="n">bob_shared</span> <span class="o">=</span> <span class="n">bob_private</span><span class="o">.</span><span class="n">exchange</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">ECDH</span><span class="p">(),</span> <span class="n">alice_public</span><span class="p">)</span>
+
+<span class="c1"># 两者相同</span>
+<span class="k">assert</span> <span class="n">alice_shared</span> <span class="o">==</span> <span class="n">bob_shared</span>
+
+<span class="c1"># 使用 HKDF 派生最终密钥</span>
+<span class="n">derived_key</span> <span class="o">=</span> <span class="n">HKDF</span><span class="p">(</span>
+    <span class="n">algorithm</span><span class="o">=</span><span class="n">hashes</span><span class="o">.</span><span class="n">SHA256</span><span class="p">(),</span>
+    <span class="n">length</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">salt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">info</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;handshake data&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span><span class="n">alice_shared</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;派生密钥: </span><span class="si">{</span><span class="n">derived_key</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="authn-authz">
+<h2>2.8 密码学在 AuthN/AuthZ 中的应用<a class="headerlink" href="#authn-authz" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>应用场景</p></th>
+<th class="head"><p>使用的密码学技术</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HTTPS/TLS</p></td>
+<td><p>非对称加密 + 对称加密 + 证书</p></td>
+<td><p>保护传输安全</p></td>
+</tr>
+<tr class="row-odd"><td><p>JWT 签名</p></td>
+<td><p>HMAC 或 RSA/ECDSA 签名</p></td>
+<td><p>确保令牌完整性</p></td>
+</tr>
+<tr class="row-even"><td><p>密码存储</p></td>
+<td><p>bcrypt/Argon2</p></td>
+<td><p>安全存储用户密码</p></td>
+</tr>
+<tr class="row-odd"><td><p>mTLS</p></td>
+<td><p>X.509 证书 + TLS</p></td>
+<td><p>双向身份认证</p></td>
+</tr>
+<tr class="row-even"><td><p>OAuth2 PKCE</p></td>
+<td><p>SHA-256 哈希</p></td>
+<td><p>防止授权码拦截</p></td>
+</tr>
+<tr class="row-odd"><td><p>SPIFFE SVID</p></td>
+<td><p>X.509 证书</p></td>
+<td><p>工作负载身份</p></td>
+</tr>
+<tr class="row-even"><td><p>API 签名</p></td>
+<td><p>HMAC-SHA256</p></td>
+<td><p>请求完整性验证</p></td>
+</tr>
+<tr class="row-odd"><td><p>数据加密</p></td>
+<td><p>AES-256-GCM</p></td>
+<td><p>保护静态数据</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id12">
+<h2>2.9 小结<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<p>本章介绍了密码学的核心概念和实践：</p>
+<ul class="simple">
+<li><p><strong>对称加密</strong>（AES-GCM）适合大量数据加密，速度快</p></li>
+<li><p><strong>非对称加密</strong>（RSA、ECC）适合密钥交换和数字签名</p></li>
+<li><p><strong>哈希函数</strong>（SHA-256）用于数据完整性验证</p></li>
+<li><p><strong>密码哈希</strong>（Argon2、bcrypt）专门用于安全存储密码</p></li>
+<li><p><strong>数字签名</strong>提供认证、完整性和不可否认性</p></li>
+<li><p><strong>密钥交换</strong>（ECDH）允许在不安全信道上建立安全通信</p></li>
+</ul>
+<p>密码学是后续所有安全协议的基础。在下一章中，我们将学习 PKI 和证书体系，了解如何在大规模系统中管理和分发密钥。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch01.html" class="btn btn-neutral float-left" title="第一章：安全工程概论" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch03.html" class="btn btn-neutral float-right" title="第三章：PKI 与证书体系" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>
