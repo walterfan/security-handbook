@@ -1,0 +1,1990 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第十四章：OpenFGA — 细粒度授权引擎 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch14.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第十五章：OPA — 通用策略引擎" href="ch15.html" />
+    <link rel="prev" title="第十三章：访问控制模型" href="ch13.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第十四章：OpenFGA — 细粒度授权引擎</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">14.1 OpenFGA 是什么</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">授权检查流程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">关系模型示例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">14.2 核心概念</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authorization-model">授权模型（Authorization Model）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#relationship-tuple">关系元组（Relationship Tuple）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api">API 操作</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#google-drive">14.3 实战场景：Google Drive 权限模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">14.4 授权模型设计模式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#google-docs">模式一：文档共享（Google Docs 风格）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#saas">模式二：组织层级（多租户 SaaS）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#github">模式三：GitHub 仓库权限</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#python-sdk">14.5 Python SDK 完整示例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fastapi-openfga">FastAPI + OpenFGA 授权中间件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#java-sdk">14.6 Java SDK 完整示例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spring-boot-openfga">Spring Boot + OpenFGA 集成</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#go-sdk">14.7 Go SDK 完整示例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gin-openfga">Gin + OpenFGA 授权中间件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">14.8 OpenFGA 部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openfga-vs-casbin-vs-opa">14.9 OpenFGA vs Casbin vs OPA 对比</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openfga-vs-rbac">14.10 OpenFGA vs RBAC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">14.11 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第十四章：OpenFGA — 细粒度授权引擎</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch14.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="openfga">
+<h1>第十四章：OpenFGA — 细粒度授权引擎<a class="headerlink" href="#openfga" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“OpenFGA 让你像 Google 一样管理权限 — 基于关系，而非角色。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((OpenFGA))
+    核心概念
+      Type
+      Relation
+      Tuple
+    API
+      Check
+      ListObjects
+      Expand
+      Write
+    授权模型
+      DSL
+      Google Drive
+      GitHub
+      多租户
+    部署
+      Server
+      PostgreSQL
+      SDK
+    </pre><section id="id1">
+<h2>14.1 OpenFGA 是什么<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>OpenFGA（Fine-Grained Authorization）是由 Auth0/Okta 开源的细粒度授权引擎，基于 Google Zanzibar 论文实现。它是 CNCF Sandbox 项目。</p>
+<pre  class="mermaid">
+        flowchart LR
+    subgraph 应用层
+        A1[Web 应用]
+        A2[API 服务]
+        A3[微服务]
+    end
+
+    subgraph OpenFGA Server
+        direction TB
+        AM[授权模型&lt;br/&gt;Authorization Model]
+        RT[关系元组&lt;br/&gt;Relationship Tuples]
+        GE[图遍历引擎&lt;br/&gt;Graph Engine]
+        AM --&gt; GE
+        RT --&gt; GE
+    end
+
+    subgraph 数据存储
+        PG[(PostgreSQL)]
+        MY[(MySQL)]
+    end
+
+    A1 --&gt;|Check / Write / ListObjects| GE
+    A2 --&gt;|gRPC / HTTP| GE
+    A3 --&gt;|SDK| GE
+    GE --&gt; PG
+    GE -.-&gt; MY
+    </pre><section id="id2">
+<h3>授权检查流程<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant App as 应用
+    participant FGA as OpenFGA Server
+    participant DB as PostgreSQL
+
+    App-&gt;&gt;FGA: Check(user:bob, viewer, document:budget)
+    FGA-&gt;&gt;DB: 查询 document:budget 的关系元组
+    DB--&gt;&gt;FGA: 返回元组列表
+    FGA-&gt;&gt;FGA: 图遍历：bob 是 editor → editor 隐含 viewer
+    FGA--&gt;&gt;App: { allowed: true }
+
+    App-&gt;&gt;FGA: ListObjects(user:carol, viewer, type:document)
+    FGA-&gt;&gt;DB: 查询 carol 相关的所有关系元组
+    DB--&gt;&gt;FGA: 返回元组列表
+    FGA-&gt;&gt;FGA: 图遍历：展开所有可达的 document
+    FGA--&gt;&gt;App: { objects: [&quot;document:roadmap&quot;, &quot;document:budget&quot;] }
+    </pre></section>
+<section id="id3">
+<h3>关系模型示例<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        flowchart TB
+    U1([user:alice]) --&gt;|admin| Org[organization:acme]
+    U2([user:bob]) --&gt;|member| Org
+    U3([user:carol]) --&gt;|member| Org
+
+    Org --&gt;|member → viewer| D1[document:roadmap]
+    Org --&gt;|member → editor| D2[document:budget]
+
+    U1 --&gt;|owner| D1
+    U2 --&gt;|editor| D2
+    U3 --&gt;|viewer| D2
+
+    style U1 fill:#e1f5fe
+    style U2 fill:#e1f5fe
+    style U3 fill:#e1f5fe
+    style Org fill:#fff3e0
+    style D1 fill:#e8f5e9
+    style D2 fill:#e8f5e9
+    </pre></section>
+</section>
+<section id="id4">
+<h2>14.2 核心概念<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="authorization-model">
+<h3>授权模型（Authorization Model）<a class="headerlink" href="#authorization-model" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># OpenFGA DSL 语法</span>
+<span class="n">model</span>
+  <span class="n">schema</span> <span class="mf">1.1</span>
+
+<span class="nb">type</span> <span class="n">user</span>
+
+<span class="nb">type</span> <span class="n">organization</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">admin</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">member</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">admin</span>
+
+<span class="nb">type</span> <span class="n">document</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">owner</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">editor</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">organization</span><span class="c1">#member]</span>
+    <span class="n">define</span> <span class="n">viewer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">organization</span><span class="c1">#member] or editor or owner</span>
+    <span class="n">define</span> <span class="n">can_edit</span><span class="p">:</span> <span class="n">editor</span> <span class="ow">or</span> <span class="n">owner</span>
+    <span class="n">define</span> <span class="n">can_view</span><span class="p">:</span> <span class="n">viewer</span>
+    <span class="n">define</span> <span class="n">can_delete</span><span class="p">:</span> <span class="n">owner</span>
+</pre></div>
+</div>
+</section>
+<section id="relationship-tuple">
+<h3>关系元组（Relationship Tuple）<a class="headerlink" href="#relationship-tuple" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># 格式：object#relation@subject
+
+# Alice 是 budget 文档的 owner
+document:budget#owner@user:alice
+
+# Bob 是 budget 文档的 editor
+document:budget#editor@user:bob
+
+# Acme 组织的所有 member 都是 roadmap 文档的 viewer
+document:roadmap#viewer@organization:acme#member
+
+# Carol 是 Acme 组织的 member
+organization:acme#member@user:carol
+→ 因此 Carol 可以查看 roadmap 文档（通过关系链推导）
+</pre></div>
+</div>
+</section>
+<section id="api">
+<h3>API 操作<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>API</p></th>
+<th class="head"><p>功能</p></th>
+<th class="head"><p>示例</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Check</p></td>
+<td><p>检查是否有权限</p></td>
+<td><p>Carol 能查看 roadmap 吗？→ ✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>ListObjects</p></td>
+<td><p>列出有权限的对象</p></td>
+<td><p>Carol 能查看哪些文档？</p></td>
+</tr>
+<tr class="row-even"><td><p>ListUsers</p></td>
+<td><p>列出有权限的用户</p></td>
+<td><p>谁能编辑 budget？</p></td>
+</tr>
+<tr class="row-odd"><td><p>Expand</p></td>
+<td><p>展开权限关系树</p></td>
+<td><p>budget 的 viewer 包含哪些人？</p></td>
+</tr>
+<tr class="row-even"><td><p>Write</p></td>
+<td><p>写入关系元组</p></td>
+<td><p>添加/删除权限关系</p></td>
+</tr>
+<tr class="row-odd"><td><p>Read</p></td>
+<td><p>读取关系元组</p></td>
+<td><p>查询已有的权限关系</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="google-drive">
+<h2>14.3 实战场景：Google Drive 权限模型<a class="headerlink" href="#google-drive" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
+  <span class="n">schema</span> <span class="mf">1.1</span>
+
+<span class="nb">type</span> <span class="n">user</span>
+
+<span class="nb">type</span> <span class="n">group</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">member</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">group</span><span class="c1">#member]</span>
+
+<span class="nb">type</span> <span class="n">folder</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">owner</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">editor</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">group</span><span class="c1">#member] or owner</span>
+    <span class="n">define</span> <span class="n">viewer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">group</span><span class="c1">#member] or editor</span>
+    <span class="n">define</span> <span class="n">parent</span><span class="p">:</span> <span class="p">[</span><span class="n">folder</span><span class="p">]</span>
+    <span class="c1"># 继承父文件夹的权限</span>
+    <span class="n">define</span> <span class="n">can_edit</span><span class="p">:</span> <span class="n">editor</span> <span class="ow">or</span> <span class="n">owner</span> <span class="ow">or</span> <span class="n">can_edit</span> <span class="kn">from</span><span class="w"> </span><span class="nn">parent</span>
+    <span class="n">define</span> <span class="n">can_view</span><span class="p">:</span> <span class="n">viewer</span> <span class="ow">or</span> <span class="n">can_edit</span> <span class="ow">or</span> <span class="n">can_view</span> <span class="kn">from</span><span class="w"> </span><span class="nn">parent</span>
+
+<span class="nb">type</span> <span class="n">document</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">owner</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">editor</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">group</span><span class="c1">#member] or owner</span>
+    <span class="n">define</span> <span class="n">viewer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">group</span><span class="c1">#member] or editor</span>
+    <span class="n">define</span> <span class="n">parent</span><span class="p">:</span> <span class="p">[</span><span class="n">folder</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">can_edit</span><span class="p">:</span> <span class="n">editor</span> <span class="ow">or</span> <span class="n">owner</span> <span class="ow">or</span> <span class="n">can_edit</span> <span class="kn">from</span><span class="w"> </span><span class="nn">parent</span>
+    <span class="n">define</span> <span class="n">can_view</span><span class="p">:</span> <span class="n">viewer</span> <span class="ow">or</span> <span class="n">can_edit</span> <span class="ow">or</span> <span class="n">can_view</span> <span class="kn">from</span><span class="w"> </span><span class="nn">parent</span>
+    <span class="n">define</span> <span class="n">can_share</span><span class="p">:</span> <span class="n">owner</span>
+    <span class="n">define</span> <span class="n">can_delete</span><span class="p">:</span> <span class="n">owner</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>关系元组示例：
+# 文件夹层次
+folder:engineering#parent@folder:root
+folder:backend#parent@folder:engineering
+
+# 文档归属
+document:api-spec#parent@folder:backend
+
+# 权限分配
+folder:root#viewer@group:all-employees#member
+folder:engineering#editor@group:eng-team#member
+document:api-spec#owner@user:alice
+
+# 权限推导：
+# Bob 是 eng-team 的 member
+# → Bob 是 engineering 文件夹的 editor
+# → Bob 是 backend 文件夹的 editor（继承）
+# → Bob 可以编辑 api-spec 文档（继承）
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>14.4 授权模型设计模式<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<section id="google-docs">
+<h3>模式一：文档共享（Google Docs 风格）<a class="headerlink" href="#google-docs" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
+  <span class="n">schema</span> <span class="mf">1.1</span>
+
+<span class="nb">type</span> <span class="n">user</span>
+
+<span class="nb">type</span> <span class="n">document</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">owner</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">editor</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">owner</span>
+    <span class="n">define</span> <span class="n">commenter</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">editor</span>
+    <span class="n">define</span> <span class="n">viewer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">commenter</span>
+    <span class="c1"># 分享链接：任何人可查看</span>
+    <span class="n">define</span> <span class="n">public_viewer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">:</span><span class="o">*</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">can_view</span><span class="p">:</span> <span class="n">viewer</span> <span class="ow">or</span> <span class="n">public_viewer</span>
+    <span class="n">define</span> <span class="n">can_comment</span><span class="p">:</span> <span class="n">commenter</span>
+    <span class="n">define</span> <span class="n">can_edit</span><span class="p">:</span> <span class="n">editor</span>
+    <span class="n">define</span> <span class="n">can_share</span><span class="p">:</span> <span class="n">owner</span>
+    <span class="n">define</span> <span class="n">can_delete</span><span class="p">:</span> <span class="n">owner</span>
+</pre></div>
+</div>
+</section>
+<section id="saas">
+<h3>模式二：组织层级（多租户 SaaS）<a class="headerlink" href="#saas" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
+  <span class="n">schema</span> <span class="mf">1.1</span>
+
+<span class="nb">type</span> <span class="n">user</span>
+
+<span class="nb">type</span> <span class="n">organization</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">owner</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">admin</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">owner</span>
+    <span class="n">define</span> <span class="n">member</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">admin</span>
+
+<span class="nb">type</span> <span class="n">team</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">org</span><span class="p">:</span> <span class="p">[</span><span class="n">organization</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">lead</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">member</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">lead</span>
+    <span class="c1"># 组织管理员自动成为团队管理者</span>
+    <span class="n">define</span> <span class="n">admin</span><span class="p">:</span> <span class="n">lead</span> <span class="ow">or</span> <span class="n">admin</span> <span class="kn">from</span><span class="w"> </span><span class="nn">org</span>
+
+<span class="nb">type</span> <span class="n">project</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">team</span><span class="p">:</span> <span class="p">[</span><span class="n">team</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">manager</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">contributor</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">team</span><span class="c1">#member]</span>
+    <span class="n">define</span> <span class="n">viewer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">team</span><span class="c1">#member, organization#member] or contributor</span>
+    <span class="n">define</span> <span class="n">can_edit</span><span class="p">:</span> <span class="n">contributor</span> <span class="ow">or</span> <span class="n">manager</span>
+    <span class="n">define</span> <span class="n">can_view</span><span class="p">:</span> <span class="n">viewer</span>
+    <span class="n">define</span> <span class="n">can_admin</span><span class="p">:</span> <span class="n">manager</span> <span class="ow">or</span> <span class="n">admin</span> <span class="kn">from</span><span class="w"> </span><span class="nn">team</span>
+</pre></div>
+</div>
+</section>
+<section id="github">
+<h3>模式三：GitHub 仓库权限<a class="headerlink" href="#github" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
+  <span class="n">schema</span> <span class="mf">1.1</span>
+
+<span class="nb">type</span> <span class="n">user</span>
+
+<span class="nb">type</span> <span class="n">organization</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">owner</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">member</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">owner</span>
+
+<span class="nb">type</span> <span class="n">team</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">maintainer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">member</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="ow">or</span> <span class="n">maintainer</span>
+
+<span class="nb">type</span> <span class="n">repository</span>
+  <span class="n">relations</span>
+    <span class="n">define</span> <span class="n">org</span><span class="p">:</span> <span class="p">[</span><span class="n">organization</span><span class="p">]</span>
+    <span class="n">define</span> <span class="n">admin</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">team</span><span class="c1">#member] or owner from org</span>
+    <span class="n">define</span> <span class="n">maintainer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">team</span><span class="c1">#member] or admin</span>
+    <span class="n">define</span> <span class="n">writer</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">team</span><span class="c1">#member] or maintainer</span>
+    <span class="n">define</span> <span class="n">reader</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="p">,</span> <span class="n">team</span><span class="c1">#member, organization#member] or writer</span>
+    <span class="n">define</span> <span class="n">can_push</span><span class="p">:</span> <span class="n">writer</span>
+    <span class="n">define</span> <span class="n">can_pull</span><span class="p">:</span> <span class="n">reader</span>
+    <span class="n">define</span> <span class="n">can_admin</span><span class="p">:</span> <span class="n">admin</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="python-sdk">
+<h2>14.5 Python SDK 完整示例<a class="headerlink" href="#python-sdk" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openfga_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ClientConfiguration</span><span class="p">,</span>
+    <span class="n">OpenFgaClient</span><span class="p">,</span>
+    <span class="n">ClientWriteRequest</span><span class="p">,</span>
+    <span class="n">ClientTupleKey</span><span class="p">,</span>
+    <span class="n">ClientCheckRequest</span><span class="p">,</span>
+    <span class="n">ClientListObjectsRequest</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openfga_sdk.client.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">WriteAuthorizationModelRequest</span><span class="p">,</span>
+    <span class="n">CreateStoreRequest</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># 1. 配置客户端（无 Store）</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">ClientConfiguration</span><span class="p">(</span>
+        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8080&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">OpenFgaClient</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="c1"># 2. 创建 Store</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span>
+            <span class="n">CreateStoreRequest</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-app-store&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Store ID: </span><span class="si">{</span><span class="n">store</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 更新配置以使用新 Store</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">store_id</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">id</span>
+
+    <span class="c1"># 3. 使用新 Store 重新连接</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">OpenFgaClient</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="c1"># 4. 创建授权模型</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">WriteAuthorizationModelRequest</span><span class="p">(</span>
+            <span class="n">schema_version</span><span class="o">=</span><span class="s2">&quot;1.1&quot;</span><span class="p">,</span>
+            <span class="n">type_definitions</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;document&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;relations&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;this&quot;</span><span class="p">:</span> <span class="p">{}},</span>
+                        <span class="s2">&quot;editor&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;this&quot;</span><span class="p">:</span> <span class="p">{}},</span>
+                        <span class="s2">&quot;viewer&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;union&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s2">&quot;child&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                    <span class="p">{</span><span class="s2">&quot;this&quot;</span><span class="p">:</span> <span class="p">{}},</span>
+                                    <span class="p">{</span><span class="s2">&quot;computedUserset&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;relation&quot;</span><span class="p">:</span> <span class="s2">&quot;editor&quot;</span><span class="p">}},</span>
+                                    <span class="p">{</span><span class="s2">&quot;computedUserset&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;relation&quot;</span><span class="p">:</span> <span class="s2">&quot;owner&quot;</span><span class="p">}},</span>
+                                <span class="p">]</span>
+                            <span class="p">}</span>
+                        <span class="p">},</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;relations&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s2">&quot;directly_related_user_types&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">}]</span>
+                            <span class="p">},</span>
+                            <span class="s2">&quot;editor&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s2">&quot;directly_related_user_types&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">}]</span>
+                            <span class="p">},</span>
+                            <span class="s2">&quot;viewer&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s2">&quot;directly_related_user_types&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">}]</span>
+                            <span class="p">},</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">auth_model</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">write_authorization_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;模型 ID: </span><span class="si">{</span><span class="n">auth_model</span><span class="o">.</span><span class="n">authorization_model_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 5. 写入关系元组</span>
+        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">ClientWriteRequest</span><span class="p">(</span>
+                <span class="n">writes</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">ClientTupleKey</span><span class="p">(</span>
+                        <span class="n">user</span><span class="o">=</span><span class="s2">&quot;user:alice&quot;</span><span class="p">,</span>
+                        <span class="n">relation</span><span class="o">=</span><span class="s2">&quot;owner&quot;</span><span class="p">,</span>
+                        <span class="nb">object</span><span class="o">=</span><span class="s2">&quot;document:budget&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">ClientTupleKey</span><span class="p">(</span>
+                        <span class="n">user</span><span class="o">=</span><span class="s2">&quot;user:bob&quot;</span><span class="p">,</span>
+                        <span class="n">relation</span><span class="o">=</span><span class="s2">&quot;editor&quot;</span><span class="p">,</span>
+                        <span class="nb">object</span><span class="o">=</span><span class="s2">&quot;document:budget&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">ClientTupleKey</span><span class="p">(</span>
+                        <span class="n">user</span><span class="o">=</span><span class="s2">&quot;user:carol&quot;</span><span class="p">,</span>
+                        <span class="n">relation</span><span class="o">=</span><span class="s2">&quot;viewer&quot;</span><span class="p">,</span>
+                        <span class="nb">object</span><span class="o">=</span><span class="s2">&quot;document:budget&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;关系元组写入成功&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 6. 检查权限</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+            <span class="n">ClientCheckRequest</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="s2">&quot;user:bob&quot;</span><span class="p">,</span>
+                <span class="n">relation</span><span class="o">=</span><span class="s2">&quot;viewer&quot;</span><span class="p">,</span>
+                <span class="nb">object</span><span class="o">=</span><span class="s2">&quot;document:budget&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bob 能查看 budget? </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">allowed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># True（editor 隐含 viewer）</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+            <span class="n">ClientCheckRequest</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="s2">&quot;user:carol&quot;</span><span class="p">,</span>
+                <span class="n">relation</span><span class="o">=</span><span class="s2">&quot;editor&quot;</span><span class="p">,</span>
+                <span class="nb">object</span><span class="o">=</span><span class="s2">&quot;document:budget&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Carol 能编辑 budget? </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">allowed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># False</span>
+
+        <span class="c1"># 7. 列出用户可访问的文档</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span>
+            <span class="n">ClientListObjectsRequest</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="s2">&quot;user:alice&quot;</span><span class="p">,</span>
+                <span class="n">relation</span><span class="o">=</span><span class="s2">&quot;viewer&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;document&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alice 可查看的文档: </span><span class="si">{</span><span class="n">objects</span><span class="o">.</span><span class="n">objects</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 8. 删除关系元组</span>
+        <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">ClientWriteRequest</span><span class="p">(</span>
+                <span class="n">deletes</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">ClientTupleKey</span><span class="p">(</span>
+                        <span class="n">user</span><span class="o">=</span><span class="s2">&quot;user:carol&quot;</span><span class="p">,</span>
+                        <span class="n">relation</span><span class="o">=</span><span class="s2">&quot;viewer&quot;</span><span class="p">,</span>
+                        <span class="nb">object</span><span class="o">=</span><span class="s2">&quot;document:budget&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;已移除 Carol 的 viewer 权限&quot;</span><span class="p">)</span>
+
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<section id="fastapi-openfga">
+<h3>FastAPI + OpenFGA 授权中间件<a class="headerlink" href="#fastapi-openfga" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;FastAPI + OpenFGA 授权中间件完整示例&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">asynccontextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPBearer</span><span class="p">,</span> <span class="n">HTTPAuthorizationCredentials</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openfga_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ClientConfiguration</span><span class="p">,</span>
+    <span class="n">OpenFgaClient</span><span class="p">,</span>
+    <span class="n">ClientCheckRequest</span><span class="p">,</span>
+    <span class="n">ClientWriteRequest</span><span class="p">,</span>
+    <span class="n">ClientTupleKey</span><span class="p">,</span>
+    <span class="n">ClientListObjectsRequest</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># ── 全局 OpenFGA 客户端 ──────────────────────────────────────</span>
+<span class="n">fga_client</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OpenFgaClient</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">FGA_CONFIG</span> <span class="o">=</span> <span class="n">ClientConfiguration</span><span class="p">(</span>
+    <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8080&quot;</span><span class="p">,</span>
+    <span class="n">store_id</span><span class="o">=</span><span class="s2">&quot;your-store-id&quot;</span><span class="p">,</span>
+    <span class="n">authorization_model_id</span><span class="o">=</span><span class="s2">&quot;your-model-id&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@asynccontextmanager</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">fga_client</span>
+    <span class="n">fga_client</span> <span class="o">=</span> <span class="n">OpenFgaClient</span><span class="p">(</span><span class="n">FGA_CONFIG</span><span class="p">)</span>
+    <span class="k">yield</span>
+    <span class="k">await</span> <span class="n">fga_client</span><span class="o">.</span><span class="fm">__aexit__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;OpenFGA Demo&quot;</span><span class="p">,</span> <span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span><span class="p">)</span>
+<span class="n">security</span> <span class="o">=</span> <span class="n">HTTPBearer</span><span class="p">()</span>
+
+
+<span class="c1"># ── 用户解析（简化示例，实际应验证 JWT） ─────────────────────</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span>
+    <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="c1"># 实际项目中应验证 JWT 并提取用户信息</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">credentials</span><span class="o">.</span><span class="n">credentials</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">token</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">token</span><span class="p">}</span>
+
+
+<span class="c1"># ── OpenFGA 授权依赖 ─────────────────────────────────────────</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FGAAuthorize</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;可复用的 OpenFGA 授权依赖&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_id_param</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation</span> <span class="o">=</span> <span class="n">relation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_type</span> <span class="o">=</span> <span class="n">object_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_id_param</span> <span class="o">=</span> <span class="n">object_id_param</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span>
+        <span class="n">user</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">object_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">path_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_id_param</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">object_id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Missing resource ID&quot;</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fga_client</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+            <span class="n">ClientCheckRequest</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;user:</span><span class="si">{</span><span class="n">user</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">relation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">relation</span><span class="p">,</span>
+                <span class="nb">object</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">object_type</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">object_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">allowed</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+                <span class="n">status_code</span><span class="o">=</span><span class="mi">403</span><span class="p">,</span>
+                <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;No &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">relation</span><span class="si">}</span><span class="s2">&#39; permission on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">object_type</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">object_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">user</span>
+
+
+<span class="c1"># ── 路由 ─────────────────────────────────────────────────────</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/documents/</span><span class="si">{doc_id}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_document</span><span class="p">(</span>
+    <span class="n">doc_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">FGAAuthorize</span><span class="p">(</span><span class="s2">&quot;viewer&quot;</span><span class="p">,</span> <span class="s2">&quot;document&quot;</span><span class="p">,</span> <span class="s2">&quot;doc_id&quot;</span><span class="p">)),</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;doc_id&quot;</span><span class="p">:</span> <span class="n">doc_id</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="s2">&quot;accessed_by&quot;</span><span class="p">:</span> <span class="n">user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;/documents/</span><span class="si">{doc_id}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update_document</span><span class="p">(</span>
+    <span class="n">doc_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">FGAAuthorize</span><span class="p">(</span><span class="s2">&quot;editor&quot;</span><span class="p">,</span> <span class="s2">&quot;document&quot;</span><span class="p">,</span> <span class="s2">&quot;doc_id&quot;</span><span class="p">)),</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;doc_id&quot;</span><span class="p">:</span> <span class="n">doc_id</span><span class="p">,</span> <span class="s2">&quot;updated_by&quot;</span><span class="p">:</span> <span class="n">user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;/documents/</span><span class="si">{doc_id}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_document</span><span class="p">(</span>
+    <span class="n">doc_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">FGAAuthorize</span><span class="p">(</span><span class="s2">&quot;owner&quot;</span><span class="p">,</span> <span class="s2">&quot;document&quot;</span><span class="p">,</span> <span class="s2">&quot;doc_id&quot;</span><span class="p">)),</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;doc_id&quot;</span><span class="p">:</span> <span class="n">doc_id</span><span class="p">,</span> <span class="s2">&quot;deleted_by&quot;</span><span class="p">:</span> <span class="n">user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/documents/</span><span class="si">{doc_id}</span><span class="s2">/share&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">share_document</span><span class="p">(</span>
+    <span class="n">doc_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">target_user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">relation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;viewer&quot;</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">FGAAuthorize</span><span class="p">(</span><span class="s2">&quot;owner&quot;</span><span class="p">,</span> <span class="s2">&quot;document&quot;</span><span class="p">,</span> <span class="s2">&quot;doc_id&quot;</span><span class="p">)),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;文档所有者可以分享文档给其他用户&quot;&quot;&quot;</span>
+    <span class="k">await</span> <span class="n">fga_client</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+        <span class="n">ClientWriteRequest</span><span class="p">(</span>
+            <span class="n">writes</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">ClientTupleKey</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;user:</span><span class="si">{</span><span class="n">target_user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">relation</span><span class="o">=</span><span class="n">relation</span><span class="p">,</span>
+                    <span class="nb">object</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;document:</span><span class="si">{</span><span class="n">doc_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;shared&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;doc_id&quot;</span><span class="p">:</span> <span class="n">doc_id</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="n">target_user</span><span class="p">,</span> <span class="s2">&quot;relation&quot;</span><span class="p">:</span> <span class="n">relation</span><span class="p">}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/my/documents&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_my_documents</span><span class="p">(</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;列出当前用户可查看的所有文档&quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fga_client</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span>
+        <span class="n">ClientListObjectsRequest</span><span class="p">(</span>
+            <span class="n">user</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;user:</span><span class="si">{</span><span class="n">user</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">relation</span><span class="o">=</span><span class="s2">&quot;viewer&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;document&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="n">user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="s2">&quot;documents&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">objects</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="java-sdk">
+<h2>14.6 Java SDK 完整示例<a class="headerlink" href="#java-sdk" title="Link to this heading"></a></h2>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">// build.gradle</span>
+<span class="c1">// dependencies {</span>
+<span class="c1">//     implementation &#39;dev.openfga:openfga-sdk:0.7.+&#39;</span>
+<span class="c1">// }</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.openfga.sdk.api.client.OpenFgaClient</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.openfga.sdk.api.client.ClientConfiguration</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.openfga.sdk.api.client.model.*</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.openfga.sdk.api.model.*</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">OpenFGAExample</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 1. 配置客户端</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientConfiguration</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">apiUrl</span><span class="p">(</span><span class="s">&quot;http://localhost:8080&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">storeId</span><span class="p">(</span><span class="s">&quot;your-store-id&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OpenFgaClient</span><span class="p">(</span><span class="n">config</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 2. 创建 Store</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">createStoreResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span>
+<span class="w">                </span><span class="p">.</span><span class="na">createStore</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">CreateStoreRequest</span><span class="p">().</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;my-java-store&quot;</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Store ID: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">createStoreResponse</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="na">storeId</span><span class="p">(</span><span class="n">createStoreResponse</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// 3. 写入授权模型</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">WriteAuthorizationModelRequest</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">schemaVersion</span><span class="p">(</span><span class="s">&quot;1.1&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">typeDefinitions</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                        </span><span class="k">new</span><span class="w"> </span><span class="n">TypeDefinition</span><span class="p">().</span><span class="na">type</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">),</span>
+<span class="w">                        </span><span class="k">new</span><span class="w"> </span><span class="n">TypeDefinition</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">type</span><span class="p">(</span><span class="s">&quot;document&quot;</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">relations</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                        </span><span class="s">&quot;owner&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Userset</span><span class="p">().</span><span class="na">direct</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">DirectUserset</span><span class="p">()),</span>
+<span class="w">                                        </span><span class="s">&quot;editor&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Userset</span><span class="p">().</span><span class="na">direct</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">DirectUserset</span><span class="p">()),</span>
+<span class="w">                                        </span><span class="s">&quot;viewer&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Userset</span><span class="p">().</span><span class="na">union</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Usersets</span><span class="p">().</span><span class="na">child</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                                </span><span class="k">new</span><span class="w"> </span><span class="n">Userset</span><span class="p">().</span><span class="na">direct</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">DirectUserset</span><span class="p">()),</span>
+<span class="w">                                                </span><span class="k">new</span><span class="w"> </span><span class="n">Userset</span><span class="p">().</span><span class="na">computedUserset</span><span class="p">(</span>
+<span class="w">                                                        </span><span class="k">new</span><span class="w"> </span><span class="n">ObjectRelation</span><span class="p">().</span><span class="na">relation</span><span class="p">(</span><span class="s">&quot;editor&quot;</span><span class="p">)),</span>
+<span class="w">                                                </span><span class="k">new</span><span class="w"> </span><span class="n">Userset</span><span class="p">().</span><span class="na">computedUserset</span><span class="p">(</span>
+<span class="w">                                                        </span><span class="k">new</span><span class="w"> </span><span class="n">ObjectRelation</span><span class="p">().</span><span class="na">relation</span><span class="p">(</span><span class="s">&quot;owner&quot;</span><span class="p">))</span>
+<span class="w">                                        </span><span class="p">)))</span>
+<span class="w">                                </span><span class="p">))</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">metadata</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Metadata</span><span class="p">().</span><span class="na">relations</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                        </span><span class="s">&quot;owner&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RelationMetadata</span><span class="p">()</span>
+<span class="w">                                                </span><span class="p">.</span><span class="na">directlyRelatedUserTypes</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                                        </span><span class="k">new</span><span class="w"> </span><span class="n">RelationReference</span><span class="p">().</span><span class="na">type</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">))),</span>
+<span class="w">                                        </span><span class="s">&quot;editor&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RelationMetadata</span><span class="p">()</span>
+<span class="w">                                                </span><span class="p">.</span><span class="na">directlyRelatedUserTypes</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                                        </span><span class="k">new</span><span class="w"> </span><span class="n">RelationReference</span><span class="p">().</span><span class="na">type</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">))),</span>
+<span class="w">                                        </span><span class="s">&quot;viewer&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RelationMetadata</span><span class="p">()</span>
+<span class="w">                                                </span><span class="p">.</span><span class="na">directlyRelatedUserTypes</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                                                        </span><span class="k">new</span><span class="w"> </span><span class="n">RelationReference</span><span class="p">().</span><span class="na">type</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">)))</span>
+<span class="w">                                </span><span class="p">)))</span>
+<span class="w">                </span><span class="p">));</span>
+
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">modelResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">writeAuthorizationModel</span><span class="p">(</span><span class="n">model</span><span class="p">).</span><span class="na">get</span><span class="p">();</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;模型 ID: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">modelResponse</span><span class="p">.</span><span class="na">getAuthorizationModelId</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// 4. 写入关系元组</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">writeRequest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientWriteRequest</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">writes</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                        </span><span class="k">new</span><span class="w"> </span><span class="n">ClientTupleKey</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">user</span><span class="p">(</span><span class="s">&quot;user:alice&quot;</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">relation</span><span class="p">(</span><span class="s">&quot;owner&quot;</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">_object</span><span class="p">(</span><span class="s">&quot;document:budget&quot;</span><span class="p">),</span>
+<span class="w">                        </span><span class="k">new</span><span class="w"> </span><span class="n">ClientTupleKey</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">user</span><span class="p">(</span><span class="s">&quot;user:bob&quot;</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">relation</span><span class="p">(</span><span class="s">&quot;editor&quot;</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">_object</span><span class="p">(</span><span class="s">&quot;document:budget&quot;</span><span class="p">),</span>
+<span class="w">                        </span><span class="k">new</span><span class="w"> </span><span class="n">ClientTupleKey</span><span class="p">()</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">user</span><span class="p">(</span><span class="s">&quot;user:carol&quot;</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">relation</span><span class="p">(</span><span class="s">&quot;viewer&quot;</span><span class="p">)</span>
+<span class="w">                                </span><span class="p">.</span><span class="na">_object</span><span class="p">(</span><span class="s">&quot;document:budget&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">));</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">writeRequest</span><span class="p">).</span><span class="na">get</span><span class="p">();</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;关系元组写入成功&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 5. 检查权限</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">checkRequest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientCheckRequest</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">user</span><span class="p">(</span><span class="s">&quot;user:bob&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">relation</span><span class="p">(</span><span class="s">&quot;viewer&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">_object</span><span class="p">(</span><span class="s">&quot;document:budget&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">checkResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">check</span><span class="p">(</span><span class="n">checkRequest</span><span class="p">).</span><span class="na">get</span><span class="p">();</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Bob 能查看 budget? &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">checkResponse</span><span class="p">.</span><span class="na">getAllowed</span><span class="p">());</span>
+<span class="w">        </span><span class="c1">// true（editor 隐含 viewer）</span>
+
+<span class="w">        </span><span class="c1">// 6. 列出用户可访问的文档</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">listRequest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientListObjectsRequest</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">user</span><span class="p">(</span><span class="s">&quot;user:alice&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">relation</span><span class="p">(</span><span class="s">&quot;viewer&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">type</span><span class="p">(</span><span class="s">&quot;document&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">listResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">listObjects</span><span class="p">(</span><span class="n">listRequest</span><span class="p">).</span><span class="na">get</span><span class="p">();</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Alice 可查看的文档: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">listResponse</span><span class="p">.</span><span class="na">getObjects</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="spring-boot-openfga">
+<h3>Spring Boot + OpenFGA 集成<a class="headerlink" href="#spring-boot-openfga" title="Link to this heading"></a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">// ── OpenFGA 配置 ────────────────────────────────────────────</span>
+<span class="c1">// application.yml:</span>
+<span class="c1">// openfga:</span>
+<span class="c1">//   api-url: http://localhost:8080</span>
+<span class="c1">//   store-id: your-store-id</span>
+<span class="c1">//   authorization-model-id: your-model-id</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.openfga.sdk.api.client.OpenFgaClient</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.openfga.sdk.api.client.ClientConfiguration</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.boot.context.properties.ConfigurationProperties</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span><span class="p">;</span>
+
+<span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;openfga&quot;</span><span class="p">)</span>
+<span class="kd">record</span> <span class="nc">OpenFGAProperties</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">apiUrl</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">storeId</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">authorizationModelId</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="nd">@Configuration</span>
+<span class="kd">class</span> <span class="nc">OpenFGAConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="n">OpenFgaClient</span><span class="w"> </span><span class="nf">openFgaClient</span><span class="p">(</span><span class="n">OpenFGAProperties</span><span class="w"> </span><span class="n">props</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientConfiguration</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">apiUrl</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">apiUrl</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">storeId</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">storeId</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">authorizationModelId</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">authorizationModelId</span><span class="p">());</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OpenFgaClient</span><span class="p">(</span><span class="n">config</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ── 授权服务 ────────────────────────────────────────────────</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.openfga.sdk.api.client.OpenFgaClient</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.openfga.sdk.api.client.model.ClientCheckRequest</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Service</span><span class="p">;</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span> <span class="nc">FGAAuthorizationService</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">OpenFgaClient</span><span class="w"> </span><span class="n">fgaClient</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">FGAAuthorizationService</span><span class="p">(</span><span class="n">OpenFgaClient</span><span class="w"> </span><span class="n">fgaClient</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">fgaClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fgaClient</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">userId</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">relation</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">objectType</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">objectId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">var</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClientCheckRequest</span><span class="p">()</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">user</span><span class="p">(</span><span class="s">&quot;user:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">userId</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">relation</span><span class="p">(</span><span class="n">relation</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">_object</span><span class="p">(</span><span class="n">objectType</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">objectId</span><span class="p">);</span>
+<span class="w">            </span><span class="kd">var</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fgaClient</span><span class="p">.</span><span class="na">check</span><span class="p">(</span><span class="n">request</span><span class="p">).</span><span class="na">get</span><span class="p">();</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Boolean</span><span class="p">.</span><span class="na">TRUE</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="na">getAllowed</span><span class="p">());</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RuntimeException</span><span class="p">(</span><span class="s">&quot;OpenFGA check failed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ── 自定义注解 + AOP ────────────────────────────────────────</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.*</span><span class="p">;</span>
+
+<span class="nd">@Target</span><span class="p">(</span><span class="n">ElementType</span><span class="p">.</span><span class="na">METHOD</span><span class="p">)</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="n">RetentionPolicy</span><span class="p">.</span><span class="na">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Documented</span>
+<span class="nd">@interface</span><span class="w"> </span><span class="n">FGAPreAuthorize</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="nf">relation</span><span class="p">();</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="nf">objectType</span><span class="p">();</span>
+<span class="w">    </span><span class="cm">/** SpEL 表达式，从方法参数中提取 objectId */</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="nf">objectId</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.ProceedingJoinPoint</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.Around</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.Aspect</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.reflect.MethodSignature</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.expression.spel.standard.SpelExpressionParser</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.expression.spel.support.StandardEvaluationContext</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.http.HttpStatus</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.context.SecurityContextHolder</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Component</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.web.server.ResponseStatusException</span><span class="p">;</span>
+
+<span class="nd">@Aspect</span>
+<span class="nd">@Component</span>
+<span class="kd">class</span> <span class="nc">FGAAuthorizationAspect</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">FGAAuthorizationService</span><span class="w"> </span><span class="n">authService</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">SpelExpressionParser</span><span class="w"> </span><span class="n">parser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SpelExpressionParser</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">FGAAuthorizationAspect</span><span class="p">(</span><span class="n">FGAAuthorizationService</span><span class="w"> </span><span class="n">authService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">authService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">authService</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Around</span><span class="p">(</span><span class="s">&quot;@annotation(fgaAuth)&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">checkPermission</span><span class="p">(</span><span class="n">ProceedingJoinPoint</span><span class="w"> </span><span class="n">joinPoint</span><span class="p">,</span><span class="w"> </span><span class="n">FGAPreAuthorize</span><span class="w"> </span><span class="n">fgaAuth</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">throws</span><span class="w"> </span><span class="n">Throwable</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 从 SecurityContext 获取当前用户</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">userId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SecurityContextHolder</span><span class="p">.</span><span class="na">getContext</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">getAuthentication</span><span class="p">().</span><span class="na">getName</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 用 SpEL 解析 objectId</span>
+<span class="w">        </span><span class="n">MethodSignature</span><span class="w"> </span><span class="n">sig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">MethodSignature</span><span class="p">)</span><span class="w"> </span><span class="n">joinPoint</span><span class="p">.</span><span class="na">getSignature</span><span class="p">();</span>
+<span class="w">        </span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">paramNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sig</span><span class="p">.</span><span class="na">getParameterNames</span><span class="p">();</span>
+<span class="w">        </span><span class="n">Object</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">joinPoint</span><span class="p">.</span><span class="na">getArgs</span><span class="p">();</span>
+<span class="w">        </span><span class="n">StandardEvaluationContext</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StandardEvaluationContext</span><span class="p">();</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">paramNames</span><span class="p">.</span><span class="na">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">ctx</span><span class="p">.</span><span class="na">setVariable</span><span class="p">(</span><span class="n">paramNames</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">objectId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parser</span><span class="p">.</span><span class="na">parseExpression</span><span class="p">(</span><span class="n">fgaAuth</span><span class="p">.</span><span class="na">objectId</span><span class="p">()).</span><span class="na">getValue</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 调用 OpenFGA 检查</span>
+<span class="w">        </span><span class="kt">boolean</span><span class="w"> </span><span class="n">allowed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">authService</span><span class="p">.</span><span class="na">check</span><span class="p">(</span>
+<span class="w">                </span><span class="n">userId</span><span class="p">,</span><span class="w"> </span><span class="n">fgaAuth</span><span class="p">.</span><span class="na">relation</span><span class="p">(),</span><span class="w"> </span><span class="n">fgaAuth</span><span class="p">.</span><span class="na">objectType</span><span class="p">(),</span><span class="w"> </span><span class="n">objectId</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">allowed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ResponseStatusException</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">FORBIDDEN</span><span class="p">,</span>
+<span class="w">                    </span><span class="s">&quot;No &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">fgaAuth</span><span class="p">.</span><span class="na">relation</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39; permission on &quot;</span>
+<span class="w">                            </span><span class="o">+</span><span class="w"> </span><span class="n">fgaAuth</span><span class="p">.</span><span class="na">objectType</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">objectId</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">joinPoint</span><span class="p">.</span><span class="na">proceed</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ── Controller 使用示例 ─────────────────────────────────────</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.*</span><span class="p">;</span>
+
+<span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/documents&quot;</span><span class="p">)</span>
+<span class="kd">class</span> <span class="nc">DocumentController</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{docId}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@FGAPreAuthorize</span><span class="p">(</span><span class="n">relation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;viewer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">objectType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;document&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">objectId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;#docId&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getDocument</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">docId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;docId&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">docId</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;content&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@PutMapping</span><span class="p">(</span><span class="s">&quot;/{docId}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@FGAPreAuthorize</span><span class="p">(</span><span class="n">relation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;editor&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">objectType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;document&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">objectId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;#docId&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">updateDocument</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">docId</span><span class="p">,</span>
+<span class="w">                                               </span><span class="nd">@RequestBody</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;docId&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">docId</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;updated&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@DeleteMapping</span><span class="p">(</span><span class="s">&quot;/{docId}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@FGAPreAuthorize</span><span class="p">(</span><span class="n">relation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;owner&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">objectType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;document&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">objectId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;#docId&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">deleteDocument</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">docId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;docId&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">docId</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;deleted&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="go-sdk">
+<h2>14.7 Go SDK 完整示例<a class="headerlink" href="#go-sdk" title="Link to this heading"></a></h2>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;context&quot;</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;log&quot;</span>
+
+<span class="w">	</span><span class="nx">openfga</span><span class="w"> </span><span class="s">&quot;github.com/openfga/go-sdk&quot;</span>
+<span class="w">	</span><span class="s">&quot;github.com/openfga/go-sdk/client&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span>
+
+<span class="w">	</span><span class="c1">// 1. 配置客户端</span>
+<span class="w">	</span><span class="nx">fgaClient</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">NewSdkClient</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientConfiguration</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ApiUrl</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://localhost:8080&quot;</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;创建客户端失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 2. 创建 Store</span>
+<span class="w">	</span><span class="nx">storeResp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fgaClient</span><span class="p">.</span><span class="nx">CreateStore</span><span class="p">(</span><span class="nx">ctx</span><span class="p">).</span><span class="nx">Body</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientCreateStoreRequest</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-go-store&quot;</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}).</span><span class="nx">Execute</span><span class="p">()</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;创建 Store 失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Store ID: %s\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">storeResp</span><span class="p">.</span><span class="nx">GetId</span><span class="p">())</span>
+
+<span class="w">	</span><span class="c1">// 更新客户端配置</span>
+<span class="w">	</span><span class="nx">fgaClient</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">NewSdkClient</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientConfiguration</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ApiUrl</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;http://localhost:8080&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">StoreId</span><span class="p">:</span><span class="w"> </span><span class="nx">storeResp</span><span class="p">.</span><span class="nx">GetId</span><span class="p">(),</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;重新创建客户端失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 3. 写入授权模型</span>
+<span class="w">	</span><span class="nx">schemaVersion</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;1.1&quot;</span>
+<span class="w">	</span><span class="nx">modelResp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fgaClient</span><span class="p">.</span><span class="nx">WriteAuthorizationModel</span><span class="p">(</span><span class="nx">ctx</span><span class="p">).</span><span class="nx">Body</span><span class="p">(</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">WriteAuthorizationModelRequest</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">SchemaVersion</span><span class="p">:</span><span class="w"> </span><span class="nx">schemaVersion</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">TypeDefinitions</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">TypeDefinition</span><span class="p">{</span>
+<span class="w">			</span><span class="p">{</span><span class="nx">Type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user&quot;</span><span class="p">},</span>
+<span class="w">			</span><span class="p">{</span>
+<span class="w">				</span><span class="nx">Type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;document&quot;</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">Relations</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">Userset</span><span class="p">{</span>
+<span class="w">					</span><span class="s">&quot;owner&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nx">This</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">DirectUserset</span><span class="p">{}},</span>
+<span class="w">					</span><span class="s">&quot;editor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nx">This</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">DirectUserset</span><span class="p">{}},</span>
+<span class="w">					</span><span class="s">&quot;viewer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">						</span><span class="nx">Union</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">Usersets</span><span class="p">{</span>
+<span class="w">							</span><span class="nx">Child</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">Userset</span><span class="p">{</span>
+<span class="w">								</span><span class="p">{</span><span class="nx">This</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">DirectUserset</span><span class="p">{}},</span>
+<span class="w">								</span><span class="p">{</span><span class="nx">ComputedUserset</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">ObjectRelation</span><span class="p">{</span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="nx">strPtr</span><span class="p">(</span><span class="s">&quot;editor&quot;</span><span class="p">)}},</span>
+<span class="w">								</span><span class="p">{</span><span class="nx">ComputedUserset</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">ObjectRelation</span><span class="p">{</span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="nx">strPtr</span><span class="p">(</span><span class="s">&quot;owner&quot;</span><span class="p">)}},</span>
+<span class="w">							</span><span class="p">},</span>
+<span class="w">						</span><span class="p">},</span>
+<span class="w">					</span><span class="p">},</span>
+<span class="w">				</span><span class="p">},</span>
+<span class="w">				</span><span class="nx">Metadata</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">{</span>
+<span class="w">					</span><span class="nx">Relations</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">RelationMetadata</span><span class="p">{</span>
+<span class="w">						</span><span class="s">&quot;owner&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nx">DirectlyRelatedUserTypes</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="p">[]</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">RelationReference</span><span class="p">{</span>
+<span class="w">							</span><span class="p">{</span><span class="nx">Type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user&quot;</span><span class="p">},</span>
+<span class="w">						</span><span class="p">}},</span>
+<span class="w">						</span><span class="s">&quot;editor&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nx">DirectlyRelatedUserTypes</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="p">[]</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">RelationReference</span><span class="p">{</span>
+<span class="w">							</span><span class="p">{</span><span class="nx">Type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user&quot;</span><span class="p">},</span>
+<span class="w">						</span><span class="p">}},</span>
+<span class="w">						</span><span class="s">&quot;viewer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nx">DirectlyRelatedUserTypes</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="p">[]</span><span class="nx">openfga</span><span class="p">.</span><span class="nx">RelationReference</span><span class="p">{</span>
+<span class="w">							</span><span class="p">{</span><span class="nx">Type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user&quot;</span><span class="p">},</span>
+<span class="w">						</span><span class="p">}},</span>
+<span class="w">					</span><span class="p">},</span>
+<span class="w">				</span><span class="p">},</span>
+<span class="w">			</span><span class="p">},</span>
+<span class="w">		</span><span class="p">},</span>
+<span class="w">	</span><span class="p">}).</span><span class="nx">Execute</span><span class="p">()</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;写入模型失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;模型 ID: %s\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">modelResp</span><span class="p">.</span><span class="nx">GetAuthorizationModelId</span><span class="p">())</span>
+
+<span class="w">	</span><span class="c1">// 4. 写入关系元组</span>
+<span class="w">	</span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">fgaClient</span><span class="p">.</span><span class="nx">Write</span><span class="p">(</span><span class="nx">ctx</span><span class="p">).</span><span class="nx">Body</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientWriteRequest</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Writes</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientTupleKey</span><span class="p">{</span>
+<span class="w">			</span><span class="p">{</span><span class="nx">User</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user:alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;owner&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">Object</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;document:budget&quot;</span><span class="p">},</span>
+<span class="w">			</span><span class="p">{</span><span class="nx">User</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user:bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;editor&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">Object</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;document:budget&quot;</span><span class="p">},</span>
+<span class="w">			</span><span class="p">{</span><span class="nx">User</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user:carol&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;viewer&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">Object</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;document:budget&quot;</span><span class="p">},</span>
+<span class="w">		</span><span class="p">},</span>
+<span class="w">	</span><span class="p">}).</span><span class="nx">Execute</span><span class="p">()</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;写入元组失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;关系元组写入成功&quot;</span><span class="p">)</span>
+
+<span class="w">	</span><span class="c1">// 5. 检查权限</span>
+<span class="w">	</span><span class="nx">checkResp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fgaClient</span><span class="p">.</span><span class="nx">Check</span><span class="p">(</span><span class="nx">ctx</span><span class="p">).</span><span class="nx">Body</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientCheckRequest</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">User</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;user:bob&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;viewer&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Object</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;document:budget&quot;</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}).</span><span class="nx">Execute</span><span class="p">()</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;检查权限失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Bob 能查看 budget? %v\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">checkResp</span><span class="p">.</span><span class="nx">GetAllowed</span><span class="p">())</span><span class="w"> </span><span class="c1">// true</span>
+
+<span class="w">	</span><span class="nx">checkResp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">fgaClient</span><span class="p">.</span><span class="nx">Check</span><span class="p">(</span><span class="nx">ctx</span><span class="p">).</span><span class="nx">Body</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientCheckRequest</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">User</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;user:carol&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;editor&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Object</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;document:budget&quot;</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}).</span><span class="nx">Execute</span><span class="p">()</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;检查权限失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Carol 能编辑 budget? %v\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">checkResp</span><span class="p">.</span><span class="nx">GetAllowed</span><span class="p">())</span><span class="w"> </span><span class="c1">// false</span>
+
+<span class="w">	</span><span class="c1">// 6. 列出用户可访问的文档</span>
+<span class="w">	</span><span class="nx">listResp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fgaClient</span><span class="p">.</span><span class="nx">ListObjects</span><span class="p">(</span><span class="nx">ctx</span><span class="p">).</span><span class="nx">Body</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientListObjectsRequest</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">User</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;user:alice&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;viewer&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Type</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;document&quot;</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}).</span><span class="nx">Execute</span><span class="p">()</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;列出对象失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Alice 可查看的文档: %v\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">listResp</span><span class="p">.</span><span class="nx">GetObjects</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">strPtr</span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">s</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<section id="gin-openfga">
+<h3>Gin + OpenFGA 授权中间件<a class="headerlink" href="#gin-openfga" title="Link to this heading"></a></h3>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;context&quot;</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;log&quot;</span>
+<span class="w">	</span><span class="s">&quot;net/http&quot;</span>
+
+<span class="w">	</span><span class="s">&quot;github.com/gin-gonic/gin&quot;</span>
+<span class="w">	</span><span class="s">&quot;github.com/openfga/go-sdk/client&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// ── 全局 OpenFGA 客户端 ─────────────────────────────────────</span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">fgaClient</span><span class="w"> </span><span class="o">*</span><span class="nx">client</span><span class="p">.</span><span class="nx">OpenFgaClient</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">initFGAClient</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="kt">error</span>
+<span class="w">	</span><span class="nx">fgaClient</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">NewSdkClient</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientConfiguration</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ApiUrl</span><span class="p">:</span><span class="w">               </span><span class="s">&quot;http://localhost:8080&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">StoreId</span><span class="p">:</span><span class="w">              </span><span class="s">&quot;your-store-id&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">AuthorizationModelId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-model-id&quot;</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;初始化 OpenFGA 客户端失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ── 授权中间件 ──────────────────────────────────────────────</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">FGAAuthorize</span><span class="p">(</span><span class="nx">relation</span><span class="p">,</span><span class="w"> </span><span class="nx">objectType</span><span class="p">,</span><span class="w"> </span><span class="nx">paramName</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">HandlerFunc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="c1">// 从上下文获取用户 ID（由认证中间件设置）</span>
+<span class="w">		</span><span class="nx">userID</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;userID&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">exists</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">AbortWithStatusJSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;未认证&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">objectID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">Param</span><span class="p">(</span><span class="nx">paramName</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">objectID</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">AbortWithStatusJSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;缺少资源 ID&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="c1">// 调用 OpenFGA 检查权限</span>
+<span class="w">		</span><span class="nx">resp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fgaClient</span><span class="p">.</span><span class="nx">Check</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()).</span><span class="nx">Body</span><span class="p">(</span><span class="nx">client</span><span class="p">.</span><span class="nx">ClientCheckRequest</span><span class="p">{</span>
+<span class="w">			</span><span class="nx">User</span><span class="p">:</span><span class="w">     </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;user:%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">userID</span><span class="p">),</span>
+<span class="w">			</span><span class="nx">Relation</span><span class="p">:</span><span class="w"> </span><span class="nx">relation</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Object</span><span class="p">:</span><span class="w">   </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;%s:%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">objectType</span><span class="p">,</span><span class="w"> </span><span class="nx">objectID</span><span class="p">),</span>
+<span class="w">		</span><span class="p">}).</span><span class="nx">Execute</span><span class="p">()</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">AbortWithStatusJSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;授权检查失败&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">resp</span><span class="p">.</span><span class="nx">GetAllowed</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">AbortWithStatusJSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusForbidden</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">				</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;无 &#39;%s&#39; 权限: %s:%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">relation</span><span class="p">,</span><span class="w"> </span><span class="nx">objectType</span><span class="p">,</span><span class="w"> </span><span class="nx">objectID</span><span class="p">),</span>
+<span class="w">			</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">Next</span><span class="p">()</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ── 认证中间件（简化示例） ──────────────────────────────────</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">AuthMiddleware</span><span class="p">()</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">HandlerFunc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">token</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">GetHeader</span><span class="p">(</span><span class="s">&quot;Authorization&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">AbortWithStatusJSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;缺少 token&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="c1">// 实际项目中应验证 JWT</span>
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;userID&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">Next</span><span class="p">()</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">initFGAClient</span><span class="p">()</span>
+
+<span class="w">	</span><span class="nx">r</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">Default</span><span class="p">()</span>
+<span class="w">	</span><span class="nx">api</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Group</span><span class="p">(</span><span class="s">&quot;/api&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">AuthMiddleware</span><span class="p">())</span>
+<span class="w">	</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">docs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">Group</span><span class="p">(</span><span class="s">&quot;/documents&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="p">{</span>
+<span class="w">			</span><span class="nx">docs</span><span class="p">.</span><span class="nx">GET</span><span class="p">(</span><span class="s">&quot;/:docId&quot;</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">FGAAuthorize</span><span class="p">(</span><span class="s">&quot;viewer&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;document&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;docId&quot;</span><span class="p">),</span>
+<span class="w">				</span><span class="nx">getDocument</span><span class="p">)</span>
+
+<span class="w">			</span><span class="nx">docs</span><span class="p">.</span><span class="nx">PUT</span><span class="p">(</span><span class="s">&quot;/:docId&quot;</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">FGAAuthorize</span><span class="p">(</span><span class="s">&quot;editor&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;document&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;docId&quot;</span><span class="p">),</span>
+<span class="w">				</span><span class="nx">updateDocument</span><span class="p">)</span>
+
+<span class="w">			</span><span class="nx">docs</span><span class="p">.</span><span class="nx">DELETE</span><span class="p">(</span><span class="s">&quot;/:docId&quot;</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">FGAAuthorize</span><span class="p">(</span><span class="s">&quot;owner&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;document&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;docId&quot;</span><span class="p">),</span>
+<span class="w">				</span><span class="nx">deleteDocument</span><span class="p">)</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="s">&quot;:9090&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">getDocument</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusOK</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">		</span><span class="s">&quot;docId&quot;</span><span class="p">:</span><span class="w">   </span><span class="nx">c</span><span class="p">.</span><span class="nx">Param</span><span class="p">(</span><span class="s">&quot;docId&quot;</span><span class="p">),</span>
+<span class="w">		</span><span class="s">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">updateDocument</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusOK</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">		</span><span class="s">&quot;docId&quot;</span><span class="p">:</span><span class="w">   </span><span class="nx">c</span><span class="p">.</span><span class="nx">Param</span><span class="p">(</span><span class="s">&quot;docId&quot;</span><span class="p">),</span>
+<span class="w">		</span><span class="s">&quot;updated&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">deleteDocument</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusOK</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">		</span><span class="s">&quot;docId&quot;</span><span class="p">:</span><span class="w">   </span><span class="nx">c</span><span class="p">.</span><span class="nx">Param</span><span class="p">(</span><span class="s">&quot;docId&quot;</span><span class="p">),</span>
+<span class="w">		</span><span class="s">&quot;deleted&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>14.8 OpenFGA 部署<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># docker-compose.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:16</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openfga</span>
+<span class="w">      </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openfga_password</span>
+<span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openfga</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgdata:/var/lib/postgresql/data</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pg_isready</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">openfga&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+
+<span class="w">  </span><span class="nt">openfga-migrate</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openfga/openfga:latest</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">migrate</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">OPENFGA_DATASTORE_ENGINE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+<span class="w">      </span><span class="nt">OPENFGA_DATASTORE_URI</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres://openfga:openfga_password@postgres:5432/openfga?sslmode=disable</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span>
+
+<span class="w">  </span><span class="nt">openfga</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openfga/openfga:latest</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">run</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">OPENFGA_DATASTORE_ENGINE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+<span class="w">      </span><span class="nt">OPENFGA_DATASTORE_URI</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres://openfga:openfga_password@postgres:5432/openfga?sslmode=disable</span>
+<span class="w">      </span><span class="nt">OPENFGA_PLAYGROUND_ENABLED</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">      </span><span class="nt">OPENFGA_LOG_LEVEL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">info</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8080:8080&quot;</span><span class="w">   </span><span class="c1"># HTTP API</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8081:8081&quot;</span><span class="w">   </span><span class="c1"># gRPC API</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;3000:3000&quot;</span><span class="w">   </span><span class="c1"># Playground UI</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">openfga-migrate</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_completed_successfully</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/usr/local/bin/grpc_health_probe&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-addr=:8081&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pgdata</span><span class="p">:</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 启动</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># 验证</span>
+curl<span class="w"> </span>http://localhost:8080/healthz
+
+<span class="c1"># 打开 Playground</span>
+open<span class="w"> </span>http://localhost:3000
+
+<span class="c1"># 创建 Store</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/stores<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;: &quot;my-store&quot;}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="openfga-vs-casbin-vs-opa">
+<h2>14.9 OpenFGA vs Casbin vs OPA 对比<a class="headerlink" href="#openfga-vs-casbin-vs-opa" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>OpenFGA</p></th>
+<th class="head"><p>Casbin</p></th>
+<th class="head"><p>OPA</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>模型</strong></p></td>
+<td><p>ReBAC（关系驱动）</p></td>
+<td><p>RBAC/ABAC/RESTful</p></td>
+<td><p>ABAC（策略驱动）</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>语言</strong></p></td>
+<td><p>DSL（类型+关系）</p></td>
+<td><p>PERM 模型 + 策略文件</p></td>
+<td><p>Rego</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>数据存储</strong></p></td>
+<td><p>PostgreSQL/MySQL</p></td>
+<td><p>文件/DB/Redis</p></td>
+<td><p>内存/Bundle</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>核心能力</strong></p></td>
+<td><p>关系图遍历</p></td>
+<td><p>模型适配器</p></td>
+<td><p>通用策略评估</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Check 性能</strong></p></td>
+<td><p>~5ms（图遍历+缓存）</p></td>
+<td><p>~0.1ms（内存）</p></td>
+<td><p>~1ms（内存）</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>ListObjects</strong></p></td>
+<td><p>✅ 原生支持</p></td>
+<td><p>❌ 需自行实现</p></td>
+<td><p>❌ 需自行实现</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>权限继承</strong></p></td>
+<td><p>✅ 关系链自动推导</p></td>
+<td><p>⚠️ 需手动配置</p></td>
+<td><p>⚠️ 需 Rego 编写</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>多租户</strong></p></td>
+<td><p>✅ Store 隔离</p></td>
+<td><p>⚠️ 需自行实现</p></td>
+<td><p>⚠️ 需策略设计</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>部署</strong></p></td>
+<td><p>独立服务</p></td>
+<td><p>嵌入式库</p></td>
+<td><p>独立服务/嵌入式</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>适用场景</strong></p></td>
+<td><p>协作应用、SaaS 权限</p></td>
+<td><p>简单 RBAC、中小项目</p></td>
+<td><p>K8s 策略、合规审计</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>CNCF</strong></p></td>
+<td><p>Sandbox</p></td>
+<td><p>❌</p></td>
+<td><p>Graduated</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>灵感来源</strong></p></td>
+<td><p>Google Zanzibar</p></td>
+<td><p>ACL 模型</p></td>
+<td><p>Datalog</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型建议</strong>：</p>
+<ul class="simple">
+<li><p><strong>资源级细粒度权限</strong>（谁能访问哪个文档）→ <strong>OpenFGA</strong></p></li>
+<li><p><strong>简单角色权限</strong>（管理员/编辑/查看者）→ <strong>Casbin</strong></p></li>
+<li><p><strong>复杂条件策略</strong>（时间、IP、合规规则）→ <strong>OPA</strong></p></li>
+<li><p><strong>组合使用</strong>：OpenFGA 管理关系 + OPA 管理条件策略</p></li>
+</ul>
+</section>
+<section id="openfga-vs-rbac">
+<h2>14.10 OpenFGA vs RBAC<a class="headerlink" href="#openfga-vs-rbac" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>RBAC</p></th>
+<th class="head"><p>OpenFGA (ReBAC)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>授权依据</p></td>
+<td><p>角色</p></td>
+<td><p>关系</p></td>
+</tr>
+<tr class="row-odd"><td><p>粒度</p></td>
+<td><p>角色级</p></td>
+<td><p>对象级</p></td>
+</tr>
+<tr class="row-even"><td><p>“谁能访问X”</p></td>
+<td><p>需要遍历所有角色</p></td>
+<td><p>直接查询</p></td>
+</tr>
+<tr class="row-odd"><td><p>“X能访问什么”</p></td>
+<td><p>需要遍历所有资源</p></td>
+<td><p>ListObjects API</p></td>
+</tr>
+<tr class="row-even"><td><p>继承</p></td>
+<td><p>角色层次</p></td>
+<td><p>关系链（更灵活）</p></td>
+</tr>
+<tr class="row-odd"><td><p>性能</p></td>
+<td><p>O(1) 角色检查</p></td>
+<td><p>图遍历（有缓存）</p></td>
+</tr>
+<tr class="row-even"><td><p>适用场景</p></td>
+<td><p>简单权限</p></td>
+<td><p>协作应用、SaaS</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id7">
+<h2>14.11 小结<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>OpenFGA 基于 Google Zanzibar，提供<strong>关系驱动的细粒度授权</strong></p></li>
+<li><p>核心是<strong>关系元组</strong>：<code class="docutils literal notranslate"><span class="pre">object#relation&#64;subject</span></code></p></li>
+<li><p>支持<strong>权限继承</strong>（通过关系链推导）</p></li>
+<li><p>提供 Check、ListObjects、ListUsers 等丰富的 API</p></li>
+<li><p>适合<strong>协作应用</strong>（文档、项目管理）和<strong>多租户 SaaS</strong></p></li>
+<li><p>与 RBAC 相比，OpenFGA 在资源级别的细粒度控制上更有优势</p></li>
+<li><p>提供 <strong>Python、Java、Go</strong> 等多语言 SDK，可与主流 Web 框架深度集成</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch13.html" class="btn btn-neutral float-left" title="第十三章：访问控制模型" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch15.html" class="btn btn-neutral float-right" title="第十五章：OPA — 通用策略引擎" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

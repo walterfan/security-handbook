@@ -1,0 +1,2041 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第八章：OpenID Connect 身份认证 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch08.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第九章：JWT 深入解析" href="ch09.html" />
+    <link rel="prev" title="第七章：OAuth 2.0 授权框架" href="ch07.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第八章：OpenID Connect 身份认证</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#oidc-oauth-2-0">8.1 OIDC 与 OAuth 2.0 的关系</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id-token">8.2 ID Token</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#claims">标准 Claims</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">ID Token 验证流程</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#oidc">8.3 OIDC 授权码流程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#oidc-discovery">8.4 OIDC Discovery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#discovery">Discovery 完整流程</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">8.5 OIDC 提供商对比</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">OIDC 常见配置对比</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#python-oidc">8.6 Python OIDC 客户端</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#oidc-authlib-fastapi">基础 OIDC 登录（Authlib + FastAPI）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#oidc-discovery-id-token-userinfo">OIDC Discovery 自动配置 + ID Token 验证 + UserInfo 调用</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#java-oidc-spring-security">8.7 Java OIDC 客户端（Spring Security）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#application-yml">application.yml 配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#securityconfig-oidc">SecurityConfig — OIDC 登录配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usercontroller-id-token">UserController — ID Token 解析和用户信息提取</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#go-oidc">8.8 Go OIDC 客户端</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">8.9 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第八章：OpenID Connect 身份认证</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch08.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="openid-connect">
+<h1>第八章：OpenID Connect 身份认证<a class="headerlink" href="#openid-connect" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“OAuth 2.0 告诉你’这个人授权了’，OIDC 告诉你’这个人是谁’。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((OpenID Connect))
+    核心概念
+      ID Token
+      UserInfo
+      Claims
+    流程
+      Authorization Code
+      Implicit
+      Hybrid
+    发现
+      Discovery
+      JWKS
+    提供商
+      Keycloak
+      Auth0
+      Okta
+    </pre><section id="oidc-oauth-2-0">
+<h2>8.1 OIDC 与 OAuth 2.0 的关系<a class="headerlink" href="#oidc-oauth-2-0" title="Link to this heading"></a></h2>
+<p>OIDC（OpenID Connect）是建立在 OAuth 2.0 之上的<strong>身份认证层</strong>：</p>
+<pre  class="mermaid">
+        block-beta
+  columns 1
+  block:oidc[&quot;OpenID Connect\n（身份认证 — 你是谁？）\nID Token · UserInfo · Claims&quot;]
+  end
+  block:oauth[&quot;OAuth 2.0\n（授权 — 你能做什么？）\nAccess Token · Scope · Grant&quot;]
+  end
+  block:http[&quot;HTTP / TLS&quot;]
+  end
+
+  style oidc fill:#e0f0ff,stroke:#3388cc
+  style oauth fill:#fff3e0,stroke:#cc8833
+  style http fill:#f0f0f0,stroke:#999999
+    </pre><table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>OAuth 2.0</p></th>
+<th class="head"><p>OIDC</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>目的</p></td>
+<td><p>授权（访问资源）</p></td>
+<td><p>认证（确认身份）</p></td>
+</tr>
+<tr class="row-odd"><td><p>核心 Token</p></td>
+<td><p>Access Token</p></td>
+<td><p>ID Token</p></td>
+</tr>
+<tr class="row-even"><td><p>用户信息</p></td>
+<td><p>不标准</p></td>
+<td><p>UserInfo Endpoint</p></td>
+</tr>
+<tr class="row-odd"><td><p>发现机制</p></td>
+<td><p>无</p></td>
+<td><p>.well-known/openid-configuration</p></td>
+</tr>
+<tr class="row-even"><td><p>Scope</p></td>
+<td><p>自定义</p></td>
+<td><p>openid, profile, email</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id-token">
+<h2>8.2 ID Token<a class="headerlink" href="#id-token" title="Link to this heading"></a></h2>
+<p>ID Token 是一个 JWT，包含用户身份信息：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;iss&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://auth.example.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sub&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;aud&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my-client-app&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;exp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1709510400</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;iat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1709506800</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;nonce&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Walter Fan&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;walter@example.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;email_verified&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;picture&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://example.com/photo.jpg&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="claims">
+<h3>标准 Claims<a class="headerlink" href="#claims" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Claim</p></th>
+<th class="head"><p>说明</p></th>
+<th class="head"><p>必须</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>iss</p></td>
+<td><p>签发者</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>sub</p></td>
+<td><p>用户唯一标识</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p>aud</p></td>
+<td><p>受众（Client ID）</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>exp</p></td>
+<td><p>过期时间</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p>iat</p></td>
+<td><p>签发时间</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>nonce</p></td>
+<td><p>防重放攻击</p></td>
+<td><p>条件必须</p></td>
+</tr>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>用户全名</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-odd"><td><p>email</p></td>
+<td><p>邮箱</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-even"><td><p>picture</p></td>
+<td><p>头像 URL</p></td>
+<td><p>❌</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id1">
+<h3>ID Token 验证流程<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>客户端收到 ID Token 后，<strong>必须</strong>按以下步骤验证，任何一步失败都应拒绝该 Token：</p>
+<pre  class="mermaid">
+        flowchart TD
+    A[&quot;收到 ID Token（JWT）&quot;] --&gt; B{&quot;解码 JWT Header\n获取 kid 和 alg&quot;}
+    B --&gt; C{&quot;从 JWKS 端点\n获取对应公钥&quot;}
+    C --&gt; D{&quot;验证签名\n（RS256 / ES256）&quot;}
+    D --&gt;|失败| REJECT[&quot;❌ 拒绝 Token&quot;]
+    D --&gt;|成功| E{&quot;检查 iss\n是否匹配预期签发者&quot;}
+    E --&gt;|不匹配| REJECT
+    E --&gt;|匹配| F{&quot;检查 aud\n是否包含本客户端 Client ID&quot;}
+    F --&gt;|不包含| REJECT
+    F --&gt;|包含| G{&quot;检查 exp\n是否已过期&quot;}
+    G --&gt;|已过期| REJECT
+    G --&gt;|未过期| H{&quot;检查 iat\n签发时间是否合理&quot;}
+    H --&gt;|异常| REJECT
+    H --&gt;|合理| I{&quot;检查 nonce\n是否匹配会话中存储的值&quot;}
+    I --&gt;|不匹配| REJECT
+    I --&gt;|匹配| J[&quot;✅ Token 有效\n提取用户 Claims&quot;]
+
+    style REJECT fill:#ffcccc,stroke:#cc3333
+    style J fill:#ccffcc,stroke:#33cc33
+    </pre><p><strong>验证要点说明：</strong></p>
+<ol class="arabic simple">
+<li><p><strong>签名验证</strong>：从 <code class="docutils literal notranslate"><span class="pre">jwks_uri</span></code> 获取公钥集合，根据 JWT Header 中的 <code class="docutils literal notranslate"><span class="pre">kid</span></code> 选择对应公钥，验证签名完整性</p></li>
+<li><p><strong>iss 检查</strong>：必须与 OIDC Discovery 中的 <code class="docutils literal notranslate"><span class="pre">issuer</span></code> 完全一致（包括尾部斜杠）</p></li>
+<li><p><strong>aud 检查</strong>：<code class="docutils literal notranslate"><span class="pre">aud</span></code> 可以是字符串或数组，必须包含本客户端的 <code class="docutils literal notranslate"><span class="pre">client_id</span></code>；如果 <code class="docutils literal notranslate"><span class="pre">aud</span></code> 包含多个值，还应检查 <code class="docutils literal notranslate"><span class="pre">azp</span></code>（Authorized Party）</p></li>
+<li><p><strong>exp 检查</strong>：当前时间不得超过 <code class="docutils literal notranslate"><span class="pre">exp</span></code>，建议允许几秒的时钟偏差（clock skew）</p></li>
+<li><p><strong>nonce 检查</strong>：仅在认证请求中发送了 <code class="docutils literal notranslate"><span class="pre">nonce</span></code> 时必须检查，用于防止重放攻击</p></li>
+</ol>
+</section>
+</section>
+<section id="oidc">
+<h2>8.3 OIDC 授权码流程<a class="headerlink" href="#oidc" title="Link to this heading"></a></h2>
+<pre  class="mermaid">
+        sequenceDiagram
+    autonumber
+    participant U as 用户（浏览器）
+    participant C as Client（Web App）
+    participant IdP as OIDC Provider（IdP）
+
+    U-&gt;&gt;C: 访问受保护资源
+    C-&gt;&gt;U: 302 重定向到 IdP&lt;br/&gt;authorize?response_type=code&lt;br/&gt;&amp;client_id=...&amp;scope=openid profile email&lt;br/&gt;&amp;redirect_uri=...&amp;state=...&amp;nonce=...
+    U-&gt;&gt;IdP: 跟随重定向，打开登录页
+    IdP-&gt;&gt;U: 显示登录 + 授权同意页面
+    U-&gt;&gt;IdP: 提交用户名/密码，同意授权
+    IdP-&gt;&gt;U: 302 重定向回 Client&lt;br/&gt;callback?code=AUTH_CODE&amp;state=...
+    U-&gt;&gt;C: 跟随重定向，携带 code 和 state
+
+    Note over C: 验证 state 参数防 CSRF
+
+    C-&gt;&gt;IdP: POST /token&lt;br/&gt;grant_type=authorization_code&lt;br/&gt;&amp;code=AUTH_CODE&lt;br/&gt;&amp;client_id=...&amp;client_secret=...
+    IdP-&gt;&gt;C: 返回 id_token + access_token + refresh_token
+
+    Note over C: 验证 id_token（签名、iss、aud、exp、nonce）
+
+    C-&gt;&gt;IdP: GET /userinfo&lt;br/&gt;Authorization: Bearer access_token
+    IdP-&gt;&gt;C: 返回用户详细信息（name, email, picture...）
+
+    C-&gt;&gt;U: 登录成功，建立会话
+    </pre><p><strong>关键安全参数：</strong></p>
+<ul class="simple">
+<li><p><strong>state</strong>：随机值，绑定到用户会话，防止 CSRF 攻击</p></li>
+<li><p><strong>nonce</strong>：随机值，嵌入 ID Token，防止重放攻击</p></li>
+<li><p><strong>PKCE（code_verifier / code_challenge）</strong>：推荐用于所有客户端，防止授权码拦截攻击</p></li>
+</ul>
+</section>
+<section id="oidc-discovery">
+<h2>8.4 OIDC Discovery<a class="headerlink" href="#oidc-discovery" title="Link to this heading"></a></h2>
+<p>每个 OIDC 提供商都有一个发现端点（Discovery Endpoint），客户端可以通过它自动获取所有必要的配置信息：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GET</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">auth</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">/.</span><span class="n">well</span><span class="o">-</span><span class="n">known</span><span class="o">/</span><span class="n">openid</span><span class="o">-</span><span class="n">configuration</span>
+
+<span class="p">{</span>
+  <span class="s2">&quot;issuer&quot;</span><span class="p">:</span> <span class="s2">&quot;https://auth.example.com&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;authorization_endpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;https://auth.example.com/authorize&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;token_endpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;https://auth.example.com/oauth/token&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;userinfo_endpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;https://auth.example.com/userinfo&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;jwks_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;https://auth.example.com/.well-known/jwks.json&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;scopes_supported&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;openid&quot;</span><span class="p">,</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span> <span class="s2">&quot;email&quot;</span><span class="p">],</span>
+  <span class="s2">&quot;response_types_supported&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;id_token&quot;</span><span class="p">,</span> <span class="s2">&quot;token id_token&quot;</span><span class="p">],</span>
+  <span class="s2">&quot;id_token_signing_alg_values_supported&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;RS256&quot;</span><span class="p">,</span> <span class="s2">&quot;ES256&quot;</span><span class="p">],</span>
+  <span class="s2">&quot;subject_types_supported&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;public&quot;</span><span class="p">,</span> <span class="s2">&quot;pairwise&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="discovery">
+<h3>Discovery 完整流程<a class="headerlink" href="#discovery" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        sequenceDiagram
+    autonumber
+    participant C as Client
+    participant D as Discovery Endpoint
+    participant J as JWKS Endpoint
+
+    C-&gt;&gt;D: GET /.well-known/openid-configuration
+    D-&gt;&gt;C: 返回 JSON 配置文档
+
+    Note over C: 解析并缓存配置：&lt;br/&gt;authorization_endpoint&lt;br/&gt;token_endpoint&lt;br/&gt;userinfo_endpoint&lt;br/&gt;jwks_uri
+
+    C-&gt;&gt;J: GET /jwks.json（从 jwks_uri）
+    J-&gt;&gt;C: 返回公钥集合（JWK Set）
+
+    Note over C: 缓存公钥，用于验证 ID Token 签名&lt;br/&gt;定期刷新（建议缓存 24h）
+    </pre><p><strong>Discovery 文档关键字段说明：</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>字段</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">issuer</span></code></p></td>
+<td><p>OIDC 提供商的唯一标识，必须与 ID Token 的 <code class="docutils literal notranslate"><span class="pre">iss</span></code> 一致</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">authorization_endpoint</span></code></p></td>
+<td><p>用户授权端点，浏览器重定向目标</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">token_endpoint</span></code></p></td>
+<td><p>用授权码换取 Token 的端点</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">userinfo_endpoint</span></code></p></td>
+<td><p>用 Access Token 获取用户信息的端点</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jwks_uri</span></code></p></td>
+<td><p>JSON Web Key Set 端点，包含验证签名的公钥</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scopes_supported</span></code></p></td>
+<td><p>支持的 scope 列表</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">response_types_supported</span></code></p></td>
+<td><p>支持的 response_type（code, id_token 等）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">id_token_signing_alg_values_supported</span></code></p></td>
+<td><p>ID Token 签名算法（RS256, ES256 等）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">token_endpoint_auth_methods_supported</span></code></p></td>
+<td><p>Token 端点支持的认证方式</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">claims_supported</span></code></p></td>
+<td><p>支持的 Claims 列表</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id2">
+<h2>8.5 OIDC 提供商对比<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特性</p></th>
+<th class="head"><p>Keycloak</p></th>
+<th class="head"><p>Auth0</p></th>
+<th class="head"><p>Okta</p></th>
+<th class="head"><p>Google</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>类型</p></td>
+<td><p>开源自托管</p></td>
+<td><p>SaaS</p></td>
+<td><p>SaaS</p></td>
+<td><p>SaaS</p></td>
+</tr>
+<tr class="row-odd"><td><p>协议</p></td>
+<td><p>OIDC/SAML/OAuth2</p></td>
+<td><p>OIDC/SAML</p></td>
+<td><p>OIDC/SAML</p></td>
+<td><p>OIDC</p></td>
+</tr>
+<tr class="row-even"><td><p>定价</p></td>
+<td><p>免费</p></td>
+<td><p>免费层+付费</p></td>
+<td><p>付费</p></td>
+<td><p>免费</p></td>
+</tr>
+<tr class="row-odd"><td><p>自定义</p></td>
+<td><p>高</p></td>
+<td><p>中</p></td>
+<td><p>中</p></td>
+<td><p>低</p></td>
+</tr>
+<tr class="row-even"><td><p>企业功能</p></td>
+<td><p>完整</p></td>
+<td><p>完整</p></td>
+<td><p>完整</p></td>
+<td><p>有限</p></td>
+</tr>
+<tr class="row-odd"><td><p>部署</p></td>
+<td><p>自托管/K8s</p></td>
+<td><p>云</p></td>
+<td><p>云</p></td>
+<td><p>云</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id3">
+<h3>OIDC 常见配置对比<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>以下表格对比了四大 OIDC 提供商在实际接入时的配置差异，帮助开发者快速上手：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>配置项</p></th>
+<th class="head"><p>Keycloak</p></th>
+<th class="head"><p>Auth0</p></th>
+<th class="head"><p>Okta</p></th>
+<th class="head"><p>Google</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Discovery URL</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://{host}/realms/{realm}/.well-known/openid-configuration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://{tenant}.auth0.com/.well-known/openid-configuration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://{domain}.okta.com/.well-known/openid-configuration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://accounts.google.com/.well-known/openid-configuration</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Issuer 格式</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://{host}/realms/{realm}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://{tenant}.auth0.com/</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://{domain}.okta.com</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://accounts.google.com</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Client 注册</strong></p></td>
+<td><p>Admin Console → Clients</p></td>
+<td><p>Dashboard → Applications</p></td>
+<td><p>Admin Console → Applications</p></td>
+<td><p>Google Cloud Console → Credentials</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Client Secret 位置</strong></p></td>
+<td><p>Credentials Tab</p></td>
+<td><p>Settings → Client Secret</p></td>
+<td><p>General → Client Credentials</p></td>
+<td><p>OAuth 2.0 Client IDs → Download JSON</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>默认签名算法</strong></p></td>
+<td><p>RS256</p></td>
+<td><p>RS256</p></td>
+<td><p>RS256</p></td>
+<td><p>RS256</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>PKCE 支持</strong></p></td>
+<td><p>✅ 默认支持</p></td>
+<td><p>✅ 默认支持</p></td>
+<td><p>✅ 默认支持</p></td>
+<td><p>✅ 默认支持</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>自定义 Claims</strong></p></td>
+<td><p>Protocol Mappers</p></td>
+<td><p>Rules / Actions</p></td>
+<td><p>Authorization Server Claims</p></td>
+<td><p>不支持自定义</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Logout Endpoint</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/realms/{realm}/protocol/openid-connect/logout</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/v2/logout</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/oauth2/v1/logout</span></code></p></td>
+<td><p>无标准 RP-Initiated Logout</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Token 有效期配置</strong></p></td>
+<td><p>Realm Settings → Tokens</p></td>
+<td><p>API → Token Settings</p></td>
+<td><p>Authorization Server → Access Policies</p></td>
+<td><p>固定（1h access, 不可调）</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>多租户支持</strong></p></td>
+<td><p>通过 Realm 隔离</p></td>
+<td><p>每个 Tenant 独立</p></td>
+<td><p>通过 Authorization Server</p></td>
+<td><p>单一 Google 账号体系</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>用户联邦/社交登录</strong></p></td>
+<td><p>Identity Providers 配置</p></td>
+<td><p>Connections</p></td>
+<td><p>Identity Providers</p></td>
+<td><p>仅 Google 账号</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>免费额度</strong></p></td>
+<td><p>无限（自托管）</p></td>
+<td><p>7,500 MAU</p></td>
+<td><p>15,000 MAU（Developer）</p></td>
+<td><p>无限（仅 Google 账号）</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>接入建议：</strong></p>
+<ul class="simple">
+<li><p><strong>内部系统 / 私有化部署</strong>：首选 <strong>Keycloak</strong>，完全可控，功能最全</p></li>
+<li><p><strong>SaaS 产品快速上线</strong>：首选 <strong>Auth0</strong>，开发体验最好，文档完善</p></li>
+<li><p><strong>企业级 / 合规要求高</strong>：首选 <strong>Okta</strong>，SOC2/ISO27001 认证齐全</p></li>
+<li><p><strong>仅需 Google 账号登录</strong>：直接用 <strong>Google OIDC</strong>，零成本</p></li>
+</ul>
+</section>
+</section>
+<section id="python-oidc">
+<h2>8.6 Python OIDC 客户端<a class="headerlink" href="#python-oidc" title="Link to this heading"></a></h2>
+<section id="oidc-authlib-fastapi">
+<h3>基础 OIDC 登录（Authlib + FastAPI）<a class="headerlink" href="#oidc-authlib-fastapi" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">authlib.integrations.starlette_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">OAuth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.middleware.sessions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionMiddleware</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">SessionMiddleware</span><span class="p">,</span> <span class="n">secret_key</span><span class="o">=</span><span class="s2">&quot;session-secret&quot;</span><span class="p">)</span>
+
+<span class="n">oauth</span> <span class="o">=</span> <span class="n">OAuth</span><span class="p">()</span>
+<span class="n">oauth</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;keycloak&#39;</span><span class="p">,</span>
+    <span class="n">server_metadata_url</span><span class="o">=</span><span class="s1">&#39;https://auth.example.com/realms/myrealm/.well-known/openid-configuration&#39;</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s1">&#39;my-app&#39;</span><span class="p">,</span>
+    <span class="n">client_secret</span><span class="o">=</span><span class="s1">&#39;my-secret&#39;</span><span class="p">,</span>
+    <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;scope&#39;</span><span class="p">:</span> <span class="s1">&#39;openid profile email&#39;</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;auth_callback&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">oauth</span><span class="o">.</span><span class="n">keycloak</span><span class="o">.</span><span class="n">authorize_redirect</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;/callback&#39;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">auth_callback</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">oauth</span><span class="o">.</span><span class="n">keycloak</span><span class="o">.</span><span class="n">authorize_access_token</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">id_token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id_token&#39;</span><span class="p">)</span>
+    <span class="n">userinfo</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;userinfo&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># 用户已认证</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="n">userinfo</span><span class="p">[</span><span class="s2">&quot;sub&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">userinfo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">userinfo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="oidc-discovery-id-token-userinfo">
+<h3>OIDC Discovery 自动配置 + ID Token 验证 + UserInfo 调用<a class="headerlink" href="#oidc-discovery-id-token-userinfo" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">完整的 OIDC 客户端实现：</span>
+<span class="sd">- 自动从 Discovery 端点获取配置</span>
+<span class="sd">- ID Token 验证（含 nonce 检查）</span>
+<span class="sd">- UserInfo 端点调用</span>
+<span class="sd">- 完善的错误处理</span>
+
+<span class="sd">依赖安装：pip install authlib httpx fastapi uvicorn itsdangerous</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">secrets</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">authlib.integrations.starlette_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">OAuth</span><span class="p">,</span> <span class="n">OAuthError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">authlib.jose</span><span class="w"> </span><span class="kn">import</span> <span class="n">jwt</span><span class="p">,</span> <span class="n">JsonWebKey</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Request</span><span class="p">,</span> <span class="n">HTTPException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">RedirectResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.middleware.sessions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionMiddleware</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 配置</span>
+<span class="c1"># ============================================================</span>
+<span class="n">OIDC_ISSUER</span> <span class="o">=</span> <span class="s2">&quot;https://auth.example.com/realms/myrealm&quot;</span>
+<span class="n">OIDC_DISCOVERY_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">OIDC_ISSUER</span><span class="si">}</span><span class="s2">/.well-known/openid-configuration&quot;</span>
+<span class="n">CLIENT_ID</span> <span class="o">=</span> <span class="s2">&quot;my-app&quot;</span>
+<span class="n">CLIENT_SECRET</span> <span class="o">=</span> <span class="s2">&quot;my-secret&quot;</span>
+<span class="n">REDIRECT_URI</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:8000/callback&quot;</span>
+<span class="c1"># 允许的时钟偏差（秒），用于 exp/iat 验证</span>
+<span class="n">CLOCK_SKEW</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;OIDC Client Demo&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">SessionMiddleware</span><span class="p">,</span>
+    <span class="n">secret_key</span><span class="o">=</span><span class="s2">&quot;change-this-to-a-random-secret-in-production&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 1. OIDC Discovery 自动配置</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># Authlib 的 OAuth 客户端会自动从 server_metadata_url 获取</span>
+<span class="c1"># 所有 OIDC 端点配置（authorization_endpoint, token_endpoint,</span>
+<span class="c1"># jwks_uri, userinfo_endpoint 等），无需手动指定。</span>
+<span class="n">oauth</span> <span class="o">=</span> <span class="n">OAuth</span><span class="p">()</span>
+<span class="n">oauth</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;oidc&quot;</span><span class="p">,</span>
+    <span class="n">server_metadata_url</span><span class="o">=</span><span class="n">OIDC_DISCOVERY_URL</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+    <span class="n">client_secret</span><span class="o">=</span><span class="n">CLIENT_SECRET</span><span class="p">,</span>
+    <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;openid profile email&quot;</span><span class="p">,</span>
+        <span class="c1"># 指定 token 端点的认证方式</span>
+        <span class="s2">&quot;token_endpoint_auth_method&quot;</span><span class="p">:</span> <span class="s2">&quot;client_secret_post&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 2. 手动 ID Token 验证（演示底层原理）</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># 缓存 JWKS 公钥集合</span>
+<span class="n">_jwks_cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_jwks_cache_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">JWKS_CACHE_TTL</span> <span class="o">=</span> <span class="mi">3600</span>  <span class="c1"># 缓存 1 小时</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_jwks</span><span class="p">(</span><span class="n">jwks_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从 JWKS 端点获取公钥集合，带缓存。&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_jwks_cache</span><span class="p">,</span> <span class="n">_jwks_cache_time</span>
+
+    <span class="k">if</span> <span class="n">_jwks_cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">_jwks_cache_time</span> <span class="o">&lt;</span> <span class="n">JWKS_CACHE_TTL</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_jwks_cache</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">jwks_uri</span><span class="p">)</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="n">_jwks_cache</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">_jwks_cache_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;已刷新 JWKS 公钥缓存，共 </span><span class="si">%d</span><span class="s2"> 个密钥&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_jwks_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;keys&quot;</span><span class="p">,</span> <span class="p">[])))</span>
+        <span class="k">return</span> <span class="n">_jwks_cache</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_id_token</span><span class="p">(</span>
+    <span class="n">id_token_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">jwks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">issuer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">nonce</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    手动验证 ID Token 的完整流程。</span>
+
+<span class="sd">    验证步骤：</span>
+<span class="sd">    1. 解码 JWT 并验证签名（使用 JWKS 中的公钥）</span>
+<span class="sd">    2. 检查 iss（签发者）</span>
+<span class="sd">    3. 检查 aud（受众）</span>
+<span class="sd">    4. 检查 exp（过期时间）</span>
+<span class="sd">    5. 检查 iat（签发时间）</span>
+<span class="sd">    6. 检查 nonce（防重放）</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        id_token_str: 原始 JWT 字符串</span>
+<span class="sd">        jwks: JWKS 公钥集合</span>
+<span class="sd">        issuer: 预期的签发者</span>
+<span class="sd">        client_id: 本客户端的 Client ID</span>
+<span class="sd">        nonce: 认证请求中发送的 nonce 值</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        解码后的 Claims 字典</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HTTPException: 验证失败时抛出</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># 步骤 1：验证签名并解码</span>
+        <span class="n">claims</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+            <span class="n">id_token_str</span><span class="p">,</span>
+            <span class="n">JsonWebKey</span><span class="o">.</span><span class="n">import_key_set</span><span class="p">(</span><span class="n">jwks</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># 步骤 2：检查 iss</span>
+        <span class="k">if</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iss&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">issuer</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;iss 不匹配: 期望 &#39;</span><span class="si">{</span><span class="n">issuer</span><span class="si">}</span><span class="s2">&#39;, 实际 &#39;</span><span class="si">{</span><span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;iss&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 步骤 3：检查 aud</span>
+        <span class="n">aud</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;aud&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aud</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">aud</span> <span class="o">!=</span> <span class="n">client_id</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;aud 不匹配: 期望 &#39;</span><span class="si">{</span><span class="n">client_id</span><span class="si">}</span><span class="s2">&#39;, 实际 &#39;</span><span class="si">{</span><span class="n">aud</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aud</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">client_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">aud</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;aud 列表中不包含 &#39;</span><span class="si">{</span><span class="n">client_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="c1"># 多受众时检查 azp</span>
+            <span class="n">azp</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;azp&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">azp</span> <span class="ow">and</span> <span class="n">azp</span> <span class="o">!=</span> <span class="n">client_id</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;azp 不匹配: 期望 &#39;</span><span class="si">{</span><span class="n">client_id</span><span class="si">}</span><span class="s2">&#39;, 实际 &#39;</span><span class="si">{</span><span class="n">azp</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;aud 字段缺失或格式错误&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 步骤 4：检查 exp</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exp&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exp</span> <span class="ow">or</span> <span class="n">now</span> <span class="o">&gt;</span> <span class="n">exp</span> <span class="o">+</span> <span class="n">CLOCK_SKEW</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ID Token 已过期&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 步骤 5：检查 iat</span>
+        <span class="n">iat</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;iat&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">iat</span> <span class="ow">or</span> <span class="n">iat</span> <span class="o">&gt;</span> <span class="n">now</span> <span class="o">+</span> <span class="n">CLOCK_SKEW</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;iat 签发时间异常（在未来）&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 步骤 6：检查 nonce</span>
+        <span class="k">if</span> <span class="n">nonce</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nonce&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nonce</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nonce 不匹配，可能存在重放攻击&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ID Token 验证通过，sub=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sub&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">claims</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;ID Token 验证失败: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;ID Token 验证失败: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ID Token 解码异常: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;ID Token 解码失败: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 3. 路由</span>
+<span class="c1"># ============================================================</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;发起 OIDC 登录，生成 nonce 并存入会话。&quot;&quot;&quot;</span>
+    <span class="c1"># 生成 nonce 并存入 session</span>
+    <span class="n">nonce</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;oidc_nonce&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nonce</span>
+
+    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;auth_callback&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">oauth</span><span class="o">.</span><span class="n">oidc</span><span class="o">.</span><span class="n">authorize_redirect</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span>
+        <span class="n">redirect_uri</span><span class="p">,</span>
+        <span class="n">nonce</span><span class="o">=</span><span class="n">nonce</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/callback&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">auth_callback</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    OIDC 回调处理：</span>
+<span class="sd">    1. 用授权码换取 Token</span>
+<span class="sd">    2. 验证 ID Token（含 nonce）</span>
+<span class="sd">    3. 调用 UserInfo 端点获取详细信息</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># 用授权码换取 Token（Authlib 自动完成）</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">oauth</span><span class="o">.</span><span class="n">oidc</span><span class="o">.</span><span class="n">authorize_access_token</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">OAuthError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Token 交换失败: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;认证失败: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- ID Token 验证 ---</span>
+    <span class="n">id_token_str</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id_token&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">id_token_str</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;响应中缺少 id_token&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 获取 OIDC 配置和 JWKS</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="k">await</span> <span class="n">oauth</span><span class="o">.</span><span class="n">oidc</span><span class="o">.</span><span class="n">load_server_metadata</span><span class="p">()</span>
+    <span class="n">jwks</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fetch_jwks</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;jwks_uri&quot;</span><span class="p">])</span>
+
+    <span class="c1"># 从 session 取出 nonce</span>
+    <span class="n">expected_nonce</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;oidc_nonce&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># 手动验证 ID Token（演示完整流程）</span>
+    <span class="n">claims</span> <span class="o">=</span> <span class="n">verify_id_token</span><span class="p">(</span>
+        <span class="n">id_token_str</span><span class="o">=</span><span class="n">id_token_str</span><span class="p">,</span>
+        <span class="n">jwks</span><span class="o">=</span><span class="n">jwks</span><span class="p">,</span>
+        <span class="n">issuer</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;issuer&quot;</span><span class="p">],</span>
+        <span class="n">client_id</span><span class="o">=</span><span class="n">CLIENT_ID</span><span class="p">,</span>
+        <span class="n">nonce</span><span class="o">=</span><span class="n">expected_nonce</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># --- 调用 UserInfo 端点 ---</span>
+    <span class="n">access_token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
+    <span class="n">userinfo</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">access_token</span> <span class="ow">and</span> <span class="s2">&quot;userinfo_endpoint&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;userinfo_endpoint&quot;</span><span class="p">],</span>
+                <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="n">userinfo</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;UserInfo 获取成功: sub=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">userinfo</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sub&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;UserInfo 请求失败: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+
+    <span class="c1"># 建立应用会话</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="n">claims</span><span class="p">[</span><span class="s2">&quot;sub&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">userinfo</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">userinfo</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;登录成功&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;id_token_claims&quot;</span><span class="p">:</span> <span class="n">claims</span><span class="p">,</span>
+        <span class="s2">&quot;userinfo&quot;</span><span class="p">:</span> <span class="n">userinfo</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/me&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;获取当前登录用户信息。&quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;未登录&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">user</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;登出，清除会话。&quot;&quot;&quot;</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">RedirectResponse</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">uvicorn</span>
+    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8000</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="java-oidc-spring-security">
+<h2>8.7 Java OIDC 客户端（Spring Security）<a class="headerlink" href="#java-oidc-spring-security" title="Link to this heading"></a></h2>
+<p>Spring Security 提供了对 OIDC 的一流支持，通过 <code class="docutils literal notranslate"><span class="pre">spring-boot-starter-oauth2-client</span></code> 可以快速集成。</p>
+<section id="application-yml">
+<h3>application.yml 配置<a class="headerlink" href="#application-yml" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Spring Boot OIDC 配置</span>
+<span class="c1"># Spring Security 会自动从 issuer-uri 获取 Discovery 文档</span>
+<span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">security</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">oauth2</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">client</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">registration</span><span class="p">:</span>
+<span class="w">          </span><span class="c1"># 注册名称，可自定义（用于 URL 路径：/oauth2/authorization/keycloak）</span>
+<span class="w">          </span><span class="nt">keycloak</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">client-id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-app</span>
+<span class="w">            </span><span class="nt">client-secret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-secret</span>
+<span class="w">            </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openid, profile, email</span>
+<span class="w">            </span><span class="nt">authorization-grant-type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">authorization_code</span>
+<span class="w">            </span><span class="nt">redirect-uri</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{baseUrl}/login/oauth2/code/{registrationId}&quot;</span>
+<span class="w">        </span><span class="nt">provider</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">keycloak</span><span class="p">:</span>
+<span class="w">            </span><span class="c1"># Spring 会自动访问 {issuer-uri}/.well-known/openid-configuration</span>
+<span class="w">            </span><span class="nt">issuer-uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://auth.example.com/realms/myrealm</span>
+<span class="w">            </span><span class="c1"># 可选：指定从 ID Token 或 UserInfo 中提取用户名的字段</span>
+<span class="w">            </span><span class="nt">user-name-attribute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">preferred_username</span>
+
+<span class="c1"># 日志配置（调试时开启）</span>
+<span class="nt">logging</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">level</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">org.springframework.security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEBUG</span>
+<span class="w">    </span><span class="nt">org.springframework.security.oauth2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TRACE</span>
+</pre></div>
+</div>
+</section>
+<section id="securityconfig-oidc">
+<h3>SecurityConfig — OIDC 登录配置<a class="headerlink" href="#securityconfig-oidc" title="Link to this heading"></a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.oidcdemo.config</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.builders.HttpSecurity</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.configuration.EnableWebSecurity</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.GrantedAuthority</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.authority.SimpleGrantedAuthority</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.client.userinfo.OAuth2UserService</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.core.oidc.user.OidcUser</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.web.SecurityFilterChain</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HashSet</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Map</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Set</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Spring Security OIDC 登录配置。</span>
+<span class="cm"> *</span>
+<span class="cm"> * 功能：</span>
+<span class="cm"> * - 配置 OIDC 登录流程</span>
+<span class="cm"> * - 自定义用户信息提取（从 ID Token 中提取角色）</span>
+<span class="cm"> * - 配置登录/登出行为</span>
+<span class="cm"> */</span>
+<span class="nd">@Configuration</span>
+<span class="nd">@EnableWebSecurity</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SecurityConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">securityFilterChain</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">http</span>
+<span class="w">            </span><span class="c1">// 访问控制</span>
+<span class="w">            </span><span class="p">.</span><span class="na">authorizeHttpRequests</span><span class="p">(</span><span class="n">auth</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">auth</span>
+<span class="w">                </span><span class="c1">// 公开端点</span>
+<span class="w">                </span><span class="p">.</span><span class="na">requestMatchers</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/health&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/error&quot;</span><span class="p">).</span><span class="na">permitAll</span><span class="p">()</span>
+<span class="w">                </span><span class="c1">// 管理端点需要 ADMIN 角色</span>
+<span class="w">                </span><span class="p">.</span><span class="na">requestMatchers</span><span class="p">(</span><span class="s">&quot;/admin/**&quot;</span><span class="p">).</span><span class="na">hasRole</span><span class="p">(</span><span class="s">&quot;ADMIN&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="c1">// 其他所有请求需要认证</span>
+<span class="w">                </span><span class="p">.</span><span class="na">anyRequest</span><span class="p">().</span><span class="na">authenticated</span><span class="p">()</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="c1">// OIDC 登录配置</span>
+<span class="w">            </span><span class="p">.</span><span class="na">oauth2Login</span><span class="p">(</span><span class="n">oauth2</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">oauth2</span>
+<span class="w">                </span><span class="c1">// 自定义登录页面（可选，默认使用 Spring 生成的页面）</span>
+<span class="w">                </span><span class="p">.</span><span class="na">loginPage</span><span class="p">(</span><span class="s">&quot;/oauth2/authorization/keycloak&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="c1">// 自定义用户信息服务，用于从 ID Token 提取角色</span>
+<span class="w">                </span><span class="p">.</span><span class="na">userInfoEndpoint</span><span class="p">(</span><span class="n">userInfo</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">userInfo</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">oidcUserService</span><span class="p">(</span><span class="n">oidcUserService</span><span class="p">())</span>
+<span class="w">                </span><span class="p">)</span>
+<span class="w">                </span><span class="c1">// 登录成功后跳转</span>
+<span class="w">                </span><span class="p">.</span><span class="na">defaultSuccessUrl</span><span class="p">(</span><span class="s">&quot;/dashboard&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="c1">// 登出配置</span>
+<span class="w">            </span><span class="p">.</span><span class="na">logout</span><span class="p">(</span><span class="n">logout</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">logout</span>
+<span class="w">                </span><span class="p">.</span><span class="na">logoutSuccessUrl</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">invalidateHttpSession</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">clearAuthentication</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="w">            </span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 自定义 OIDC 用户服务：从 ID Token 的 realm_access.roles 中提取角色。</span>
+<span class="cm">     * 适用于 Keycloak 等在 ID Token 中嵌入角色信息的提供商。</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">OAuth2UserService</span><span class="o">&lt;</span><span class="n">OidcUserRequest</span><span class="p">,</span><span class="w"> </span><span class="n">OidcUser</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">oidcUserService</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">OidcUserService</span><span class="w"> </span><span class="n">delegate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OidcUserService</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">userRequest</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 先调用默认的 OIDC 用户服务（会调用 UserInfo 端点）</span>
+<span class="w">            </span><span class="n">OidcUser</span><span class="w"> </span><span class="n">oidcUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delegate</span><span class="p">.</span><span class="na">loadUser</span><span class="p">(</span><span class="n">userRequest</span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// 从 ID Token 中提取角色（Keycloak 格式）</span>
+<span class="w">            </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">GrantedAuthority</span><span class="o">&gt;</span><span class="w"> </span><span class="n">authorities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;&gt;</span><span class="p">(</span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getAuthorities</span><span class="p">());</span>
+
+<span class="w">            </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">realmAccess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getIdToken</span><span class="p">().</span><span class="na">getClaim</span><span class="p">(</span><span class="s">&quot;realm_access&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">realmAccess</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">&quot;unchecked&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="n">realmAccess</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;roles&quot;</span><span class="p">);</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">roles</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="n">roles</span><span class="p">.</span><span class="na">forEach</span><span class="p">(</span><span class="n">role</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">                        </span><span class="n">authorities</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SimpleGrantedAuthority</span><span class="p">(</span><span class="s">&quot;ROLE_&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">role</span><span class="p">.</span><span class="na">toUpperCase</span><span class="p">()))</span>
+<span class="w">                    </span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="c1">// 返回包含角色信息的用户对象</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultOidcUser</span><span class="p">(</span>
+<span class="w">                </span><span class="n">authorities</span><span class="p">,</span>
+<span class="w">                </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getIdToken</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getUserInfo</span><span class="p">(),</span>
+<span class="w">                </span><span class="s">&quot;preferred_username&quot;</span><span class="w">  </span><span class="c1">// 用作 principal name 的 claim</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="usercontroller-id-token">
+<h3>UserController — ID Token 解析和用户信息提取<a class="headerlink" href="#usercontroller-id-token" title="Link to this heading"></a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.oidcdemo.controller</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.annotation.AuthenticationPrincipal</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.oauth2.core.oidc.user.OidcUser</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.GetMapping</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.RestController</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HashMap</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Map</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * 用户信息控制器：演示如何从 OIDC 认证中提取用户信息。</span>
+<span class="cm"> */</span>
+<span class="nd">@RestController</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserController</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 获取当前登录用户的完整信息。</span>
+<span class="cm">     * Spring Security 自动将 OIDC 用户注入 @AuthenticationPrincipal。</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/me&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getCurrentUser</span><span class="p">(</span><span class="nd">@AuthenticationPrincipal</span><span class="w"> </span><span class="n">OidcUser</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">userInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// --- 从 ID Token 提取标准 Claims ---</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;sub&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getSubject</span><span class="p">());</span><span class="w">                    </span><span class="c1">// 用户唯一标识</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getFullName</span><span class="p">());</span><span class="w">                  </span><span class="c1">// 全名</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getEmail</span><span class="p">());</span><span class="w">                    </span><span class="c1">// 邮箱</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;email_verified&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getEmailVerified</span><span class="p">());</span><span class="w">   </span><span class="c1">// 邮箱是否验证</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;preferred_username&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getPreferredUsername</span><span class="p">());</span><span class="w"> </span><span class="c1">// 用户名</span>
+
+<span class="w">        </span><span class="c1">// --- ID Token 元数据 ---</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;issuer&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getIssuer</span><span class="p">().</span><span class="na">toString</span><span class="p">());</span><span class="w">       </span><span class="c1">// 签发者</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;issued_at&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getIssuedAt</span><span class="p">());</span><span class="w">             </span><span class="c1">// 签发时间</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;expires_at&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getExpiresAt</span><span class="p">());</span><span class="w">           </span><span class="c1">// 过期时间</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;nonce&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getNonce</span><span class="p">());</span><span class="w">                    </span><span class="c1">// nonce 值</span>
+
+<span class="w">        </span><span class="c1">// --- 从 UserInfo 端点获取的额外信息 ---</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getUserInfo</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;userinfo_claims&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getUserInfo</span><span class="p">().</span><span class="na">getClaims</span><span class="p">());</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// --- 用户角色 ---</span>
+<span class="w">        </span><span class="n">userInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;authorities&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getAuthorities</span><span class="p">().</span><span class="na">stream</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">Object</span><span class="p">::</span><span class="n">toString</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">toList</span><span class="p">());</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">userInfo</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 获取原始 ID Token（JWT 字符串）。</span>
+<span class="cm">     * 可用于传递给下游微服务。</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/token&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getTokenInfo</span><span class="p">(</span><span class="nd">@AuthenticationPrincipal</span><span class="w"> </span><span class="n">OidcUser</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tokenInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<span class="w">        </span><span class="n">tokenInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;id_token&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getIdToken</span><span class="p">().</span><span class="na">getTokenValue</span><span class="p">());</span>
+<span class="w">        </span><span class="n">tokenInfo</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;claims&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getIdToken</span><span class="p">().</span><span class="na">getClaims</span><span class="p">());</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">tokenInfo</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/dashboard&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">dashboard</span><span class="p">(</span><span class="nd">@AuthenticationPrincipal</span><span class="w"> </span><span class="n">OidcUser</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">            </span><span class="s">&quot;message&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;欢迎, &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getFullName</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;!&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;email&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getEmail</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">oidcUser</span><span class="p">.</span><span class="na">getEmail</span><span class="p">()</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;未提供&quot;</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="go-oidc">
+<h2>8.8 Go OIDC 客户端<a class="headerlink" href="#go-oidc" title="Link to this heading"></a></h2>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">github.com/coreos/go-oidc/v3</span></code> 库实现完整的 OIDC 登录流程。</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm">完整的 Go OIDC 客户端实现：</span>
+<span class="cm">- OIDC Provider Discovery（自动获取配置）</span>
+<span class="cm">- Authorization Code Flow（含 state 和 nonce）</span>
+<span class="cm">- ID Token 验证（签名、iss、aud、exp、nonce）</span>
+<span class="cm">- UserInfo 端点调用</span>
+
+<span class="cm">依赖安装：</span>
+<span class="cm">  go get github.com/coreos/go-oidc/v3/oidc</span>
+<span class="cm">  go get golang.org/x/oauth2</span>
+<span class="cm">*/</span>
+
+<span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;context&quot;</span>
+<span class="w">	</span><span class="s">&quot;crypto/rand&quot;</span>
+<span class="w">	</span><span class="s">&quot;encoding/base64&quot;</span>
+<span class="w">	</span><span class="s">&quot;encoding/json&quot;</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;log&quot;</span>
+<span class="w">	</span><span class="s">&quot;net/http&quot;</span>
+<span class="w">	</span><span class="s">&quot;os&quot;</span>
+<span class="w">	</span><span class="s">&quot;sync&quot;</span>
+<span class="w">	</span><span class="s">&quot;time&quot;</span>
+
+<span class="w">	</span><span class="s">&quot;github.com/coreos/go-oidc/v3/oidc&quot;</span>
+<span class="w">	</span><span class="s">&quot;golang.org/x/oauth2&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// ============================================================</span>
+<span class="c1">// 配置</span>
+<span class="c1">// ============================================================</span>
+
+<span class="c1">// Config 保存 OIDC 客户端配置</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Config</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">IssuerURL</span><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="c1">// OIDC Provider 的 Issuer URL</span>
+<span class="w">	</span><span class="nx">ClientID</span><span class="w">     </span><span class="kt">string</span><span class="w"> </span><span class="c1">// 客户端 ID</span>
+<span class="w">	</span><span class="nx">ClientSecret</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="c1">// 客户端密钥</span>
+<span class="w">	</span><span class="nx">RedirectURL</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="c1">// 回调 URL</span>
+<span class="w">	</span><span class="nx">ListenAddr</span><span class="w">   </span><span class="kt">string</span><span class="w"> </span><span class="c1">// 监听地址</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">loadConfig</span><span class="p">()</span><span class="w"> </span><span class="nx">Config</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">IssuerURL</span><span class="p">:</span><span class="w">    </span><span class="nx">getEnv</span><span class="p">(</span><span class="s">&quot;OIDC_ISSUER_URL&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://auth.example.com/realms/myrealm&quot;</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">ClientID</span><span class="p">:</span><span class="w">     </span><span class="nx">getEnv</span><span class="p">(</span><span class="s">&quot;OIDC_CLIENT_ID&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;my-app&quot;</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">ClientSecret</span><span class="p">:</span><span class="w"> </span><span class="nx">getEnv</span><span class="p">(</span><span class="s">&quot;OIDC_CLIENT_SECRET&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;my-secret&quot;</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">RedirectURL</span><span class="p">:</span><span class="w">  </span><span class="nx">getEnv</span><span class="p">(</span><span class="s">&quot;OIDC_REDIRECT_URL&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;http://localhost:8080/callback&quot;</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">ListenAddr</span><span class="p">:</span><span class="w">   </span><span class="nx">getEnv</span><span class="p">(</span><span class="s">&quot;LISTEN_ADDR&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;:8080&quot;</span><span class="p">),</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">getEnv</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">fallback</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">Getenv</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">v</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">fallback</span>
+<span class="p">}</span>
+
+<span class="c1">// ============================================================</span>
+<span class="c1">// 会话管理（简化版，生产环境应使用 Redis 等）</span>
+<span class="c1">// ============================================================</span>
+
+<span class="c1">// SessionStore 简单的内存会话存储</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">SessionStore</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">mu</span><span class="w">       </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
+<span class="w">	</span><span class="nx">sessions</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">Session</span>
+<span class="p">}</span>
+
+<span class="c1">// Session 保存用户会话数据</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">Session</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">State</span><span class="w">     </span><span class="kt">string</span><span class="w">    </span><span class="c1">// OAuth2 state 参数（防 CSRF）</span>
+<span class="w">	</span><span class="nx">Nonce</span><span class="w">     </span><span class="kt">string</span><span class="w">    </span><span class="c1">// OIDC nonce 参数（防重放）</span>
+<span class="w">	</span><span class="nx">User</span><span class="w">      </span><span class="o">*</span><span class="nx">UserInfo</span><span class="w"> </span><span class="c1">// 登录后的用户信息</span>
+<span class="w">	</span><span class="nx">CreatedAt</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
+<span class="p">}</span>
+
+<span class="c1">// UserInfo 用户信息</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">UserInfo</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">Sub</span><span class="w">               </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;sub&quot;`</span>
+<span class="w">	</span><span class="nx">Name</span><span class="w">              </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;name&quot;`</span>
+<span class="w">	</span><span class="nx">Email</span><span class="w">             </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;email&quot;`</span>
+<span class="w">	</span><span class="nx">EmailVerified</span><span class="w">     </span><span class="kt">bool</span><span class="w">   </span><span class="s">`json:&quot;email_verified&quot;`</span>
+<span class="w">	</span><span class="nx">PreferredUsername</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;preferred_username&quot;`</span>
+<span class="w">	</span><span class="nx">Picture</span><span class="w">           </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;picture&quot;`</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">NewSessionStore</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">SessionStore</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">SessionStore</span><span class="p">{</span><span class="nx">sessions</span><span class="p">:</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">Session</span><span class="p">)}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">SessionStore</span><span class="p">)</span><span class="w"> </span><span class="nx">Set</span><span class="p">(</span><span class="nx">id</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">session</span><span class="w"> </span><span class="o">*</span><span class="nx">Session</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+<span class="w">	</span><span class="nx">s</span><span class="p">.</span><span class="nx">sessions</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">session</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">SessionStore</span><span class="p">)</span><span class="w"> </span><span class="nx">Get</span><span class="p">(</span><span class="nx">id</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Session</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+<span class="w">	</span><span class="nx">sess</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">sessions</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">sess</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">SessionStore</span><span class="p">)</span><span class="w"> </span><span class="nx">Delete</span><span class="p">(</span><span class="nx">id</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+<span class="w">	</span><span class="nb">delete</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">sessions</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// generateRandomString 生成加密安全的随机字符串</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">generateRandomString</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">b</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="nx">n</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Read</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;生成随机字符串失败: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">base64</span><span class="p">.</span><span class="nx">URLEncoding</span><span class="p">.</span><span class="nx">EncodeToString</span><span class="p">(</span><span class="nx">b</span><span class="p">),</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// ============================================================</span>
+<span class="c1">// OIDC 客户端</span>
+<span class="c1">// ============================================================</span>
+
+<span class="c1">// OIDCClient 封装 OIDC 客户端逻辑</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">OIDCClient</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">provider</span><span class="w">     </span><span class="o">*</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">Provider</span>
+<span class="w">	</span><span class="nx">oauth2Config</span><span class="w"> </span><span class="nx">oauth2</span><span class="p">.</span><span class="nx">Config</span>
+<span class="w">	</span><span class="nx">verifier</span><span class="w">     </span><span class="o">*</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">IDTokenVerifier</span>
+<span class="w">	</span><span class="nx">sessions</span><span class="w">     </span><span class="o">*</span><span class="nx">SessionStore</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">NewOIDCClient</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">cfg</span><span class="w"> </span><span class="nx">Config</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">OIDCClient</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="c1">// -------------------------------------------------------</span>
+<span class="w">	</span><span class="c1">// 1. OIDC Provider Discovery</span>
+<span class="w">	</span><span class="c1">//    自动从 {issuerURL}/.well-known/openid-configuration</span>
+<span class="w">	</span><span class="c1">//    获取所有端点配置（authorization, token, userinfo, jwks）</span>
+<span class="w">	</span><span class="c1">// -------------------------------------------------------</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;正在发现 OIDC Provider: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">IssuerURL</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">provider</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">oidc</span><span class="p">.</span><span class="nx">NewProvider</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">IssuerURL</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;OIDC Discovery 失败: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;OIDC Discovery 成功，Endpoint: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">provider</span><span class="p">.</span><span class="nx">Endpoint</span><span class="p">().</span><span class="nx">AuthURL</span><span class="p">)</span>
+
+<span class="w">	</span><span class="c1">// -------------------------------------------------------</span>
+<span class="w">	</span><span class="c1">// 2. 配置 OAuth2 客户端</span>
+<span class="w">	</span><span class="c1">// -------------------------------------------------------</span>
+<span class="w">	</span><span class="nx">oauth2Config</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">oauth2</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ClientID</span><span class="p">:</span><span class="w">     </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">ClientID</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">ClientSecret</span><span class="p">:</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">ClientSecret</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">RedirectURL</span><span class="p">:</span><span class="w">  </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">RedirectURL</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Endpoint</span><span class="p">:</span><span class="w">     </span><span class="nx">provider</span><span class="p">.</span><span class="nx">Endpoint</span><span class="p">(),</span><span class="w"> </span><span class="c1">// 从 Discovery 自动获取</span>
+<span class="w">		</span><span class="nx">Scopes</span><span class="p">:</span><span class="w">       </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">ScopeOpenID</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;profile&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;email&quot;</span><span class="p">},</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// -------------------------------------------------------</span>
+<span class="w">	</span><span class="c1">// 3. 配置 ID Token 验证器</span>
+<span class="w">	</span><span class="c1">//    自动从 jwks_uri 获取公钥，验证签名、iss、aud、exp</span>
+<span class="w">	</span><span class="c1">// -------------------------------------------------------</span>
+<span class="w">	</span><span class="nx">verifier</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">provider</span><span class="p">.</span><span class="nx">Verifier</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ClientID</span><span class="p">:</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">ClientID</span><span class="p">,</span>
+<span class="w">		</span><span class="c1">// 可选：设置允许的时钟偏差</span>
+<span class="w">		</span><span class="c1">// Now: func() time.Time { return time.Now() },</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">OIDCClient</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">provider</span><span class="p">:</span><span class="w">     </span><span class="nx">provider</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">oauth2Config</span><span class="p">:</span><span class="w"> </span><span class="nx">oauth2Config</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">verifier</span><span class="p">:</span><span class="w">     </span><span class="nx">verifier</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">sessions</span><span class="p">:</span><span class="w">      </span><span class="nx">NewSessionStore</span><span class="p">(),</span>
+<span class="w">	</span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// HandleLogin 处理登录请求，重定向到 OIDC Provider</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">OIDCClient</span><span class="p">)</span><span class="w"> </span><span class="nx">HandleLogin</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="c1">// 生成 state（防 CSRF）和 nonce（防重放）</span>
+<span class="w">	</span><span class="nx">state</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">generateRandomString</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;内部错误&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">nonce</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">generateRandomString</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;内部错误&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 将 state 和 nonce 存入会话</span>
+<span class="w">	</span><span class="nx">sessionID</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">generateRandomString</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">c</span><span class="p">.</span><span class="nx">sessions</span><span class="p">.</span><span class="nx">Set</span><span class="p">(</span><span class="nx">sessionID</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Session</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">State</span><span class="p">:</span><span class="w">     </span><span class="nx">state</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Nonce</span><span class="p">:</span><span class="w">     </span><span class="nx">nonce</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">CreatedAt</span><span class="p">:</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">(),</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// 设置会话 Cookie</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">SetCookie</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Cookie</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Name</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;session_id&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Value</span><span class="p">:</span><span class="w">    </span><span class="nx">sessionID</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Path</span><span class="p">:</span><span class="w">     </span><span class="s">&quot;/&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">HttpOnly</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Secure</span><span class="p">:</span><span class="w">   </span><span class="nx">r</span><span class="p">.</span><span class="nx">TLS</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">SameSite</span><span class="p">:</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">SameSiteLaxMode</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">MaxAge</span><span class="p">:</span><span class="w">   </span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="c1">// 5 分钟内完成登录</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// 重定向到 OIDC Provider，附带 nonce 参数</span>
+<span class="w">	</span><span class="nx">authURL</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">oauth2Config</span><span class="p">.</span><span class="nx">AuthCodeURL</span><span class="p">(</span>
+<span class="w">		</span><span class="nx">state</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">oidc</span><span class="p">.</span><span class="nx">Nonce</span><span class="p">(</span><span class="nx">nonce</span><span class="p">),</span>
+<span class="w">	</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;重定向到 OIDC Provider: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">authURL</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">Redirect</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">,</span><span class="w"> </span><span class="nx">authURL</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusFound</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// HandleCallback 处理 OIDC 回调</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">OIDCClient</span><span class="p">)</span><span class="w"> </span><span class="nx">HandleCallback</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Context</span><span class="p">()</span>
+
+<span class="w">	</span><span class="c1">// --- 获取会话 ---</span>
+<span class="w">	</span><span class="nx">cookie</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Cookie</span><span class="p">(</span><span class="s">&quot;session_id&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;会话不存在&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">sessions</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">cookie</span><span class="p">.</span><span class="nx">Value</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">ok</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;会话已过期&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// --- 验证 state 参数（防 CSRF） ---</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Query</span><span class="p">().</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;state&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">session</span><span class="p">.</span><span class="nx">State</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;state 不匹配，可能存在 CSRF 攻击&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// --- 检查错误响应 ---</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">errCode</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Query</span><span class="p">().</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">);</span><span class="w"> </span><span class="nx">errCode</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">errDesc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Query</span><span class="p">().</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;error_description&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;认证失败: %s - %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">errCode</span><span class="p">,</span><span class="w"> </span><span class="nx">errDesc</span><span class="p">),</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// --- 用授权码换取 Token ---</span>
+<span class="w">	</span><span class="nx">code</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Query</span><span class="p">().</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;code&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">code</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;缺少授权码&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">oauth2Token</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">oauth2Config</span><span class="p">.</span><span class="nx">Exchange</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">code</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Token 交换失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Token 交换失败&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// --- 提取并验证 ID Token ---</span>
+<span class="w">	</span><span class="nx">rawIDToken</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">oauth2Token</span><span class="p">.</span><span class="nx">Extra</span><span class="p">(</span><span class="s">&quot;id_token&quot;</span><span class="p">).(</span><span class="kt">string</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">ok</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;响应中缺少 id_token&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// verifier.Verify 会自动完成：</span>
+<span class="w">	</span><span class="c1">// 1. 从 JWKS 获取公钥并验证签名</span>
+<span class="w">	</span><span class="c1">// 2. 检查 iss 是否匹配 Provider</span>
+<span class="w">	</span><span class="c1">// 3. 检查 aud 是否包含 ClientID</span>
+<span class="w">	</span><span class="c1">// 4. 检查 exp 是否过期</span>
+<span class="w">	</span><span class="nx">idToken</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">verifier</span><span class="p">.</span><span class="nx">Verify</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">rawIDToken</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;ID Token 验证失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;ID Token 验证失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">),</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// --- 验证 nonce（防重放攻击） ---</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">idToken</span><span class="p">.</span><span class="nx">Nonce</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">session</span><span class="p">.</span><span class="nx">Nonce</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;nonce 不匹配，可能存在重放攻击&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// --- 提取用户 Claims ---</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">claims</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Sub</span><span class="w">               </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;sub&quot;`</span>
+<span class="w">		</span><span class="nx">Name</span><span class="w">              </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;name&quot;`</span>
+<span class="w">		</span><span class="nx">Email</span><span class="w">             </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;email&quot;`</span>
+<span class="w">		</span><span class="nx">EmailVerified</span><span class="w">     </span><span class="kt">bool</span><span class="w">   </span><span class="s">`json:&quot;email_verified&quot;`</span>
+<span class="w">		</span><span class="nx">PreferredUsername</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;preferred_username&quot;`</span>
+<span class="w">		</span><span class="nx">Picture</span><span class="w">           </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;picture&quot;`</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">idToken</span><span class="p">.</span><span class="nx">Claims</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">claims</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Claims 解析失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Claims 解析失败&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// --- 调用 UserInfo 端点获取更多信息 ---</span>
+<span class="w">	</span><span class="nx">userInfoResp</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">UserInfo</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">oauth2</span><span class="p">.</span><span class="nx">StaticTokenSource</span><span class="p">(</span><span class="nx">oauth2Token</span><span class="p">))</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;UserInfo 请求失败（非致命）: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">		</span><span class="c1">// UserInfo 失败不阻断登录，ID Token 中已有基本信息</span>
+<span class="w">	</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="c1">// 用 UserInfo 补充 Claims 中缺失的字段</span>
+<span class="w">		</span><span class="kd">var</span><span class="w"> </span><span class="nx">uiClaims</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">Name</span><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;name&quot;`</span>
+<span class="w">			</span><span class="nx">Email</span><span class="w">   </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;email&quot;`</span>
+<span class="w">			</span><span class="nx">Picture</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;picture&quot;`</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">userInfoResp</span><span class="p">.</span><span class="nx">Claims</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">uiClaims</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">claims</span><span class="p">.</span><span class="nx">Name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">uiClaims</span><span class="p">.</span><span class="nx">Name</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Email</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">claims</span><span class="p">.</span><span class="nx">Email</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">uiClaims</span><span class="p">.</span><span class="nx">Email</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Picture</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">claims</span><span class="p">.</span><span class="nx">Picture</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">uiClaims</span><span class="p">.</span><span class="nx">Picture</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// --- 更新会话 ---</span>
+<span class="w">	</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">UserInfo</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Sub</span><span class="p">:</span><span class="w">               </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Sub</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Name</span><span class="p">:</span><span class="w">              </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Email</span><span class="p">:</span><span class="w">             </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Email</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">EmailVerified</span><span class="p">:</span><span class="w">     </span><span class="nx">claims</span><span class="p">.</span><span class="nx">EmailVerified</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">PreferredUsername</span><span class="p">:</span><span class="w">  </span><span class="nx">claims</span><span class="p">.</span><span class="nx">PreferredUsername</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Picture</span><span class="p">:</span><span class="w">           </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Picture</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">session</span><span class="p">.</span><span class="nx">State</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="c1">// 清除已使用的 state</span>
+<span class="w">	</span><span class="nx">session</span><span class="p">.</span><span class="nx">Nonce</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="c1">// 清除已使用的 nonce</span>
+
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;用户登录成功: sub=%s, name=%s, email=%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Sub</span><span class="p">,</span><span class="w"> </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Email</span><span class="p">)</span>
+
+<span class="w">	</span><span class="c1">// 返回用户信息</span>
+<span class="w">	</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">json</span><span class="p">.</span><span class="nx">NewEncoder</span><span class="p">(</span><span class="nx">w</span><span class="p">).</span><span class="nx">Encode</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{</span>
+<span class="w">		</span><span class="s">&quot;message&quot;</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;登录成功&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;sub&quot;</span><span class="p">:</span><span class="w">       </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Sub</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w">      </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;email&quot;</span><span class="p">:</span><span class="w">     </span><span class="nx">claims</span><span class="p">.</span><span class="nx">Email</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;issuer&quot;</span><span class="p">:</span><span class="w">    </span><span class="nx">idToken</span><span class="p">.</span><span class="nx">Issuer</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;issued_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">idToken</span><span class="p">.</span><span class="nx">IssuedAt</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;expiry&quot;</span><span class="p">:</span><span class="w">    </span><span class="nx">idToken</span><span class="p">.</span><span class="nx">Expiry</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="c1">// HandleMe 返回当前登录用户信息</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">OIDCClient</span><span class="p">)</span><span class="w"> </span><span class="nx">HandleMe</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">cookie</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Cookie</span><span class="p">(</span><span class="s">&quot;session_id&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">`{&quot;error&quot;: &quot;未登录&quot;}`</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">session</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">sessions</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">cookie</span><span class="p">.</span><span class="nx">Value</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">ok</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">`{&quot;error&quot;: &quot;未登录&quot;}`</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">json</span><span class="p">.</span><span class="nx">NewEncoder</span><span class="p">(</span><span class="nx">w</span><span class="p">).</span><span class="nx">Encode</span><span class="p">(</span><span class="nx">session</span><span class="p">.</span><span class="nx">User</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// HandleLogout 登出</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">OIDCClient</span><span class="p">)</span><span class="w"> </span><span class="nx">HandleLogout</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">cookie</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Cookie</span><span class="p">(</span><span class="s">&quot;session_id&quot;</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">sessions</span><span class="p">.</span><span class="nx">Delete</span><span class="p">(</span><span class="nx">cookie</span><span class="p">.</span><span class="nx">Value</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="c1">// 清除 Cookie</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">SetCookie</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">http</span><span class="p">.</span><span class="nx">Cookie</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Name</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;session_id&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Value</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Path</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;/&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">MaxAge</span><span class="p">:</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">Redirect</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusFound</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// ============================================================</span>
+<span class="c1">// 主函数</span>
+<span class="c1">// ============================================================</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">cfg</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">loadConfig</span><span class="p">()</span>
+<span class="w">	</span><span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span>
+
+<span class="w">	</span><span class="c1">// 初始化 OIDC 客户端（包含 Discovery）</span>
+<span class="w">	</span><span class="nx">client</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">NewOIDCClient</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cfg</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;OIDC 客户端初始化失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 注册路由</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;text/html; charset=utf-8&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprint</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">`&lt;h1&gt;OIDC Demo&lt;/h1&gt;</span>
+<span class="s">			&lt;a href=&quot;/login&quot;&gt;登录&lt;/a&gt; |</span>
+<span class="s">			&lt;a href=&quot;/me&quot;&gt;我的信息&lt;/a&gt; |</span>
+<span class="s">			&lt;a href=&quot;/logout&quot;&gt;登出&lt;/a&gt;`</span><span class="p">)</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/login&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">HandleLogin</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/callback&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">HandleCallback</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/me&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">HandleMe</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/logout&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">HandleLogout</span><span class="p">)</span>
+
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;OIDC 客户端启动，监听 %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">cfg</span><span class="p">.</span><span class="nx">ListenAddr</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ListenAndServe</span><span class="p">(</span><span class="nx">cfg</span><span class="p">.</span><span class="nx">ListenAddr</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatalf</span><span class="p">(</span><span class="s">&quot;服务器启动失败: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>8.9 小结<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>OIDC 是 OAuth 2.0 之上的<strong>身份认证层</strong>，提供标准化的用户身份信息</p></li>
+<li><p><strong>ID Token</strong> 是 JWT 格式，包含用户身份 Claims</p></li>
+<li><p><strong>ID Token 验证</strong>必须检查签名、iss、aud、exp、nonce，缺一不可</p></li>
+<li><p><strong>Discovery</strong> 端点使客户端可以自动发现 OIDC 配置，避免硬编码端点地址</p></li>
+<li><p><strong>JWKS</strong> 端点提供签名验证所需的公钥，客户端应缓存并定期刷新</p></li>
+<li><p>Keycloak 是最流行的开源 OIDC 提供商，适合自托管场景</p></li>
+<li><p>OIDC 是零信任架构中人类身份认证的首选协议</p></li>
+<li><p>各语言生态都有成熟的 OIDC 库：Python（Authlib）、Java（Spring Security）、Go（go-oidc）</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch07.html" class="btn btn-neutral float-left" title="第七章：OAuth 2.0 授权框架" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch09.html" class="btn btn-neutral float-right" title="第九章：JWT 深入解析" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

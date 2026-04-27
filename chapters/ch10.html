@@ -1,0 +1,1866 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第十章：多因素认证（MFA） &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch10.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第十一章：单点登录（SSO）与联邦身份" href="ch11.html" />
+    <link rel="prev" title="第九章：JWT 深入解析" href="ch09.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第十章：多因素认证（MFA）</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">10.1 认证三要素</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">10.2 密码认证的问题</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">常见攻击方式</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">密码存储</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">密码哈希函数对比</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#totp">10.3 TOTP — 基于时间的一次性密码</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">TOTP 验证流程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">MFA 注册流程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">MFA 决策流程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-totp">Python TOTP 完整实现</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fastapi-mfa">FastAPI MFA 端点</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#java-totp">Java TOTP 实现</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spring-security-mfa">Spring Security MFA 集成</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#go-totp">Go TOTP 实现</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fido2-webauthn">10.4 FIDO2/WebAuthn — 无密码认证</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">注册流程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#passkey">Passkey</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">10.5 MFA 方式对比</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">10.6 MFA 疲劳攻击与防御</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">10.7 自适应认证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id13">10.8 MFA 用户体验最佳实践</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id14">注册引导</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">日常使用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">恢复流程</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id17">10.9 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第十章：多因素认证（MFA）</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch10.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mfa">
+<h1>第十章：多因素认证（MFA）<a class="headerlink" href="#mfa" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“密码是安全的最薄弱环节，MFA 是加固它的最有效手段。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((多因素认证))
+    认证三要素
+      你知道的
+      你拥有的
+      你是谁
+    密码安全
+      bcrypt
+      Argon2
+      scrypt
+    MFA 方式
+      TOTP
+      FIDO2/WebAuthn
+      Passkey
+      推送通知
+    高级
+      自适应认证
+      MFA 疲劳攻击
+    </pre><section id="id1">
+<h2>10.1 认证三要素<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>多因素认证基于三类不同的认证因素：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>因素</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>示例</p></th>
+<th class="head"><p>优点</p></th>
+<th class="head"><p>缺点</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>你知道的</p></td>
+<td><p>知识因素</p></td>
+<td><p>密码、PIN、安全问题</p></td>
+<td><p>简单、成本低</p></td>
+<td><p>可被猜测、钓鱼、泄露</p></td>
+</tr>
+<tr class="row-odd"><td><p>你拥有的</p></td>
+<td><p>持有因素</p></td>
+<td><p>手机、硬件密钥、智能卡</p></td>
+<td><p>物理持有难以远程窃取</p></td>
+<td><p>可丢失、被盗</p></td>
+</tr>
+<tr class="row-even"><td><p>你是谁</p></td>
+<td><p>生物因素</p></td>
+<td><p>指纹、面部、虹膜</p></td>
+<td><p>难以伪造</p></td>
+<td><p>隐私问题、无法更换</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>MFA = 使用两种或以上不同类型的因素</strong></p>
+<pre  class="mermaid">
+        flowchart LR
+    subgraph 单因素认证
+        U1[用户] --&gt;|密码| P1[通过 ✅]
+    end
+    subgraph 双因素认证 2FA
+        U2[用户] --&gt;|密码&lt;br/&gt;知识因素| S2[第一关 ✅]
+        S2 --&gt;|TOTP 验证码&lt;br/&gt;持有因素| P2[通过 ✅]
+    end
+    subgraph 三因素认证
+        U3[用户] --&gt;|密码&lt;br/&gt;知识因素| S3a[第一关 ✅]
+        S3a --&gt;|硬件密钥&lt;br/&gt;持有因素| S3b[第二关 ✅]
+        S3b --&gt;|指纹&lt;br/&gt;生物因素| P3[通过 ✅]
+    end
+    </pre></section>
+<section id="id2">
+<h2>10.2 密码认证的问题<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>常见攻击方式<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>攻击方式</p></th>
+<th class="head"><p>描述</p></th>
+<th class="head"><p>防御</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>暴力破解</p></td>
+<td><p>尝试所有可能的密码组合</p></td>
+<td><p>账户锁定、速率限制</p></td>
+</tr>
+<tr class="row-odd"><td><p>字典攻击</p></td>
+<td><p>使用常见密码列表</p></td>
+<td><p>密码复杂度要求</p></td>
+</tr>
+<tr class="row-even"><td><p>撞库攻击</p></td>
+<td><p>用泄露的密码尝试其他网站</p></td>
+<td><p>密码唯一性教育</p></td>
+</tr>
+<tr class="row-odd"><td><p>钓鱼攻击</p></td>
+<td><p>伪造登录页面骗取密码</p></td>
+<td><p>FIDO2/WebAuthn</p></td>
+</tr>
+<tr class="row-even"><td><p>彩虹表</p></td>
+<td><p>预计算哈希值反查密码</p></td>
+<td><p>加盐哈希</p></td>
+</tr>
+<tr class="row-odd"><td><p>键盘记录</p></td>
+<td><p>恶意软件记录键盘输入</p></td>
+<td><p>硬件密钥</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id4">
+<h3>密码存储<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p><strong>永远不要明文存储密码！</strong> 使用专门的密码哈希函数：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ❌ 错误：明文存储</span>
+<span class="n">password_db</span><span class="p">[</span><span class="s2">&quot;user1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;my_password&quot;</span>
+
+<span class="c1"># ❌ 错误：普通哈希（太快，容易暴力破解）</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="n">password_db</span><span class="p">[</span><span class="s2">&quot;user1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;my_password&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<span class="c1"># ✅ 正确：使用 Argon2（现代首选）</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">argon2</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasswordHasher</span>
+
+<span class="n">ph</span> <span class="o">=</span> <span class="n">PasswordHasher</span><span class="p">(</span>
+    <span class="n">time_cost</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>        <span class="c1"># 迭代次数</span>
+    <span class="n">memory_cost</span><span class="o">=</span><span class="mi">65536</span><span class="p">,</span>  <span class="c1"># 内存使用 64MB</span>
+    <span class="n">parallelism</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>      <span class="c1"># 并行线程数</span>
+<span class="p">)</span>
+
+<span class="c1"># 存储</span>
+<span class="n">hashed</span> <span class="o">=</span> <span class="n">ph</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="s2">&quot;my_password&quot;</span><span class="p">)</span>
+<span class="c1"># $argon2id$v=19$m=65536,t=3,p=4$...</span>
+
+<span class="c1"># 验证</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">ph</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">hashed</span><span class="p">,</span> <span class="s2">&quot;my_password&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;密码正确 ✅&quot;</span><span class="p">)</span>
+    <span class="c1"># 检查是否需要重新哈希（参数升级时）</span>
+    <span class="k">if</span> <span class="n">ph</span><span class="o">.</span><span class="n">check_needs_rehash</span><span class="p">(</span><span class="n">hashed</span><span class="p">):</span>
+        <span class="n">new_hash</span> <span class="o">=</span> <span class="n">ph</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="s2">&quot;my_password&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;密码错误 ❌&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>密码哈希函数对比<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>算法</p></th>
+<th class="head"><p>年份</p></th>
+<th class="head"><p>特点</p></th>
+<th class="head"><p>推荐</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>MD5/SHA</p></td>
+<td><p>—</p></td>
+<td><p>通用哈希，太快</p></td>
+<td><p>❌ 禁止</p></td>
+</tr>
+<tr class="row-odd"><td><p>bcrypt</p></td>
+<td><p>1999</p></td>
+<td><p>经典，CPU 密集</p></td>
+<td><p>✅ 遗留系统</p></td>
+</tr>
+<tr class="row-even"><td><p>scrypt</p></td>
+<td><p>2009</p></td>
+<td><p>CPU + 内存密集</p></td>
+<td><p>✅ 可用</p></td>
+</tr>
+<tr class="row-odd"><td><p>Argon2id</p></td>
+<td><p>2015</p></td>
+<td><p>竞赛冠军，最安全</p></td>
+<td><p>✅ 首选</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="totp">
+<h2>10.3 TOTP — 基于时间的一次性密码<a class="headerlink" href="#totp" title="Link to this heading"></a></h2>
+<p>TOTP（Time-based One-Time Password，RFC 6238）是最常用的 MFA 方式：</p>
+<section id="id6">
+<h3>TOTP 验证流程<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant U as 用户
+    participant App as 认证器 App
+    participant S as 服务端
+
+    Note over App,S: 注册阶段（一次性）
+    S-&gt;&gt;S: 生成共享密钥 secret
+    S-&gt;&gt;U: 展示二维码（含 secret）
+    U-&gt;&gt;App: 扫描二维码，存储 secret
+
+    Note over App,S: 验证阶段（每次登录）
+    U-&gt;&gt;S: 提交用户名 + 密码
+    S-&gt;&gt;S: 验证密码 ✅
+    S-&gt;&gt;U: 请求 TOTP 验证码
+    App-&gt;&gt;App: HMAC-SHA1(secret, time/30) → 6位数字
+    U-&gt;&gt;S: 输入 6 位验证码
+    S-&gt;&gt;S: HMAC-SHA1(secret, time/30) → 6位数字
+    S-&gt;&gt;S: 比较验证码（允许 ±1 窗口）
+    S-&gt;&gt;U: 登录成功 ✅
+    </pre></section>
+<section id="id7">
+<h3>MFA 注册流程<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant U as 用户
+    participant B as 浏览器
+    participant S as 服务端
+    participant DB as 数据库
+
+    U-&gt;&gt;B: 点击&quot;启用 MFA&quot;
+    B-&gt;&gt;S: POST /mfa/enroll
+    S-&gt;&gt;S: 生成 TOTP secret
+    S-&gt;&gt;S: 生成备用码（10 个）
+    S-&gt;&gt;DB: 临时存储 secret（待确认）
+    S-&gt;&gt;B: 返回二维码 URI + 备用码
+    B-&gt;&gt;U: 展示二维码 + 备用码
+    U-&gt;&gt;U: 用认证器 App 扫码
+    U-&gt;&gt;B: 输入当前 TOTP 验证码确认
+    B-&gt;&gt;S: POST /mfa/confirm {code}
+    S-&gt;&gt;S: 验证 TOTP 码
+    alt 验证成功
+        S-&gt;&gt;DB: 标记 MFA 已启用
+        S-&gt;&gt;B: MFA 启用成功 ✅
+    else 验证失败
+        S-&gt;&gt;DB: 删除临时 secret
+        S-&gt;&gt;B: 验证码错误，请重试 ❌
+    end
+    </pre></section>
+<section id="id8">
+<h3>MFA 决策流程<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        flowchart TD
+    A[用户登录请求] --&gt; B{密码验证通过?}
+    B --&gt;|否| C[登录失败 ❌]
+    B --&gt;|是| D[收集上下文信息&lt;br/&gt;IP / 设备 / 位置 / 时间]
+    D --&gt; E{风险评估}
+    E --&gt;|低风险&lt;br/&gt;已知设备+常用IP| F[直接放行 ✅]
+    E --&gt;|中风险&lt;br/&gt;新设备或新IP| G[要求 TOTP 验证]
+    E --&gt;|高风险&lt;br/&gt;异地登录| H[要求 TOTP + 邮件验证]
+    E --&gt;|极高风险&lt;br/&gt;不可能旅行| I[要求 FIDO2 + 管理员审批]
+    G --&gt; J{MFA 验证通过?}
+    H --&gt; J
+    I --&gt; J
+    J --&gt;|是| K[登录成功 ✅&lt;br/&gt;记录设备指纹]
+    J --&gt;|否| L[登录失败 ❌&lt;br/&gt;触发告警]
+    </pre></section>
+<section id="python-totp">
+<h3>Python TOTP 完整实现<a class="headerlink" href="#python-totp" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyotp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">qrcode</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">secrets</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TOTPManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TOTP 多因素认证管理器&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">issuer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MyApp&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">issuer</span> <span class="o">=</span> <span class="n">issuer</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_secret</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;生成 Base32 编码的共享密钥&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">random_base32</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_backup_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;生成一次性备用码&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">secrets</span><span class="o">.</span><span class="n">token_hex</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_provisioning_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;生成二维码 URI（兼容 Google Authenticator / Authy 等）&quot;&quot;&quot;</span>
+        <span class="n">totp</span> <span class="o">=</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">TOTP</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">totp</span><span class="o">.</span><span class="n">provisioning_uri</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">email</span><span class="p">,</span> <span class="n">issuer_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">issuer</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_qr_base64</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;生成二维码的 Base64 编码（可直接嵌入 HTML &lt;img&gt;）&quot;&quot;&quot;</span>
+        <span class="n">qr</span> <span class="o">=</span> <span class="n">qrcode</span><span class="o">.</span><span class="n">QRCode</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">box_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">qr</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+        <span class="n">qr</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">fit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">qr</span><span class="o">.</span><span class="n">make_image</span><span class="p">(</span><span class="n">fill_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">back_color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;PNG&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">verify_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">valid_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        验证 TOTP 验证码</span>
+<span class="sd">        valid_window=1 表示允许前后各 30 秒的偏差</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">totp</span> <span class="o">=</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">TOTP</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">totp</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">valid_window</span><span class="o">=</span><span class="n">valid_window</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_current_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取当前验证码（仅用于测试）&quot;&quot;&quot;</span>
+        <span class="n">totp</span> <span class="o">=</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">TOTP</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">totp</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+
+<span class="c1"># --- 使用示例 ---</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">TOTPManager</span><span class="p">(</span><span class="n">issuer</span><span class="o">=</span><span class="s2">&quot;SecurityHandbook&quot;</span><span class="p">)</span>
+
+<span class="c1"># 1. 注册阶段</span>
+<span class="n">secret</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">generate_secret</span><span class="p">()</span>
+<span class="n">backup_codes</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">generate_backup_codes</span><span class="p">()</span>
+<span class="n">uri</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">get_provisioning_uri</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="s2">&quot;walter@example.com&quot;</span><span class="p">)</span>
+<span class="n">qr_b64</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">generate_qr_base64</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;密钥: </span><span class="si">{</span><span class="n">secret</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URI: </span><span class="si">{</span><span class="n">uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;备用码: </span><span class="si">{</span><span class="n">backup_codes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 2. 验证阶段</span>
+<span class="n">current_code</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">get_current_code</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;当前验证码: </span><span class="si">{</span><span class="n">current_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;验证结果: </span><span class="si">{</span><span class="n">manager</span><span class="o">.</span><span class="n">verify_code</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">current_code</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="fastapi-mfa">
+<h3>FastAPI MFA 端点<a class="headerlink" href="#fastapi-mfa" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPBearer</span><span class="p">,</span> <span class="n">HTTPAuthorizationCredentials</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyotp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">secrets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;MFA Service&quot;</span><span class="p">)</span>
+<span class="n">security</span> <span class="o">=</span> <span class="n">HTTPBearer</span><span class="p">()</span>
+
+<span class="c1"># --- 模型 ---</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MFAEnrollResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">qr_uri</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># 生产环境不应返回，仅供手动输入</span>
+    <span class="n">backup_codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MFAVerifyRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">code</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BackupCodeRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">backup_code</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="c1"># --- 模拟数据库 ---</span>
+<span class="n">users_db</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span><span class="n">cred</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从 Bearer Token 中提取用户 ID（简化示例）&quot;&quot;&quot;</span>
+    <span class="c1"># 生产环境应验证 JWT</span>
+    <span class="k">return</span> <span class="n">cred</span><span class="o">.</span><span class="n">credentials</span>  <span class="c1"># 此处直接用 token 当 user_id</span>
+
+<span class="c1"># --- MFA 注册 ---</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/mfa/enroll&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">MFAEnrollResponse</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">enroll_mfa</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;启用 MFA：生成密钥和备用码&quot;&quot;&quot;</span>
+    <span class="n">secret</span> <span class="o">=</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">random_base32</span><span class="p">()</span>
+    <span class="n">backup_codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">secrets</span><span class="o">.</span><span class="n">token_hex</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+
+    <span class="n">totp</span> <span class="o">=</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">TOTP</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+    <span class="n">uri</span> <span class="o">=</span> <span class="n">totp</span><span class="o">.</span><span class="n">provisioning_uri</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span> <span class="n">issuer_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 临时存储，等待确认</span>
+    <span class="n">users_db</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;mfa_secret&quot;</span><span class="p">:</span> <span class="n">secret</span><span class="p">,</span>
+        <span class="s2">&quot;mfa_enabled&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># 尚未确认</span>
+        <span class="s2">&quot;backup_codes&quot;</span><span class="p">:</span> <span class="n">backup_codes</span><span class="p">,</span>
+        <span class="s2">&quot;enrolled_at&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">MFAEnrollResponse</span><span class="p">(</span><span class="n">qr_uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="n">secret</span><span class="p">,</span> <span class="n">backup_codes</span><span class="o">=</span><span class="n">backup_codes</span><span class="p">)</span>
+
+<span class="c1"># --- MFA 确认（用户扫码后输入验证码确认） ---</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/mfa/confirm&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">confirm_mfa</span><span class="p">(</span>
+    <span class="n">req</span><span class="p">:</span> <span class="n">MFAVerifyRequest</span><span class="p">,</span>
+    <span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;确认 MFA 注册：用户输入验证码以证明已正确配置&quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">users_db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mfa_secret&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;请先调用 /mfa/enroll&quot;</span><span class="p">)</span>
+
+    <span class="n">totp</span> <span class="o">=</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">TOTP</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="s2">&quot;mfa_secret&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">totp</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">valid_window</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;验证码错误&quot;</span><span class="p">)</span>
+
+    <span class="n">user</span><span class="p">[</span><span class="s2">&quot;mfa_enabled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">user</span><span class="p">[</span><span class="s2">&quot;enrolled_at&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;MFA 已启用 ✅&quot;</span><span class="p">}</span>
+
+<span class="c1"># --- MFA 验证（登录时） ---</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/mfa/verify&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">verify_mfa</span><span class="p">(</span>
+    <span class="n">req</span><span class="p">:</span> <span class="n">MFAVerifyRequest</span><span class="p">,</span>
+    <span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;登录时验证 TOTP 验证码&quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">users_db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mfa_enabled&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;MFA 未启用&quot;</span><span class="p">)</span>
+
+    <span class="n">totp</span> <span class="o">=</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">TOTP</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="s2">&quot;mfa_secret&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">totp</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">valid_window</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;验证码错误或已过期&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;MFA 验证通过 ✅&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">}</span>
+
+<span class="c1"># --- 备用码验证 ---</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/mfa/backup&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">verify_backup_code</span><span class="p">(</span>
+    <span class="n">req</span><span class="p">:</span> <span class="n">BackupCodeRequest</span><span class="p">,</span>
+    <span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;使用一次性备用码（丢失手机时使用）&quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">users_db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mfa_enabled&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;MFA 未启用&quot;</span><span class="p">)</span>
+
+    <span class="n">code</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">backup_code</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user</span><span class="p">[</span><span class="s2">&quot;backup_codes&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;备用码无效&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 备用码只能使用一次</span>
+    <span class="n">user</span><span class="p">[</span><span class="s2">&quot;backup_codes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="n">remaining</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="s2">&quot;backup_codes&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;备用码验证通过 ✅&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remaining_backup_codes&quot;</span><span class="p">:</span> <span class="n">remaining</span><span class="p">,</span>
+        <span class="s2">&quot;warning&quot;</span><span class="p">:</span> <span class="s2">&quot;请尽快重新绑定认证器&quot;</span> <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<span class="c1"># --- 禁用 MFA ---</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;/mfa&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">disable_mfa</span><span class="p">(</span>
+    <span class="n">req</span><span class="p">:</span> <span class="n">MFAVerifyRequest</span><span class="p">,</span>
+    <span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;禁用 MFA（需要当前验证码确认）&quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">users_db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mfa_enabled&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;MFA 未启用&quot;</span><span class="p">)</span>
+
+    <span class="n">totp</span> <span class="o">=</span> <span class="n">pyotp</span><span class="o">.</span><span class="n">TOTP</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="s2">&quot;mfa_secret&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">totp</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">valid_window</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;验证码错误&quot;</span><span class="p">)</span>
+
+    <span class="n">user</span><span class="p">[</span><span class="s2">&quot;mfa_enabled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">user</span><span class="p">[</span><span class="s2">&quot;mfa_secret&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">user</span><span class="p">[</span><span class="s2">&quot;backup_codes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;MFA 已禁用&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="java-totp">
+<h3>Java TOTP 实现<a class="headerlink" href="#java-totp" title="Link to this heading"></a></h3>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">dev.samstevens.totp</span></code> 库实现 Google Authenticator 兼容的 TOTP：</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cm">&lt;!-- pom.xml 依赖 --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>dev.samstevens.totp<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>totp<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>1.7.1<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.code.*</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.exceptions.QrGenerationException</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.qr.QrData</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.qr.QrGenerator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.qr.ZxingPngQrGenerator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.secret.DefaultSecretGenerator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.secret.SecretGenerator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.time.SystemTimeProvider</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.time.TimeProvider</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dev.samstevens.totp.util.Utils</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.security.SecureRandom</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.ArrayList</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TotpService</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">SecretGenerator</span><span class="w"> </span><span class="n">secretGenerator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultSecretGenerator</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">QrGenerator</span><span class="w"> </span><span class="n">qrGenerator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ZxingPngQrGenerator</span><span class="p">();</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">TimeProvider</span><span class="w"> </span><span class="n">timeProvider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemTimeProvider</span><span class="p">();</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">issuer</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">TotpService</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">issuer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">issuer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">issuer</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/** 生成 TOTP 密钥 */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">generateSecret</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">secretGenerator</span><span class="p">.</span><span class="na">generate</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/** 生成一次性备用码 */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">generateBackupCodes</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">SecureRandom</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SecureRandom</span><span class="p">();</span>
+<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">codes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">codes</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">&quot;%08X&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="na">nextInt</span><span class="p">()));</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">codes</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/** 生成二维码的 Base64 PNG 数据（可直接嵌入 &lt;img&gt; 标签） */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">generateQrCodeBase64</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">throws</span><span class="w"> </span><span class="n">QrGenerationException</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">QrData</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">QrData</span><span class="p">.</span><span class="na">Builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">label</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">secret</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">issuer</span><span class="p">(</span><span class="n">issuer</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">algorithm</span><span class="p">(</span><span class="n">HashingAlgorithm</span><span class="p">.</span><span class="na">SHA1</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">digits</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">period</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">imageData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qrGenerator</span><span class="p">.</span><span class="na">generate</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Utils</span><span class="p">.</span><span class="na">getDataUriForImage</span><span class="p">(</span><span class="n">imageData</span><span class="p">,</span><span class="w"> </span><span class="n">qrGenerator</span><span class="p">.</span><span class="na">getImageMimeType</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/** 验证 TOTP 验证码 */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">verifyCode</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">code</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">CodeVerifier</span><span class="w"> </span><span class="n">verifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultCodeVerifier</span><span class="p">(</span>
+<span class="w">                </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultCodeGenerator</span><span class="p">(),</span><span class="w"> </span><span class="n">timeProvider</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// 允许前后各 1 个时间窗口（±30 秒）</span>
+<span class="w">        </span><span class="p">((</span><span class="n">DefaultCodeVerifier</span><span class="p">)</span><span class="w"> </span><span class="n">verifier</span><span class="p">).</span><span class="na">setAllowedTimePeriodDiscrepancy</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">verifier</span><span class="p">.</span><span class="na">isValidCode</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">code</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="spring-security-mfa">
+<h4>Spring Security MFA 集成<a class="headerlink" href="#spring-security-mfa" title="Link to this heading"></a></h4>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.authentication.AuthenticationProvider</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.authentication.BadCredentialsException</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.Authentication</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.AuthenticationException</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Component</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * 自定义 MFA 认证 Token</span>
+<span class="cm"> */</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MfaAuthenticationToken</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">AbstractAuthenticationToken</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">userId</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">totpCode</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">MfaAuthenticationToken</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">userId</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">totpCode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">super</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">userId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userId</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">totpCode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">totpCode</span><span class="p">;</span>
+<span class="w">        </span><span class="n">setAuthenticated</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">getCredentials</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">totpCode</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="nd">@Override</span><span class="w"> </span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">getPrincipal</span><span class="p">()</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">userId</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * MFA 认证 Provider：在密码认证通过后进行 TOTP 二次验证</span>
+<span class="cm"> */</span>
+<span class="nd">@Component</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MfaAuthenticationProvider</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">AuthenticationProvider</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">TotpService</span><span class="w"> </span><span class="n">totpService</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">UserRepository</span><span class="w"> </span><span class="n">userRepository</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">MfaAuthenticationProvider</span><span class="p">(</span><span class="n">TotpService</span><span class="w"> </span><span class="n">totpService</span><span class="p">,</span>
+<span class="w">                                     </span><span class="n">UserRepository</span><span class="w"> </span><span class="n">userRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">totpService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">totpService</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">userRepository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userRepository</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Authentication</span><span class="w"> </span><span class="nf">authenticate</span><span class="p">(</span><span class="n">Authentication</span><span class="w"> </span><span class="n">auth</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">throws</span><span class="w"> </span><span class="n">AuthenticationException</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">userId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">auth</span><span class="p">.</span><span class="na">getPrincipal</span><span class="p">();</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">code</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">auth</span><span class="p">.</span><span class="na">getCredentials</span><span class="p">();</span>
+
+<span class="w">        </span><span class="n">UserEntity</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">userId</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">orElseThrow</span><span class="p">(()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BadCredentialsException</span><span class="p">(</span><span class="s">&quot;用户不存在&quot;</span><span class="p">));</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">user</span><span class="p">.</span><span class="na">isMfaEnabled</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BadCredentialsException</span><span class="p">(</span><span class="s">&quot;MFA 未启用&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">totpService</span><span class="p">.</span><span class="na">verifyCode</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getMfaSecret</span><span class="p">(),</span><span class="w"> </span><span class="n">code</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BadCredentialsException</span><span class="p">(</span><span class="s">&quot;TOTP 验证码错误&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">MfaAuthenticationToken</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                </span><span class="k">new</span><span class="w"> </span><span class="n">MfaAuthenticationToken</span><span class="p">(</span><span class="n">userId</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+<span class="w">        </span><span class="n">result</span><span class="p">.</span><span class="na">setAuthenticated</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">supports</span><span class="p">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">authentication</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">MfaAuthenticationToken</span><span class="p">.</span><span class="na">class</span><span class="p">.</span><span class="na">isAssignableFrom</span><span class="p">(</span><span class="n">authentication</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * MFA REST 控制器</span>
+<span class="cm"> */</span>
+<span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/mfa&quot;</span><span class="p">)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MfaController</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">TotpService</span><span class="w"> </span><span class="n">totpService</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">UserRepository</span><span class="w"> </span><span class="n">userRepository</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">MfaController</span><span class="p">(</span><span class="n">TotpService</span><span class="w"> </span><span class="n">totpService</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">UserRepository</span><span class="w"> </span><span class="n">userRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">totpService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">totpService</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">userRepository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userRepository</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/** 注册 MFA */</span>
+<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">&quot;/enroll&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="nf">enroll</span><span class="p">(</span><span class="nd">@AuthenticationPrincipal</span><span class="w"> </span><span class="n">UserDetails</span><span class="w"> </span><span class="n">principal</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">totpService</span><span class="p">.</span><span class="na">generateSecret</span><span class="p">();</span>
+<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">backupCodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">totpService</span><span class="p">.</span><span class="na">generateBackupCodes</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">qrCode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">totpService</span><span class="p">.</span><span class="na">generateQrCodeBase64</span><span class="p">(</span>
+<span class="w">                </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">principal</span><span class="p">.</span><span class="na">getUsername</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// 临时存储 secret，等待确认</span>
+<span class="w">        </span><span class="n">UserEntity</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userRepository</span><span class="p">.</span><span class="na">findByUsername</span><span class="p">(</span><span class="n">principal</span><span class="p">.</span><span class="na">getUsername</span><span class="p">());</span>
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setPendingMfaSecret</span><span class="p">(</span><span class="n">secret</span><span class="p">);</span>
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setBackupCodes</span><span class="p">(</span><span class="n">backupCodes</span><span class="p">);</span>
+<span class="w">        </span><span class="n">userRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">user</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">ok</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;qrCode&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">qrCode</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;backupCodes&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">backupCodes</span>
+<span class="w">        </span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/** 确认 MFA */</span>
+<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">&quot;/confirm&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="nf">confirm</span><span class="p">(</span>
+<span class="w">            </span><span class="nd">@AuthenticationPrincipal</span><span class="w"> </span><span class="n">UserDetails</span><span class="w"> </span><span class="n">principal</span><span class="p">,</span>
+<span class="w">            </span><span class="nd">@RequestBody</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">UserEntity</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userRepository</span><span class="p">.</span><span class="na">findByUsername</span><span class="p">(</span><span class="n">principal</span><span class="p">.</span><span class="na">getUsername</span><span class="p">());</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">body</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;code&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">totpService</span><span class="p">.</span><span class="na">verifyCode</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getPendingMfaSecret</span><span class="p">(),</span><span class="w"> </span><span class="n">code</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">badRequest</span><span class="p">().</span><span class="na">body</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;验证码错误&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setMfaSecret</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getPendingMfaSecret</span><span class="p">());</span>
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setPendingMfaSecret</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+<span class="w">        </span><span class="n">user</span><span class="p">.</span><span class="na">setMfaEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+<span class="w">        </span><span class="n">userRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">user</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">ok</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;message&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MFA 已启用 ✅&quot;</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/** 验证 MFA */</span>
+<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">&quot;/verify&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="nf">verify</span><span class="p">(</span>
+<span class="w">            </span><span class="nd">@AuthenticationPrincipal</span><span class="w"> </span><span class="n">UserDetails</span><span class="w"> </span><span class="n">principal</span><span class="p">,</span>
+<span class="w">            </span><span class="nd">@RequestBody</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">UserEntity</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userRepository</span><span class="p">.</span><span class="na">findByUsername</span><span class="p">(</span><span class="n">principal</span><span class="p">.</span><span class="na">getUsername</span><span class="p">());</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">body</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;code&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">user</span><span class="p">.</span><span class="na">isMfaEnabled</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">badRequest</span><span class="p">().</span><span class="na">body</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MFA 未启用&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">totpService</span><span class="p">.</span><span class="na">verifyCode</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getMfaSecret</span><span class="p">(),</span><span class="w"> </span><span class="n">code</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">status</span><span class="p">(</span><span class="mi">401</span><span class="p">).</span><span class="na">body</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;验证码错误&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">ok</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;message&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MFA 验证通过 ✅&quot;</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="go-totp">
+<h3>Go TOTP 实现<a class="headerlink" href="#go-totp" title="Link to this heading"></a></h3>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">pquerna/otp</span></code> 库：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">mfa</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;crypto/rand&quot;</span>
+<span class="w">	</span><span class="s">&quot;encoding/hex&quot;</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;image/png&quot;</span>
+<span class="w">	</span><span class="s">&quot;net/http&quot;</span>
+<span class="w">	</span><span class="s">&quot;strings&quot;</span>
+<span class="w">	</span><span class="s">&quot;sync&quot;</span>
+<span class="w">	</span><span class="s">&quot;time&quot;</span>
+
+<span class="w">	</span><span class="s">&quot;github.com/gin-gonic/gin&quot;</span>
+<span class="w">	</span><span class="s">&quot;github.com/pquerna/otp&quot;</span>
+<span class="w">	</span><span class="s">&quot;github.com/pquerna/otp/totp&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// TOTPManager 管理 TOTP 操作</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">TOTPManager</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">Issuer</span><span class="w"> </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// GenerateSecret 生成 TOTP 密钥和二维码</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">TOTPManager</span><span class="p">)</span><span class="w"> </span><span class="nx">GenerateSecret</span><span class="p">(</span><span class="nx">email</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">otp</span><span class="p">.</span><span class="nx">Key</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">totp</span><span class="p">.</span><span class="nx">Generate</span><span class="p">(</span><span class="nx">totp</span><span class="p">.</span><span class="nx">GenerateOpts</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Issuer</span><span class="p">:</span><span class="w">      </span><span class="nx">m</span><span class="p">.</span><span class="nx">Issuer</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">AccountName</span><span class="p">:</span><span class="w"> </span><span class="nx">email</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Period</span><span class="p">:</span><span class="w">      </span><span class="mi">30</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Digits</span><span class="p">:</span><span class="w">      </span><span class="nx">otp</span><span class="p">.</span><span class="nx">DigitsSix</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Algorithm</span><span class="p">:</span><span class="w">   </span><span class="nx">otp</span><span class="p">.</span><span class="nx">AlgorithmSHA1</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="p">}</span>
+
+<span class="c1">// GenerateBackupCodes 生成一次性备用码</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">TOTPManager</span><span class="p">)</span><span class="w"> </span><span class="nx">GenerateBackupCodes</span><span class="p">(</span><span class="nx">count</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">codes</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">count</span><span class="p">)</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">count</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">b</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Read</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">codes</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">ToUpper</span><span class="p">(</span><span class="nx">hex</span><span class="p">.</span><span class="nx">EncodeToString</span><span class="p">(</span><span class="nx">b</span><span class="p">))</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">codes</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// ValidateCode 验证 TOTP 验证码</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">TOTPManager</span><span class="p">)</span><span class="w"> </span><span class="nx">ValidateCode</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span><span class="w"> </span><span class="nx">code</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">valid</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">totp</span><span class="p">.</span><span class="nx">ValidateCustom</span><span class="p">(</span><span class="nx">code</span><span class="p">,</span><span class="w"> </span><span class="nx">secret</span><span class="p">,</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">(),</span><span class="w"> </span><span class="nx">totp</span><span class="p">.</span><span class="nx">ValidateOpts</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Period</span><span class="p">:</span><span class="w">    </span><span class="mi">30</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Skew</span><span class="p">:</span><span class="w">     </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="c1">// 允许前后各 1 个时间窗口</span>
+<span class="w">		</span><span class="nx">Digits</span><span class="p">:</span><span class="w">   </span><span class="nx">otp</span><span class="p">.</span><span class="nx">DigitsSix</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Algorithm</span><span class="p">:</span><span class="w"> </span><span class="nx">otp</span><span class="p">.</span><span class="nx">AlgorithmSHA1</span><span class="p">,</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">valid</span>
+<span class="p">}</span>
+
+<span class="c1">// WriteQRCodePNG 将二维码写入 HTTP 响应</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">WriteQRCodePNG</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="o">*</span><span class="nx">otp</span><span class="p">.</span><span class="nx">Key</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">img</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">key</span><span class="p">.</span><span class="nx">Image</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;image/png&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">png</span><span class="p">.</span><span class="nx">Encode</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="nx">img</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// ---- Gin MFA 中间件与路由 ----</span>
+
+<span class="c1">// UserMFA 用户 MFA 信息（模拟数据库）</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">UserMFA</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">Secret</span><span class="w">      </span><span class="kt">string</span>
+<span class="w">	</span><span class="nx">Enabled</span><span class="w">     </span><span class="kt">bool</span>
+<span class="w">	</span><span class="nx">BackupCodes</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="nx">mfaStore</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">UserMFA</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">mu</span><span class="w">       </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
+<span class="p">)</span>
+
+<span class="c1">// RegisterMFARoutes 注册 MFA 相关路由</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">RegisterMFARoutes</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">RouterGroup</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">manager</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">TOTPManager</span><span class="p">{</span><span class="nx">Issuer</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MyApp&quot;</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 注册 MFA</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">POST</span><span class="p">(</span><span class="s">&quot;/mfa/enroll&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">userID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">GetString</span><span class="p">(</span><span class="s">&quot;user_id&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// 从认证中间件获取</span>
+
+<span class="w">		</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">manager</span><span class="p">.</span><span class="nx">GenerateSecret</span><span class="p">(</span><span class="nx">userID</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;生成密钥失败&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">backupCodes</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">manager</span><span class="p">.</span><span class="nx">GenerateBackupCodes</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">mfaStore</span><span class="p">[</span><span class="nx">userID</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">UserMFA</span><span class="p">{</span>
+<span class="w">			</span><span class="nx">Secret</span><span class="p">:</span><span class="w">      </span><span class="nx">key</span><span class="p">.</span><span class="nx">Secret</span><span class="p">(),</span>
+<span class="w">			</span><span class="nx">Enabled</span><span class="p">:</span><span class="w">     </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">BackupCodes</span><span class="p">:</span><span class="w"> </span><span class="nx">backupCodes</span><span class="p">,</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusOK</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">			</span><span class="s">&quot;qr_uri&quot;</span><span class="p">:</span><span class="w">       </span><span class="nx">key</span><span class="p">.</span><span class="nx">URL</span><span class="p">(),</span>
+<span class="w">			</span><span class="s">&quot;secret&quot;</span><span class="p">:</span><span class="w">       </span><span class="nx">key</span><span class="p">.</span><span class="nx">Secret</span><span class="p">(),</span>
+<span class="w">			</span><span class="s">&quot;backup_codes&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">backupCodes</span><span class="p">,</span>
+<span class="w">		</span><span class="p">})</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// 确认 MFA</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">POST</span><span class="p">(</span><span class="s">&quot;/mfa/confirm&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">userID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">GetString</span><span class="p">(</span><span class="s">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="kd">var</span><span class="w"> </span><span class="nx">req</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">Code</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;code&quot; binding:&quot;required&quot;`</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">ShouldBindJSON</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">req</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;缺少验证码&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">user</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">mfaStore</span><span class="p">[</span><span class="nx">userID</span><span class="p">]</span>
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">exists</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;请先注册 MFA&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">manager</span><span class="p">.</span><span class="nx">ValidateCode</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">Secret</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">Code</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;验证码错误&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">user</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusOK</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MFA 已启用 ✅&quot;</span><span class="p">})</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// 验证 MFA</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">POST</span><span class="p">(</span><span class="s">&quot;/mfa/verify&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">userID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">GetString</span><span class="p">(</span><span class="s">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="kd">var</span><span class="w"> </span><span class="nx">req</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">Code</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;code&quot; binding:&quot;required&quot;`</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">ShouldBindJSON</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">req</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;缺少验证码&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">user</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">mfaStore</span><span class="p">[</span><span class="nx">userID</span><span class="p">]</span>
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">exists</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">!</span><span class="nx">user</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MFA 未启用&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">manager</span><span class="p">.</span><span class="nx">ValidateCode</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">Secret</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">Code</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;验证码错误&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusOK</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MFA 验证通过 ✅&quot;</span><span class="p">})</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// 备用码验证</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">POST</span><span class="p">(</span><span class="s">&quot;/mfa/backup&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">userID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">GetString</span><span class="p">(</span><span class="s">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="kd">var</span><span class="w"> </span><span class="nx">req</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">BackupCode</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;backup_code&quot; binding:&quot;required&quot;`</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">ShouldBindJSON</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">req</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;缺少备用码&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">		</span><span class="k">defer</span><span class="w"> </span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+<span class="w">		</span><span class="nx">user</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">mfaStore</span><span class="p">[</span><span class="nx">userID</span><span class="p">]</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">exists</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">!</span><span class="nx">user</span><span class="p">.</span><span class="nx">Enabled</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MFA 未启用&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">code</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">ToUpper</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">BackupCode</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">found</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">bc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">user</span><span class="p">.</span><span class="nx">BackupCodes</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">bc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">code</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">found</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">i</span>
+<span class="w">				</span><span class="k">break</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">found</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnauthorized</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;备用码无效&quot;</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="c1">// 删除已使用的备用码</span>
+<span class="w">		</span><span class="nx">user</span><span class="p">.</span><span class="nx">BackupCodes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span>
+<span class="w">			</span><span class="nx">user</span><span class="p">.</span><span class="nx">BackupCodes</span><span class="p">[:</span><span class="nx">found</span><span class="p">],</span><span class="w"> </span><span class="nx">user</span><span class="p">.</span><span class="nx">BackupCodes</span><span class="p">[</span><span class="nx">found</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">...</span><span class="p">)</span>
+
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">JSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusOK</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">			</span><span class="s">&quot;message&quot;</span><span class="p">:</span><span class="w">                </span><span class="s">&quot;备用码验证通过 ✅&quot;</span><span class="p">,</span>
+<span class="w">			</span><span class="s">&quot;remaining_backup_codes&quot;</span><span class="p">:</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">BackupCodes</span><span class="p">),</span>
+<span class="w">		</span><span class="p">})</span>
+<span class="w">	</span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="c1">// MFARequiredMiddleware Gin 中间件：要求已完成 MFA 验证</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">MFARequiredMiddleware</span><span class="p">()</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">HandlerFunc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">mfaVerified</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="s">&quot;mfa_verified&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">exists</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">mfaVerified</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">c</span><span class="p">.</span><span class="nx">AbortWithStatusJSON</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusForbidden</span><span class="p">,</span><span class="w"> </span><span class="nx">gin</span><span class="p">.</span><span class="nx">H</span><span class="p">{</span>
+<span class="w">				</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;需要完成 MFA 验证&quot;</span><span class="p">,</span>
+<span class="w">			</span><span class="p">})</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">c</span><span class="p">.</span><span class="nx">Next</span><span class="p">()</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="fido2-webauthn">
+<h2>10.4 FIDO2/WebAuthn — 无密码认证<a class="headerlink" href="#fido2-webauthn" title="Link to this heading"></a></h2>
+<p>FIDO2 是下一代认证标准，由 W3C WebAuthn 和 FIDO CTAP 组成：</p>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph FIDO2
+        direction LR
+        WA[WebAuthn&lt;br/&gt;浏览器 API&lt;br/&gt;W3C 标准]
+        CTAP[CTAP&lt;br/&gt;客户端到认证器协议&lt;br/&gt;FIDO Alliance 标准]
+    end
+    </pre><section id="id9">
+<h3>注册流程<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant U as 用户
+    participant B as 浏览器
+    participant S as 服务器 (Relying Party)
+
+    B-&gt;&gt;S: 1. 请求注册
+    S-&gt;&gt;B: 2. 返回挑战 (challenge + user info)
+    B-&gt;&gt;U: 3. 提示用户验证身份
+    U-&gt;&gt;B: 4. 生物识别或 PIN
+    B-&gt;&gt;B: 5. 创建密钥对
+    B-&gt;&gt;S: 6. 发送公钥 + 签名
+    S-&gt;&gt;S: 7. 验证并存储公钥
+    S-&gt;&gt;B: 8. 注册成功 ✅
+    </pre></section>
+<section id="passkey">
+<h3>Passkey<a class="headerlink" href="#passkey" title="Link to this heading"></a></h3>
+<p>Passkey 是 FIDO2 的消费者友好版本：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特性</p></th>
+<th class="head"><p>传统密码</p></th>
+<th class="head"><p>TOTP</p></th>
+<th class="head"><p>Passkey</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>防钓鱼</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>防重放</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p>用户体验</p></td>
+<td><p>差</p></td>
+<td><p>中等</p></td>
+<td><p>优秀</p></td>
+</tr>
+<tr class="row-odd"><td><p>跨设备</p></td>
+<td><p>✅</p></td>
+<td><p>需同步</p></td>
+<td><p>✅（云同步）</p></td>
+</tr>
+<tr class="row-even"><td><p>无密码</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id10">
+<h2>10.5 MFA 方式对比<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>方式</p></th>
+<th class="head"><p>安全性</p></th>
+<th class="head"><p>防钓鱼</p></th>
+<th class="head"><p>用户体验</p></th>
+<th class="head"><p>部署成本</p></th>
+<th class="head"><p>离线可用</p></th>
+<th class="head"><p>适用场景</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>TOTP</strong></p></td>
+<td><p>⭐⭐⭐</p></td>
+<td><p>❌</p></td>
+<td><p>中等</p></td>
+<td><p>低</p></td>
+<td><p>✅</p></td>
+<td><p>通用，最广泛</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>SMS 验证码</strong></p></td>
+<td><p>⭐⭐</p></td>
+<td><p>❌</p></td>
+<td><p>好</p></td>
+<td><p>中</p></td>
+<td><p>❌</p></td>
+<td><p>消费者应用（不推荐高安全场景）</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>推送通知</strong></p></td>
+<td><p>⭐⭐⭐</p></td>
+<td><p>❌</p></td>
+<td><p>优秀</p></td>
+<td><p>中</p></td>
+<td><p>❌</p></td>
+<td><p>企业应用（需防 MFA 疲劳）</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>WebAuthn/Passkey</strong></p></td>
+<td><p>⭐⭐⭐⭐⭐</p></td>
+<td><p>✅</p></td>
+<td><p>优秀</p></td>
+<td><p>中</p></td>
+<td><p>✅</p></td>
+<td><p>高安全场景，未来趋势</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>硬件密钥 (YubiKey)</strong></p></td>
+<td><p>⭐⭐⭐⭐⭐</p></td>
+<td><p>✅</p></td>
+<td><p>中等</p></td>
+<td><p>高</p></td>
+<td><p>✅</p></td>
+<td><p>高价值目标（管理员、金融）</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型建议</strong>：</p>
+<ul class="simple">
+<li><p><strong>消费者应用</strong>：TOTP 为主，逐步迁移到 Passkey</p></li>
+<li><p><strong>企业内部</strong>：推送通知 + 号码匹配，或 WebAuthn</p></li>
+<li><p><strong>高安全场景</strong>（管理员、金融）：硬件密钥（YubiKey）必选</p></li>
+<li><p><strong>避免使用 SMS</strong>：SIM 卡劫持（SIM Swapping）风险高</p></li>
+</ul>
+</section>
+<section id="id11">
+<h2>10.6 MFA 疲劳攻击与防御<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<p>MFA 疲劳攻击（MFA Fatigue / MFA Bombing）：攻击者反复触发 MFA 推送通知，直到用户烦躁地点击”批准”。</p>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant A as 攻击者
+    participant S as 服务器
+    participant U as 用户手机
+
+    A-&gt;&gt;S: 1. 用泄露的密码尝试登录
+    S-&gt;&gt;U: 推送 MFA 通知 #1
+    U-&gt;&gt;U: 用户拒绝 ❌
+    A-&gt;&gt;S: 2. 再次尝试登录
+    S-&gt;&gt;U: 推送 MFA 通知 #2
+    U-&gt;&gt;U: 用户拒绝 ❌
+    A-&gt;&gt;S: 3. 反复尝试...
+    S-&gt;&gt;U: 推送 MFA 通知 #N
+    Note over U: 用户疲劳，误点&quot;批准&quot;
+    U-&gt;&gt;S: 批准 ✅
+    S-&gt;&gt;A: 登录成功 → 攻击得手 💀
+    </pre><p><strong>防御措施</strong>：</p>
+<ul class="simple">
+<li><p>✅ 使用号码匹配（Number Matching）：用户必须输入屏幕上显示的数字</p></li>
+<li><p>✅ 限制推送频率</p></li>
+<li><p>✅ 显示登录上下文（IP、位置、设备）</p></li>
+<li><p>✅ 使用 FIDO2 替代推送通知</p></li>
+<li><p>✅ 异常检测：短时间内多次 MFA 请求告警</p></li>
+</ul>
+</section>
+<section id="id12">
+<h2>10.7 自适应认证<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<p>根据风险等级动态调整认证强度：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RiskLevel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">LOW</span> <span class="o">=</span> <span class="s2">&quot;low&quot;</span>
+    <span class="n">MEDIUM</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span>
+    <span class="n">HIGH</span> <span class="o">=</span> <span class="s2">&quot;high&quot;</span>
+    <span class="n">CRITICAL</span> <span class="o">=</span> <span class="s2">&quot;critical&quot;</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoginContext</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">device_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">location</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">user_agent</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">assess_risk</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">LoginContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RiskLevel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;评估登录风险&quot;&quot;&quot;</span>
+    <span class="n">risk_score</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># 检查 IP 是否已知</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_known_ip</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">ip_address</span><span class="p">):</span>
+        <span class="n">risk_score</span> <span class="o">+=</span> <span class="mf">0.3</span>
+
+    <span class="c1"># 检查设备是否已知</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_known_device</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">device_id</span><span class="p">):</span>
+        <span class="n">risk_score</span> <span class="o">+=</span> <span class="mf">0.3</span>
+
+    <span class="c1"># 检查地理位置异常（不可能旅行）</span>
+    <span class="k">if</span> <span class="n">is_impossible_travel</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">timestamp</span><span class="p">):</span>
+        <span class="n">risk_score</span> <span class="o">+=</span> <span class="mf">0.4</span>
+
+    <span class="c1"># 检查是否在异常时间</span>
+    <span class="k">if</span> <span class="n">is_unusual_time</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">timestamp</span><span class="p">):</span>
+        <span class="n">risk_score</span> <span class="o">+=</span> <span class="mf">0.1</span>
+
+    <span class="k">if</span> <span class="n">risk_score</span> <span class="o">&lt;</span> <span class="mf">0.2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RiskLevel</span><span class="o">.</span><span class="n">LOW</span>
+    <span class="k">elif</span> <span class="n">risk_score</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RiskLevel</span><span class="o">.</span><span class="n">MEDIUM</span>
+    <span class="k">elif</span> <span class="n">risk_score</span> <span class="o">&lt;</span> <span class="mf">0.8</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RiskLevel</span><span class="o">.</span><span class="n">HIGH</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RiskLevel</span><span class="o">.</span><span class="n">CRITICAL</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_required_auth</span><span class="p">(</span><span class="n">risk</span><span class="p">:</span> <span class="n">RiskLevel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;根据风险等级决定认证要求&quot;&quot;&quot;</span>
+    <span class="n">requirements</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">RiskLevel</span><span class="o">.</span><span class="n">LOW</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
+        <span class="n">RiskLevel</span><span class="o">.</span><span class="n">MEDIUM</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="s2">&quot;totp&quot;</span><span class="p">],</span>
+        <span class="n">RiskLevel</span><span class="o">.</span><span class="n">HIGH</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="s2">&quot;totp&quot;</span><span class="p">,</span> <span class="s2">&quot;email_verification&quot;</span><span class="p">],</span>
+        <span class="n">RiskLevel</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="s2">&quot;fido2&quot;</span><span class="p">,</span> <span class="s2">&quot;admin_approval&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">requirements</span><span class="p">[</span><span class="n">risk</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id13">
+<h2>10.8 MFA 用户体验最佳实践<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
+<section id="id14">
+<h3>注册引导<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>渐进式引导</strong>：不要在注册时强制启用 MFA，在首次登录后温和提示</p></li>
+<li><p><strong>清晰的说明</strong>：用截图或动画演示如何使用认证器 App</p></li>
+<li><p><strong>多种选择</strong>：提供 TOTP、推送、硬件密钥等多种方式</p></li>
+<li><p><strong>备用码提醒</strong>：强调保存备用码的重要性，提供下载/打印选项</p></li>
+</ol>
+</section>
+<section id="id15">
+<h3>日常使用<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>场景</p></th>
+<th class="head"><p>推荐做法</p></th>
+<th class="head"><p>避免</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>已知设备</p></td>
+<td><p>记住设备 30 天</p></td>
+<td><p>每次都要求 MFA</p></td>
+</tr>
+<tr class="row-odd"><td><p>敏感操作</p></td>
+<td><p>即使已登录也要求 MFA</p></td>
+<td><p>仅在登录时验证</p></td>
+</tr>
+<tr class="row-even"><td><p>丢失设备</p></td>
+<td><p>备用码 → 客服重置流程</p></td>
+<td><p>无恢复途径</p></td>
+</tr>
+<tr class="row-odd"><td><p>新设备</p></td>
+<td><p>必须 MFA + 邮件通知</p></td>
+<td><p>静默放行</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id16">
+<h3>恢复流程<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        flowchart TD
+    A[用户无法完成 MFA] --&gt; B{有备用码?}
+    B --&gt;|是| C[使用备用码登录]
+    C --&gt; D[提示重新绑定认证器]
+    B --&gt;|否| E{有备用邮箱/手机?}
+    E --&gt;|是| F[通过备用渠道验证身份]
+    F --&gt; G[临时禁用 MFA]
+    G --&gt; D
+    E --&gt;|否| H[联系客服]
+    H --&gt; I[人工身份验证&lt;br/&gt;身份证/视频通话]
+    I --&gt; J[管理员重置 MFA]
+    J --&gt; D
+    </pre></section>
+</section>
+<section id="id17">
+<h2>10.9 小结<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>MFA</strong> 通过组合多种认证因素大幅提升安全性</p></li>
+<li><p><strong>Argon2id</strong> 是密码哈希的现代首选</p></li>
+<li><p><strong>TOTP</strong> 是最普及的 MFA 方式，但无法防钓鱼</p></li>
+<li><p><strong>FIDO2/Passkey</strong> 是无密码认证的未来，天然防钓鱼</p></li>
+<li><p><strong>自适应认证</strong> 根据风险动态调整认证强度，平衡安全与体验</p></li>
+<li><p>警惕 <strong>MFA 疲劳攻击</strong>，使用号码匹配等防御措施</p></li>
+<li><p>选择 MFA 方式时需综合考虑安全性、用户体验和部署成本</p></li>
+<li><p>完善的 <strong>恢复流程</strong> 与 MFA 本身同样重要</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch09.html" class="btn btn-neutral float-left" title="第九章：JWT 深入解析" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch11.html" class="btn btn-neutral float-right" title="第十一章：单点登录（SSO）与联邦身份" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

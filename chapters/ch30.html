@@ -1,0 +1,2210 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第三十章：安全工程的未来 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch30.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="附录：专题笔记" href="../appendix/index.html" />
+    <link rel="prev" title="第二十九章：DevSecOps — 安全左移" href="ch29.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第三十章：安全工程的未来</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">30.1 安全工程演进时间线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">30.2 无密码认证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#did-vc-ssi">30.3 去中心化身份（DID/VC/SSI）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">核心概念</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ai">30.4 AI 与安全</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">AI 增强安全</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">AI 驱动安全运营架构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#llm">LLM 安全挑战</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-ai-api">Python 示例：AI 异常检测 — API 调用模式异常检测</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#java-pipeline">Java 示例：安全事件流处理 — 异常检测 Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#go">Go 示例：安全事件聚合器 — 多源告警去重与评分</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">30.5 后量子密码学</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">后量子密码算法对比</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">后量子密码迁移路线图</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#crypto-agility">Crypto Agility（密码敏捷性）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-kyber-kem">Python 示例：后量子密码 — Kyber KEM 密钥封装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#java-bouncy-castle-kyber-kem">Java 示例：Bouncy Castle 后量子密码 — Kyber KEM 密钥封装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#go-http-webhook-ip">Go 示例：自动化安全响应 — HTTP Webhook 接收告警并自动封禁 IP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">30.6 隐私增强技术</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">30.7 供应链安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">30.8 安全工程师学习路线图</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id13">30.9 安全工程师 2026 技能清单</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id14">30.10 推荐学习资源</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id15">书籍</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">在线课程与认证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">在线资源与社区</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id18">30.11 给安全工程师的建议</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id19">30.12 小结</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第三十章：安全工程的未来</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch30.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>第三十章：安全工程的未来<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“未来已来，只是分布不均。安全工程的未来，就在我们今天的选择中。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((安全的未来))
+    无密码认证
+      Passkey
+      FIDO2
+      生物识别
+    去中心化身份
+      DID
+      VC
+      SSI
+    AI 与安全
+      威胁检测
+      代码审查
+      LLM 安全
+    后量子密码
+      CRYSTALS-Kyber
+      Dilithium
+      Crypto Agility
+    隐私增强
+      同态加密
+      MPC
+      ZKP
+    供应链安全
+      SLSA
+      Sigstore
+      SBOM
+    </pre><section id="id2">
+<h2>30.1 安全工程演进时间线<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<pre  class="mermaid">
+        flowchart LR
+    A[&quot;🔒 2020&lt;br/&gt;零信任兴起&lt;br/&gt;SolarWinds 事件&quot;] --&gt; B[&quot;🛡️ 2021&lt;br/&gt;Log4Shell&lt;br/&gt;供应链安全觉醒&quot;]
+    B --&gt; C[&quot;🔑 2022-2023&lt;br/&gt;Passkey 标准化&lt;br/&gt;FIDO2 普及&quot;]
+    C --&gt; D[&quot;🤖 2024&lt;br/&gt;AI 安全运营&lt;br/&gt;LLM 安全挑战&quot;]
+    D --&gt; E[&quot;🧬 2025&lt;br/&gt;后量子密码&lt;br/&gt;NIST PQC 标准发布&quot;]
+    E --&gt; F[&quot;🚀 2026+&lt;br/&gt;自主安全运营&lt;br/&gt;密码敏捷性落地&quot;]
+
+    style A fill:#e74c3c,color:#fff
+    style B fill:#e67e22,color:#fff
+    style C fill:#f1c40f,color:#333
+    style D fill:#2ecc71,color:#fff
+    style E fill:#3498db,color:#fff
+    style F fill:#9b59b6,color:#fff
+    </pre></section>
+<section id="id3">
+<h2>30.2 无密码认证<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>Passkey（基于 FIDO2/WebAuthn）正在成为主流：</p>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph timeline[&quot;2023-2025 Passkey 采用时间线&quot;]
+        direction TB
+        AP[&quot;🍎 Apple&lt;br/&gt;iCloud Keychain 同步 Passkey&quot;]
+        GO[&quot;🟢 Google&lt;br/&gt;Chrome + Android 原生支持&quot;]
+        MS[&quot;🟦 Microsoft&lt;br/&gt;Windows Hello + Edge 支持&quot;]
+        GH[&quot;🐙 GitHub&lt;br/&gt;支持 Passkey 登录&quot;]
+        BK[&quot;🏦 各大银行&lt;br/&gt;逐步采用&quot;]
+        EN[&quot;🏢 企业&lt;br/&gt;Okta/Auth0 提供 Passkey 集成&quot;]
+    end
+
+    subgraph advantages[&quot;Passkey 的优势&quot;]
+        direction TB
+        V1[&quot;✅ 防钓鱼 — 绑定域名&quot;]
+        V2[&quot;✅ 防重放 — 挑战-响应&quot;]
+        V3[&quot;✅ 无密码泄露风险&quot;]
+        V4[&quot;✅ 跨设备同步&quot;]
+        V5[&quot;✅ 用户体验优秀 — 指纹/面部识别&quot;]
+    end
+
+    timeline --&gt; advantages
+    </pre></section>
+<section id="did-vc-ssi">
+<h2>30.3 去中心化身份（DID/VC/SSI）<a class="headerlink" href="#did-vc-ssi" title="Link to this heading"></a></h2>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph traditional[&quot;传统身份模型&quot;]
+        direction LR
+        U1[&quot;👤 用户&quot;] --&gt;|&quot;依赖&quot;| IDP[&quot;🏢 中心化 IdP&lt;br/&gt;Google / Okta&lt;br/&gt;控制你的身份&quot;]
+        IDP --&gt;|&quot;断言&quot;| SP1[&quot;🌐 服务提供者&quot;]
+    end
+
+    subgraph decentralized[&quot;去中心化身份模型&quot;]
+        direction LR
+        ISS[&quot;🏛️ 签发者&lt;br/&gt;Issuer&lt;br/&gt;大学/政府&quot;] --&gt;|&quot;签发 VC&quot;| HOL[&quot;👤 持有者&lt;br/&gt;Holder&lt;br/&gt;用户自己&quot;]
+        HOL --&gt;|&quot;出示 VP&quot;| VER[&quot;🔍 验证者&lt;br/&gt;Verifier&lt;br/&gt;雇主/银行&quot;]
+        HOL --&gt;|&quot;完全控制&quot;| CTRL[&quot;🔐 用户自主控制&lt;br/&gt;身份数据&lt;br/&gt;选择性披露&quot;]
+    end
+
+    traditional -.-&gt;|&quot;演进&quot;| decentralized
+
+    style traditional fill:#ffebee
+    style decentralized fill:#e8f5e9
+    </pre><section id="id4">
+<h3>核心概念<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>概念</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>DID</p></td>
+<td><p>去中心化标识符，用户自主创建</p></td>
+</tr>
+<tr class="row-odd"><td><p>VC</p></td>
+<td><p>可验证凭证，数字化的证书/证明</p></td>
+</tr>
+<tr class="row-even"><td><p>VP</p></td>
+<td><p>可验证展示，选择性披露 VC 中的信息</p></td>
+</tr>
+<tr class="row-odd"><td><p>SSI</p></td>
+<td><p>自主主权身份，用户控制自己的身份</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="ai">
+<h2>30.4 AI 与安全<a class="headerlink" href="#ai" title="Link to this heading"></a></h2>
+<section id="id5">
+<h3>AI 增强安全<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>应用</p></th>
+<th class="head"><p>描述</p></th>
+<th class="head"><p>工具</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>威胁检测</p></td>
+<td><p>AI 分析日志，发现异常行为</p></td>
+<td><p>SIEM + ML</p></td>
+</tr>
+<tr class="row-odd"><td><p>代码审查</p></td>
+<td><p>AI 发现代码中的安全漏洞</p></td>
+<td><p>GitHub Copilot、CodeQL</p></td>
+</tr>
+<tr class="row-even"><td><p>漏洞修复</p></td>
+<td><p>AI 自动生成修复补丁</p></td>
+<td><p>Snyk AI Fix</p></td>
+</tr>
+<tr class="row-odd"><td><p>钓鱼检测</p></td>
+<td><p>AI 识别钓鱼邮件和网站</p></td>
+<td><p>邮件安全网关</p></td>
+</tr>
+<tr class="row-even"><td><p>身份验证</p></td>
+<td><p>AI 行为分析，自适应认证</p></td>
+<td><p>风险引擎</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id6">
+<h3>AI 驱动安全运营架构<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph sources[&quot;数据源&quot;]
+        direction TB
+        S1[&quot;📋 应用日志&quot;]
+        S2[&quot;🌐 网络流量&quot;]
+        S3[&quot;🔍 EDR 终端检测&quot;]
+        S4[&quot;☁️ 云审计日志&quot;]
+        S5[&quot;🔑 IAM 事件&quot;]
+    end
+
+    subgraph pipeline[&quot;AI 安全分析管线&quot;]
+        direction TB
+        COLLECT[&quot;📥 数据采集与归一化&quot;]
+        ENRICH[&quot;🏷️ 上下文富化&lt;br/&gt;威胁情报 / 资产信息&quot;]
+        ML[&quot;🤖 ML 检测引擎&quot;]
+        ML1[&quot;异常检测&lt;br/&gt;Isolation Forest&quot;]
+        ML2[&quot;行为分析&lt;br/&gt;UEBA&quot;]
+        ML3[&quot;威胁分类&lt;br/&gt;NLP + LLM&quot;]
+    end
+
+    subgraph response[&quot;自动化响应&quot;]
+        direction TB
+        R1[&quot;🚨 告警分级&lt;br/&gt;Critical / High / Medium / Low&quot;]
+        R2[&quot;🤖 自动处置&lt;br/&gt;封禁 IP / 隔离主机&quot;]
+        R3[&quot;📋 工单创建&lt;br/&gt;SOAR 编排&quot;]
+        R4[&quot;👤 人工审核&lt;br/&gt;高风险事件&quot;]
+    end
+
+    sources --&gt; COLLECT
+    COLLECT --&gt; ENRICH
+    ENRICH --&gt; ML
+    ML --&gt; ML1 &amp; ML2 &amp; ML3
+    ML1 &amp; ML2 &amp; ML3 --&gt; R1
+    R1 --&gt; R2 &amp; R3 &amp; R4
+
+    style sources fill:#e3f2fd
+    style pipeline fill:#fff3e0
+    style response fill:#fce4ec
+    </pre></section>
+<section id="llm">
+<h3>LLM 安全挑战<a class="headerlink" href="#llm" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph threats[&quot;LLM 特有的安全威胁&quot;]
+        T1[&quot;💉 Prompt Injection&lt;br/&gt;攻击者通过精心构造的输入操纵 LLM 行为&quot;]
+        T2[&quot;☠️ Data Poisoning&lt;br/&gt;污染训练数据，影响模型输出&quot;]
+        T3[&quot;🕵️ Model Extraction&lt;br/&gt;通过大量查询窃取模型参数&quot;]
+        T4[&quot;🔓 Sensitive Data Exposure&lt;br/&gt;LLM 泄露训练数据中的敏感信息&quot;]
+        T5[&quot;⚠️ Insecure Output Handling&lt;br/&gt;直接执行 LLM 输出导致注入攻击&quot;]
+    end
+
+    subgraph defenses[&quot;防御措施&quot;]
+        D1[&quot;✅ 输入过滤和验证&quot;]
+        D2[&quot;✅ 输出审查和沙箱&quot;]
+        D3[&quot;✅ 最小权限 — LLM 不应有过多系统权限&quot;]
+        D4[&quot;✅ 人工审核关键操作&quot;]
+        D5[&quot;✅ 监控和审计 LLM 交互&quot;]
+    end
+
+    threats --&gt; defenses
+
+    style threats fill:#ffebee
+    style defenses fill:#e8f5e9
+    </pre></section>
+<section id="python-ai-api">
+<h3>Python 示例：AI 异常检测 — API 调用模式异常检测<a class="headerlink" href="#python-ai-api" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">AI 异常检测：使用 Isolation Forest 检测 API 调用模式异常</span>
+<span class="sd">适用于安全运营中心 (SOC) 的实时流量分析</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsolationForest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ApiCallFeature</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;API 调用特征向量&quot;&quot;&quot;</span>
+    <span class="n">requests_per_minute</span><span class="p">:</span> <span class="nb">float</span>    <span class="c1"># 每分钟请求数</span>
+    <span class="n">unique_endpoints</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># 访问的不同端点数</span>
+    <span class="n">error_rate</span><span class="p">:</span> <span class="nb">float</span>             <span class="c1"># 错误率 (4xx/5xx)</span>
+    <span class="n">avg_payload_size</span><span class="p">:</span> <span class="nb">float</span>       <span class="c1"># 平均请求体大小 (KB)</span>
+    <span class="n">geo_distance</span><span class="p">:</span> <span class="nb">float</span>           <span class="c1"># 与常用地理位置的距离 (km)</span>
+    <span class="n">off_hours_flag</span><span class="p">:</span> <span class="nb">int</span>           <span class="c1"># 是否在非工作时间 (0/1)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_anomaly_detector</span><span class="p">(</span><span class="n">training_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                           <span class="n">contamination</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IsolationForest</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    训练 Isolation Forest 异常检测模型</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        training_data: 历史正常 API 调用特征矩阵, shape=(n_samples, 6)</span>
+<span class="sd">        contamination: 预期异常比例, 默认 5%</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        训练好的 IsolationForest 模型</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">IsolationForest</span><span class="p">(</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">contamination</span><span class="o">=</span><span class="n">contamination</span><span class="p">,</span>
+        <span class="n">max_samples</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_anomalies</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">IsolationForest</span><span class="p">,</span>
+                     <span class="n">live_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    对实时 API 调用数据进行异常检测</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        异常记录列表, 包含异常分数和标签</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># predict: 1 = 正常, -1 = 异常</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">live_data</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">live_data</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">scores</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">pred</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+                <span class="s2">&quot;anomaly_score&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span>
+                <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;CRITICAL&quot;</span> <span class="k">if</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">0.3</span> <span class="k">else</span> <span class="s2">&quot;HIGH&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">live_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">})</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+
+<span class="c1"># ---- 使用示例 ----</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># 模拟正常流量训练数据 (1000 条)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">normal_traffic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>    <span class="c1"># ~30 req/min</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>    <span class="c1"># 3-15 个端点</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>  <span class="c1"># 1%-5% 错误率</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>  <span class="c1"># ~2KB payload</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>    <span class="c1"># 0-50km 地理距离</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">])</span>  <span class="c1"># 15% 非工作时间</span>
+    <span class="p">])</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">build_anomaly_detector</span><span class="p">(</span><span class="n">normal_traffic</span><span class="p">)</span>
+
+    <span class="c1"># 模拟实时流量 (含异常)</span>
+    <span class="n">live_traffic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>     <span class="c1"># 正常</span>
+        <span class="p">[</span><span class="mi">500</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="c1"># 🚨 异常: 高频、多端点、高错误率、远距离</span>
+        <span class="p">[</span><span class="mi">28</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>      <span class="c1"># 正常</span>
+        <span class="p">[</span><span class="mi">300</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>   <span class="c1"># 🚨 异常: 暴力破解特征</span>
+    <span class="p">])</span>
+
+    <span class="n">anomalies</span> <span class="o">=</span> <span class="n">detect_anomalies</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">live_traffic</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">anomalies</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🚨 异常检测 [</span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="s1">&#39;severity&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">] index=</span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;score=</span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="s1">&#39;anomaly_score&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="java-pipeline">
+<h3>Java 示例：安全事件流处理 — 异常检测 Pipeline<a class="headerlink" href="#java-pipeline" title="Link to this heading"></a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.time.Instant</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.*</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.concurrent.*</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.stream.Collectors</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * 安全事件流处理 Pipeline</span>
+<span class="cm"> * 实时接收安全事件，进行窗口聚合、异常评分和告警</span>
+<span class="cm"> */</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SecurityEventPipeline</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">record</span> <span class="nc">SecurityEvent</span><span class="p">(</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">sourceIp</span><span class="p">,</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">eventType</span><span class="p">,</span><span class="w">   </span><span class="c1">// LOGIN_FAILURE, PORT_SCAN, MALWARE_DETECTED, etc.</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">targetAsset</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">severity</span><span class="p">,</span><span class="w">        </span><span class="c1">// 1-10</span>
+<span class="w">        </span><span class="n">Instant</span><span class="w"> </span><span class="n">timestamp</span><span class="p">,</span>
+<span class="w">        </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">metadata</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">record</span> <span class="nc">AnomalyAlert</span><span class="p">(</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">sourceIp</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">riskScore</span><span class="p">,</span>
+<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SecurityEvent</span><span class="o">&gt;</span><span class="w"> </span><span class="n">correlatedEvents</span><span class="p">,</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">alertLevel</span><span class="p">,</span><span class="w">   </span><span class="c1">// CRITICAL, HIGH, MEDIUM, LOW</span>
+<span class="w">        </span><span class="n">Instant</span><span class="w"> </span><span class="n">detectedAt</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="w">    </span><span class="cm">/** 滑动窗口内的事件聚合器 */</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">ConcurrentHashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SecurityEvent</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">eventWindow</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">ConcurrentHashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/** 事件类型权重 */</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">EVENT_WEIGHTS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;LOGIN_FAILURE&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;PORT_SCAN&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;MALWARE_DETECTED&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;PRIVILEGE_ESCALATION&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;DATA_EXFILTRATION&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">9.0</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;BRUTE_FORCE&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span>
+<span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">WINDOW_DURATION_MS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"> </span><span class="c1">// 5 分钟窗口</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 接收安全事件并进行实时分析</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">AnomalyAlert</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">ingestEvent</span><span class="p">(</span><span class="n">SecurityEvent</span><span class="w"> </span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 按源 IP 聚合事件</span>
+<span class="w">        </span><span class="n">eventWindow</span><span class="p">.</span><span class="na">computeIfAbsent</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="na">sourceIp</span><span class="p">(),</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CopyOnWriteArrayList</span><span class="o">&lt;&gt;</span><span class="p">())</span>
+<span class="w">                   </span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 清理过期事件</span>
+<span class="w">        </span><span class="n">evictExpiredEvents</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="na">sourceIp</span><span class="p">());</span>
+
+<span class="w">        </span><span class="c1">// 计算风险分数</span>
+<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SecurityEvent</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ipEvents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eventWindow</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="na">sourceIp</span><span class="p">());</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">riskScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculateRiskScore</span><span class="p">(</span><span class="n">ipEvents</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 超过阈值则生成告警</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">riskScore</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">15.0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">String</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">riskScore</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;CRITICAL&quot;</span>
+<span class="w">                         </span><span class="p">:</span><span class="w"> </span><span class="n">riskScore</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;HIGH&quot;</span>
+<span class="w">                         </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MEDIUM&quot;</span><span class="p">;</span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Optional</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AnomalyAlert</span><span class="p">(</span>
+<span class="w">                </span><span class="n">event</span><span class="p">.</span><span class="na">sourceIp</span><span class="p">(),</span>
+<span class="w">                </span><span class="n">riskScore</span><span class="p">,</span>
+<span class="w">                </span><span class="n">List</span><span class="p">.</span><span class="na">copyOf</span><span class="p">(</span><span class="n">ipEvents</span><span class="p">),</span>
+<span class="w">                </span><span class="n">level</span><span class="p">,</span>
+<span class="w">                </span><span class="n">Instant</span><span class="p">.</span><span class="na">now</span><span class="p">()</span>
+<span class="w">            </span><span class="p">));</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Optional</span><span class="p">.</span><span class="na">empty</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">calculateRiskScore</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">SecurityEvent</span><span class="o">&gt;</span><span class="w"> </span><span class="n">events</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">uniqueTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashSet</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">SecurityEvent</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">events</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EVENT_WEIGHTS</span><span class="p">.</span><span class="na">getOrDefault</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">eventType</span><span class="p">(),</span><span class="w"> </span><span class="mf">1.0</span><span class="p">);</span>
+<span class="w">            </span><span class="n">score</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="na">severity</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">weight</span><span class="p">;</span>
+<span class="w">            </span><span class="n">uniqueTypes</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">eventType</span><span class="p">());</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 多类型事件关联加成 (攻击链指标)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uniqueTypes</span><span class="p">.</span><span class="na">size</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">score</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mf">1.5</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// 高频加成</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="p">.</span><span class="na">size</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">score</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mf">1.3</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="na">round</span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">100.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">100.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">evictExpiredEvents</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">sourceIp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SecurityEvent</span><span class="o">&gt;</span><span class="w"> </span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eventWindow</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">sourceIp</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Instant</span><span class="w"> </span><span class="n">cutoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Instant</span><span class="p">.</span><span class="na">now</span><span class="p">().</span><span class="na">minusMillis</span><span class="p">(</span><span class="n">WINDOW_DURATION_MS</span><span class="p">);</span>
+<span class="w">        </span><span class="n">events</span><span class="p">.</span><span class="na">removeIf</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="na">timestamp</span><span class="p">().</span><span class="na">isBefore</span><span class="p">(</span><span class="n">cutoff</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// ---- 使用示例 ----</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="n">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SecurityEventPipeline</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 模拟攻击序列: 端口扫描 → 暴力破解 → 提权</span>
+<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">SecurityEvent</span><span class="o">&gt;</span><span class="w"> </span><span class="n">attackSequence</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span>
+<span class="w">            </span><span class="k">new</span><span class="w"> </span><span class="n">SecurityEvent</span><span class="p">(</span><span class="s">&quot;10.0.0.99&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PORT_SCAN&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;web-server-01&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">Instant</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;ports&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;22,80,443,3306,8080&quot;</span><span class="p">)),</span>
+<span class="w">            </span><span class="k">new</span><span class="w"> </span><span class="n">SecurityEvent</span><span class="p">(</span><span class="s">&quot;10.0.0.99&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;BRUTE_FORCE&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;web-server-01&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">Instant</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;attempts&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;150&quot;</span><span class="p">)),</span>
+<span class="w">            </span><span class="k">new</span><span class="w"> </span><span class="n">SecurityEvent</span><span class="p">(</span><span class="s">&quot;10.0.0.99&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;LOGIN_FAILURE&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;web-server-01&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">Instant</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;admin&quot;</span><span class="p">)),</span>
+<span class="w">            </span><span class="k">new</span><span class="w"> </span><span class="n">SecurityEvent</span><span class="p">(</span><span class="s">&quot;10.0.0.99&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PRIVILEGE_ESCALATION&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;web-server-01&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">Instant</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;from&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;www-data&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;to&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;root&quot;</span><span class="p">))</span>
+<span class="w">        </span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">SecurityEvent</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">attackSequence</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">pipeline</span><span class="p">.</span><span class="na">ingestEvent</span><span class="p">(</span><span class="n">event</span><span class="p">).</span><span class="na">ifPresent</span><span class="p">(</span><span class="n">alert</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">                </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;🚨 [%s] IP=%s risk=%.1f events=%d%n&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">alert</span><span class="p">.</span><span class="na">alertLevel</span><span class="p">(),</span><span class="w"> </span><span class="n">alert</span><span class="p">.</span><span class="na">sourceIp</span><span class="p">(),</span>
+<span class="w">                    </span><span class="n">alert</span><span class="p">.</span><span class="na">riskScore</span><span class="p">(),</span><span class="w"> </span><span class="n">alert</span><span class="p">.</span><span class="na">correlatedEvents</span><span class="p">().</span><span class="na">size</span><span class="p">())</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="go">
+<h3>Go 示例：安全事件聚合器 — 多源告警去重与评分<a class="headerlink" href="#go" title="Link to this heading"></a></h3>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;crypto/sha256&quot;</span>
+<span class="w">	</span><span class="s">&quot;encoding/json&quot;</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;log&quot;</span>
+<span class="w">	</span><span class="s">&quot;net/http&quot;</span>
+<span class="w">	</span><span class="s">&quot;sync&quot;</span>
+<span class="w">	</span><span class="s">&quot;time&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// SecurityAlert 表示来自不同安全工具的告警</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">SecurityAlert</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">Source</span><span class="w">      </span><span class="kt">string</span><span class="w">            </span><span class="s">`json:&quot;source&quot;`</span><span class="w">       </span><span class="c1">// 来源: &quot;waf&quot;, &quot;ids&quot;, &quot;edr&quot;, &quot;siem&quot;</span>
+<span class="w">	</span><span class="nx">AlertType</span><span class="w">  </span><span class="kt">string</span><span class="w">            </span><span class="s">`json:&quot;alert_type&quot;`</span><span class="w">    </span><span class="c1">// 告警类型</span>
+<span class="w">	</span><span class="nx">SourceIP</span><span class="w">   </span><span class="kt">string</span><span class="w">            </span><span class="s">`json:&quot;source_ip&quot;`</span>
+<span class="w">	</span><span class="nx">TargetIP</span><span class="w">   </span><span class="kt">string</span><span class="w">            </span><span class="s">`json:&quot;target_ip&quot;`</span>
+<span class="w">	</span><span class="nx">Severity</span><span class="w">   </span><span class="kt">int</span><span class="w">               </span><span class="s">`json:&quot;severity&quot;`</span><span class="w">      </span><span class="c1">// 1-10</span>
+<span class="w">	</span><span class="nx">Message</span><span class="w">    </span><span class="kt">string</span><span class="w">            </span><span class="s">`json:&quot;message&quot;`</span>
+<span class="w">	</span><span class="nx">Timestamp</span><span class="w">  </span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="w">         </span><span class="s">`json:&quot;timestamp&quot;`</span>
+<span class="w">	</span><span class="nx">Metadata</span><span class="w">   </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;metadata&quot;`</span>
+<span class="p">}</span>
+
+<span class="c1">// EnrichedAlert 去重和评分后的告警</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">EnrichedAlert</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">DeduplicationKey</span><span class="w"> </span><span class="kt">string</span><span class="w">           </span><span class="s">`json:&quot;dedup_key&quot;`</span>
+<span class="w">	</span><span class="nx">RiskScore</span><span class="w">        </span><span class="kt">float64</span><span class="w">          </span><span class="s">`json:&quot;risk_score&quot;`</span>
+<span class="w">	</span><span class="nx">Sources</span><span class="w">          </span><span class="p">[]</span><span class="kt">string</span><span class="w">         </span><span class="s">`json:&quot;sources&quot;`</span>
+<span class="w">	</span><span class="nx">AlertCount</span><span class="w">       </span><span class="kt">int</span><span class="w">              </span><span class="s">`json:&quot;alert_count&quot;`</span>
+<span class="w">	</span><span class="nx">FirstSeen</span><span class="w">        </span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="w">        </span><span class="s">`json:&quot;first_seen&quot;`</span>
+<span class="w">	</span><span class="nx">LastSeen</span><span class="w">         </span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="w">        </span><span class="s">`json:&quot;last_seen&quot;`</span>
+<span class="w">	</span><span class="nx">Representative</span><span class="w">   </span><span class="nx">SecurityAlert</span><span class="w">    </span><span class="s">`json:&quot;representative&quot;`</span>
+<span class="w">	</span><span class="nx">Action</span><span class="w">           </span><span class="kt">string</span><span class="w">           </span><span class="s">`json:&quot;action&quot;`</span><span class="w"> </span><span class="c1">// &quot;auto_block&quot;, &quot;investigate&quot;, &quot;monitor&quot;</span>
+<span class="p">}</span>
+
+<span class="c1">// AlertAggregator 安全事件聚合器</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">AlertAggregator</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">mu</span><span class="w">          </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
+<span class="w">	</span><span class="nx">alerts</span><span class="w">      </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">EnrichedAlert</span>
+<span class="w">	</span><span class="nx">blockList</span><span class="w">   </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
+<span class="w">	</span><span class="nx">windowSize</span><span class="w">  </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">NewAlertAggregator</span><span class="p">(</span><span class="nx">windowSize</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">AlertAggregator</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">agg</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">AlertAggregator</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">alerts</span><span class="p">:</span><span class="w">     </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">EnrichedAlert</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">blockList</span><span class="p">:</span><span class="w">  </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">windowSize</span><span class="p">:</span><span class="w"> </span><span class="nx">windowSize</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">go</span><span class="w"> </span><span class="nx">agg</span><span class="p">.</span><span class="nx">cleanupLoop</span><span class="p">()</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">agg</span>
+<span class="p">}</span>
+
+<span class="c1">// deduplicationKey 生成去重键: 基于源IP + 告警类型 + 目标IP</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">deduplicationKey</span><span class="p">(</span><span class="nx">alert</span><span class="w"> </span><span class="nx">SecurityAlert</span><span class="p">)</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">raw</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;%s|%s|%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">SourceIP</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">AlertType</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">TargetIP</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">hash</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">sha256</span><span class="p">.</span><span class="nx">Sum256</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">raw</span><span class="p">))</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;%x&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">hash</span><span class="p">[:</span><span class="mi">8</span><span class="p">])</span>
+<span class="p">}</span>
+
+<span class="c1">// Ingest 接收并聚合告警</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="o">*</span><span class="nx">AlertAggregator</span><span class="p">)</span><span class="w"> </span><span class="nx">Ingest</span><span class="p">(</span><span class="nx">alert</span><span class="w"> </span><span class="nx">SecurityAlert</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">EnrichedAlert</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">key</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">deduplicationKey</span><span class="p">(</span><span class="nx">alert</span><span class="p">)</span>
+
+<span class="w">	</span><span class="nx">a</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+<span class="w">	</span><span class="nx">enriched</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">alerts</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">exists</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">enriched</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">EnrichedAlert</span><span class="p">{</span>
+<span class="w">			</span><span class="nx">DeduplicationKey</span><span class="p">:</span><span class="w"> </span><span class="nx">key</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">FirstSeen</span><span class="p">:</span><span class="w">        </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Timestamp</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Representative</span><span class="p">:</span><span class="w">   </span><span class="nx">alert</span><span class="p">,</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">a</span><span class="p">.</span><span class="nx">alerts</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">enriched</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 更新聚合信息</span>
+<span class="w">	</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">AlertCount</span><span class="o">++</span>
+<span class="w">	</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">LastSeen</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Timestamp</span>
+
+<span class="w">	</span><span class="c1">// 记录来源（去重）</span>
+<span class="w">	</span><span class="nx">sourceExists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Sources</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">sourceExists</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">			</span><span class="k">break</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">sourceExists</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Sources</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Sources</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Source</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 计算风险分数</span>
+<span class="w">	</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">RiskScore</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">calculateRiskScore</span><span class="p">(</span><span class="nx">enriched</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">)</span>
+
+<span class="w">	</span><span class="c1">// 决定响应动作</span>
+<span class="w">	</span><span class="k">switch</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">case</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">RiskScore</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">80</span><span class="p">:</span>
+<span class="w">		</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Action</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;auto_block&quot;</span>
+<span class="w">		</span><span class="nx">a</span><span class="p">.</span><span class="nx">blockList</span><span class="p">[</span><span class="nx">alert</span><span class="p">.</span><span class="nx">SourceIP</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">().</span><span class="nx">Add</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="p">)</span>
+<span class="w">	</span><span class="k">case</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">RiskScore</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">50</span><span class="p">:</span>
+<span class="w">		</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Action</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;investigate&quot;</span>
+<span class="w">	</span><span class="k">default</span><span class="p">:</span>
+<span class="w">		</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Action</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;monitor&quot;</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">enriched</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="o">*</span><span class="nx">AlertAggregator</span><span class="p">)</span><span class="w"> </span><span class="nx">calculateRiskScore</span><span class="p">(</span><span class="nx">enriched</span><span class="w"> </span><span class="o">*</span><span class="nx">EnrichedAlert</span><span class="p">,</span><span class="w"> </span><span class="nx">latest</span><span class="w"> </span><span class="nx">SecurityAlert</span><span class="p">)</span><span class="w"> </span><span class="kt">float64</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">score</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">float64</span><span class="p">(</span><span class="nx">latest</span><span class="p">.</span><span class="nx">Severity</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">5.0</span>
+
+<span class="w">	</span><span class="c1">// 多源关联加成: 多个安全工具同时告警 → 更可信</span>
+<span class="w">	</span><span class="nx">score</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nb">float64</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Sources</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">15.0</span>
+
+<span class="w">	</span><span class="c1">// 频率加成</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">AlertCount</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">score</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">20.0</span>
+<span class="w">	</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">AlertCount</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">score</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">10.0</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">score</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">score</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">score</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="o">*</span><span class="nx">AlertAggregator</span><span class="p">)</span><span class="w"> </span><span class="nx">cleanupLoop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ticker</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">NewTicker</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Minute</span><span class="p">)</span>
+<span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">ticker</span><span class="p">.</span><span class="nx">Stop</span><span class="p">()</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">a</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">cutoff</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">().</span><span class="nx">Add</span><span class="p">(</span><span class="o">-</span><span class="nx">a</span><span class="p">.</span><span class="nx">windowSize</span><span class="p">)</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">enriched</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">alerts</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">LastSeen</span><span class="p">.</span><span class="nx">Before</span><span class="p">(</span><span class="nx">cutoff</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nb">delete</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">alerts</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="p">)</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">ip</span><span class="p">,</span><span class="w"> </span><span class="nx">expiry</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">blockList</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">().</span><span class="nx">After</span><span class="p">(</span><span class="nx">expiry</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nb">delete</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">blockList</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">)</span>
+<span class="w">				</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;🔓 自动解封 IP: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">)</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">a</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// ---- HTTP Webhook 处理器 ----</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">aggregator</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">NewAlertAggregator</span><span class="p">(</span><span class="mi">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Minute</span><span class="p">)</span>
+
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/api/v1/alerts&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Method</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">MethodPost</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Method not allowed&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusMethodNotAllowed</span><span class="p">)</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="kd">var</span><span class="w"> </span><span class="nx">alert</span><span class="w"> </span><span class="nx">SecurityAlert</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">json</span><span class="p">.</span><span class="nx">NewDecoder</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Body</span><span class="p">).</span><span class="nx">Decode</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">alert</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid JSON&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Timestamp</span><span class="p">.</span><span class="nx">IsZero</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">alert</span><span class="p">.</span><span class="nx">Timestamp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">()</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">enriched</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">aggregator</span><span class="p">.</span><span class="nx">Ingest</span><span class="p">(</span><span class="nx">alert</span><span class="p">)</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Action</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;auto_block&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;🚨 AUTO-BLOCK IP=%s score=%.0f sources=%v count=%d&quot;</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">alert</span><span class="p">.</span><span class="nx">SourceIP</span><span class="p">,</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">RiskScore</span><span class="p">,</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">Sources</span><span class="p">,</span><span class="w"> </span><span class="nx">enriched</span><span class="p">.</span><span class="nx">AlertCount</span><span class="p">)</span>
+<span class="w">			</span><span class="c1">// 实际生产中调用 iptables/nftables:</span>
+<span class="w">			</span><span class="c1">// exec.Command(&quot;nftables&quot;, &quot;add&quot;, &quot;element&quot;, &quot;inet&quot;, &quot;filter&quot;,</span>
+<span class="w">			</span><span class="c1">//     &quot;blocklist&quot;, &quot;{&quot;, alert.SourceIP, &quot;}&quot;).Run()</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">json</span><span class="p">.</span><span class="nx">NewEncoder</span><span class="p">(</span><span class="nx">w</span><span class="p">).</span><span class="nx">Encode</span><span class="p">(</span><span class="nx">enriched</span><span class="p">)</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// 查询当前封禁列表</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/api/v1/blocklist&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">aggregator</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">		</span><span class="k">defer</span><span class="w"> </span><span class="nx">aggregator</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">json</span><span class="p">.</span><span class="nx">NewEncoder</span><span class="p">(</span><span class="nx">w</span><span class="p">).</span><span class="nx">Encode</span><span class="p">(</span><span class="nx">aggregator</span><span class="p">.</span><span class="nx">blockList</span><span class="p">)</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;🛡️ Security Alert Aggregator listening on :8080&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ListenAndServe</span><span class="p">(</span><span class="s">&quot;:8080&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id7">
+<h2>30.5 后量子密码学<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>量子计算机将威胁现有的公钥密码体系：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>算法</p></th>
+<th class="head"><p>量子安全</p></th>
+<th class="head"><p>替代方案</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>RSA</p></td>
+<td><p>❌ Shor 算法可破解</p></td>
+<td><p>CRYSTALS-Kyber（密钥交换）</p></td>
+</tr>
+<tr class="row-odd"><td><p>ECDSA</p></td>
+<td><p>❌ Shor 算法可破解</p></td>
+<td><p>CRYSTALS-Dilithium（签名）</p></td>
+</tr>
+<tr class="row-even"><td><p>AES-256</p></td>
+<td><p>✅ Grover 算法仅减半安全性</p></td>
+<td><p>继续使用</p></td>
+</tr>
+<tr class="row-odd"><td><p>SHA-256</p></td>
+<td><p>✅ 安全</p></td>
+<td><p>继续使用</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id8">
+<h3>后量子密码算法对比<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特性</p></th>
+<th class="head"><p>CRYSTALS-Kyber</p></th>
+<th class="head"><p>CRYSTALS-Dilithium</p></th>
+<th class="head"><p>SPHINCS+</p></th>
+<th class="head"><p>FALCON</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>类型</strong></p></td>
+<td><p>KEM（密钥封装）</p></td>
+<td><p>数字签名</p></td>
+<td><p>数字签名</p></td>
+<td><p>数字签名</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>数学基础</strong></p></td>
+<td><p>格密码 (Module-LWE)</p></td>
+<td><p>格密码 (Module-LWE/SIS)</p></td>
+<td><p>哈希函数</p></td>
+<td><p>格密码 (NTRU Lattice)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>NIST 标准</strong></p></td>
+<td><p>FIPS 203 (ML-KEM)</p></td>
+<td><p>FIPS 204 (ML-DSA)</p></td>
+<td><p>FIPS 205 (SLH-DSA)</p></td>
+<td><p>备选标准</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>公钥大小</strong></p></td>
+<td><p>800 - 1,568 B</p></td>
+<td><p>1,312 - 2,592 B</p></td>
+<td><p>32 - 64 B</p></td>
+<td><p>897 - 1,793 B</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>签名/密文大小</strong></p></td>
+<td><p>768 - 1,568 B</p></td>
+<td><p>2,420 - 4,595 B</p></td>
+<td><p>7,856 - 49,856 B</p></td>
+<td><p>666 - 1,280 B</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>性能</strong></p></td>
+<td><p>⚡ 非常快</p></td>
+<td><p>⚡ 快</p></td>
+<td><p>🐢 较慢</p></td>
+<td><p>⚡ 快（签名小）</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>安全假设</strong></p></td>
+<td><p>格问题</p></td>
+<td><p>格问题</p></td>
+<td><p>仅依赖哈希 (保守)</p></td>
+<td><p>格问题</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>适用场景</strong></p></td>
+<td><p>TLS 握手、密钥交换</p></td>
+<td><p>代码签名、证书</p></td>
+<td><p>长期签名、固件</p></td>
+<td><p>带宽受限场景</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>实现复杂度</strong></p></td>
+<td><p>中等</p></td>
+<td><p>中等</p></td>
+<td><p>低</p></td>
+<td><p>高（浮点运算）</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>推荐优先级</strong></p></td>
+<td><p>⭐⭐⭐ 首选 KEM</p></td>
+<td><p>⭐⭐⭐ 首选签名</p></td>
+<td><p>⭐⭐ 保守备选</p></td>
+<td><p>⭐⭐ 特定场景</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id9">
+<h3>后量子密码迁移路线图<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph phase1[&quot;阶段 1: 评估与盘点 (2024-2025)&quot;]
+        P1A[&quot;🔍 密码资产盘点&lt;br/&gt;识别所有使用 RSA/ECC 的系统&quot;]
+        P1B[&quot;📊 风险评估&lt;br/&gt;按数据敏感度排优先级&quot;]
+        P1C[&quot;🧪 PQC 算法 PoC&lt;br/&gt;测试 Kyber/Dilithium 性能&quot;]
+    end
+
+    subgraph phase2[&quot;阶段 2: 混合部署 (2025-2027)&quot;]
+        P2A[&quot;🔀 混合密钥交换&lt;br/&gt;X25519 + ML-KEM-768&quot;]
+        P2B[&quot;📜 双签名证书&lt;br/&gt;ECDSA + ML-DSA&quot;]
+        P2C[&quot;🔧 密码敏捷性改造&lt;br/&gt;配置驱动的算法选择&quot;]
+    end
+
+    subgraph phase3[&quot;阶段 3: 全面迁移 (2027-2030)&quot;]
+        P3A[&quot;🔄 替换所有经典公钥算法&quot;]
+        P3B[&quot;📋 合规验证&lt;br/&gt;NIST / 等保 / PCI-DSS&quot;]
+        P3C[&quot;🗑️ 废弃经典算法&lt;br/&gt;移除 RSA/ECDSA 支持&quot;]
+    end
+
+    phase1 --&gt; phase2 --&gt; phase3
+
+    style phase1 fill:#fff3e0
+    style phase2 fill:#e3f2fd
+    style phase3 fill:#e8f5e9
+    </pre></section>
+<section id="crypto-agility">
+<h3>Crypto Agility（密码敏捷性）<a class="headerlink" href="#crypto-agility" title="Link to this heading"></a></h3>
+<p>密码敏捷性 = 能够快速切换密码算法的能力</p>
+<p>实践建议：</p>
+<ol class="arabic simple">
+<li><p>不要硬编码算法名称</p></li>
+<li><p>使用配置驱动的密码选择</p></li>
+<li><p>支持多算法并存（迁移期间）</p></li>
+<li><p>定期评估算法安全性</p></li>
+<li><p>准备后量子迁移计划</p></li>
+</ol>
+</section>
+<section id="python-kyber-kem">
+<h3>Python 示例：后量子密码 — Kyber KEM 密钥封装<a class="headerlink" href="#python-kyber-kem" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">后量子密码示例：使用 ML-KEM (Kyber) 进行密钥封装</span>
+<span class="sd">依赖: pip install pqcrypto  (或使用 oqs-python: pip install liboqs-python)</span>
+
+<span class="sd">本示例展示如何用 Kyber 替代传统 RSA/ECDH 密钥交换</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># ---- 方式 1: 使用 liboqs-python (Open Quantum Safe) ----</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">oqs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pqc_key_exchange_kyber</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    使用 ML-KEM-768 (Kyber768) 进行密钥封装/解封装</span>
+<span class="sd">    模拟 Alice 和 Bob 之间的后量子密钥交换</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kem_alg</span> <span class="o">=</span> <span class="s2">&quot;ML-KEM-768&quot;</span>  <span class="c1"># NIST FIPS 203 标准</span>
+
+    <span class="c1"># === Alice (接收方): 生成密钥对 ===</span>
+    <span class="k">with</span> <span class="n">oqs</span><span class="o">.</span><span class="n">KeyEncapsulation</span><span class="p">(</span><span class="n">kem_alg</span><span class="p">)</span> <span class="k">as</span> <span class="n">alice_kem</span><span class="p">:</span>
+        <span class="n">alice_public_key</span> <span class="o">=</span> <span class="n">alice_kem</span><span class="o">.</span><span class="n">generate_keypair</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;算法: </span><span class="si">{</span><span class="n">kem_alg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;公钥大小: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">alice_public_key</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+
+        <span class="c1"># === Bob (发送方): 用 Alice 的公钥封装共享密钥 ===</span>
+        <span class="k">with</span> <span class="n">oqs</span><span class="o">.</span><span class="n">KeyEncapsulation</span><span class="p">(</span><span class="n">kem_alg</span><span class="p">)</span> <span class="k">as</span> <span class="n">bob_kem</span><span class="p">:</span>
+            <span class="n">ciphertext</span><span class="p">,</span> <span class="n">bob_shared_secret</span> <span class="o">=</span> <span class="n">bob_kem</span><span class="o">.</span><span class="n">encap_secret</span><span class="p">(</span><span class="n">alice_public_key</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;密文大小: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;共享密钥大小: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bob_shared_secret</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+
+        <span class="c1"># === Alice: 用私钥解封装，得到相同的共享密钥 ===</span>
+        <span class="n">alice_shared_secret</span> <span class="o">=</span> <span class="n">alice_kem</span><span class="o">.</span><span class="n">decap_secret</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)</span>
+
+        <span class="c1"># 验证双方得到相同的共享密钥</span>
+        <span class="k">assert</span> <span class="n">alice_shared_secret</span> <span class="o">==</span> <span class="n">bob_shared_secret</span><span class="p">,</span> <span class="s2">&quot;密钥交换失败!&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ 后量子密钥交换成功!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 用共享密钥派生 AES-256 对称密钥</span>
+        <span class="n">aes_key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">alice_shared_secret</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;派生 AES-256 密钥: </span><span class="si">{</span><span class="n">aes_key</span><span class="o">.</span><span class="n">hex</span><span class="p">()[:</span><span class="mi">32</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">aes_key</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pqc_hybrid_key_exchange</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    混合密钥交换: X25519 (经典) + ML-KEM-768 (后量子)</span>
+<span class="sd">    即使其中一个算法被攻破，另一个仍然保护安全</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives.asymmetric.x25519</span><span class="w"> </span><span class="kn">import</span> <span class="n">X25519PrivateKey</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cryptography.hazmat.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">serialization</span>
+
+    <span class="c1"># 经典部分: X25519</span>
+    <span class="n">alice_x25519</span> <span class="o">=</span> <span class="n">X25519PrivateKey</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+    <span class="n">bob_x25519</span> <span class="o">=</span> <span class="n">X25519PrivateKey</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+
+    <span class="n">alice_x25519_pub</span> <span class="o">=</span> <span class="n">alice_x25519</span><span class="o">.</span><span class="n">public_key</span><span class="p">()</span>
+    <span class="n">bob_x25519_pub</span> <span class="o">=</span> <span class="n">bob_x25519</span><span class="o">.</span><span class="n">public_key</span><span class="p">()</span>
+
+    <span class="n">classical_secret_a</span> <span class="o">=</span> <span class="n">alice_x25519</span><span class="o">.</span><span class="n">exchange</span><span class="p">(</span><span class="n">bob_x25519_pub</span><span class="p">)</span>
+    <span class="n">classical_secret_b</span> <span class="o">=</span> <span class="n">bob_x25519</span><span class="o">.</span><span class="n">exchange</span><span class="p">(</span><span class="n">alice_x25519_pub</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">classical_secret_a</span> <span class="o">==</span> <span class="n">classical_secret_b</span>
+
+    <span class="c1"># 后量子部分: ML-KEM-768</span>
+    <span class="k">with</span> <span class="n">oqs</span><span class="o">.</span><span class="n">KeyEncapsulation</span><span class="p">(</span><span class="s2">&quot;ML-KEM-768&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">kem</span><span class="p">:</span>
+        <span class="n">pub_key</span> <span class="o">=</span> <span class="n">kem</span><span class="o">.</span><span class="n">generate_keypair</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">oqs</span><span class="o">.</span><span class="n">KeyEncapsulation</span><span class="p">(</span><span class="s2">&quot;ML-KEM-768&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">kem_bob</span><span class="p">:</span>
+            <span class="n">ciphertext</span><span class="p">,</span> <span class="n">pqc_secret_bob</span> <span class="o">=</span> <span class="n">kem_bob</span><span class="o">.</span><span class="n">encap_secret</span><span class="p">(</span><span class="n">pub_key</span><span class="p">)</span>
+        <span class="n">pqc_secret_alice</span> <span class="o">=</span> <span class="n">kem</span><span class="o">.</span><span class="n">decap_secret</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">pqc_secret_alice</span> <span class="o">==</span> <span class="n">pqc_secret_bob</span>
+
+    <span class="c1"># 混合: 组合两个共享密钥</span>
+    <span class="n">hybrid_secret</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span>
+        <span class="n">classical_secret_a</span> <span class="o">+</span> <span class="n">pqc_secret_alice</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ 混合密钥交换成功 (X25519 + ML-KEM-768)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;混合密钥: </span><span class="si">{</span><span class="n">hybrid_secret</span><span class="o">.</span><span class="n">hex</span><span class="p">()[:</span><span class="mi">32</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hybrid_secret</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ML-KEM-768 (Kyber) 密钥封装&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">pqc_key_exchange_kyber</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;混合密钥交换: X25519 + ML-KEM-768&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">pqc_hybrid_key_exchange</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="java-bouncy-castle-kyber-kem">
+<h3>Java 示例：Bouncy Castle 后量子密码 — Kyber KEM 密钥封装<a class="headerlink" href="#java-bouncy-castle-kyber-kem" title="Link to this heading"></a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.bouncycastle.jcajce.SecretKeyWithEncapsulation</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.bouncycastle.jcajce.spec.KEMExtractSpec</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.bouncycastle.jcajce.spec.KEMGenerateSpec</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.bouncycastle.pqc.jcajce.spec.KyberParameterSpec</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">javax.crypto.Cipher</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">javax.crypto.KeyGenerator</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">javax.crypto.SecretKey</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">javax.crypto.spec.GCMParameterSpec</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.security.*</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Arrays</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.HexFormat</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * 后量子密码示例：使用 Bouncy Castle 的 ML-KEM (Kyber) 进行密钥封装</span>
+<span class="cm"> *</span>
+<span class="cm"> * 依赖 (Maven):</span>
+<span class="cm"> *   org.bouncycastle:bcprov-jdk18on:1.78+</span>
+<span class="cm"> *   org.bouncycastle:bcpqc-jdk18on:1.78+</span>
+<span class="cm"> */</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">PostQuantumKyberExample</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">static</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Security</span><span class="p">.</span><span class="na">addProvider</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">BouncyCastlePQCProvider</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 生成 ML-KEM-768 (Kyber768) 密钥对</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">KeyPair</span><span class="w"> </span><span class="nf">generateKyberKeyPair</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">KeyPairGenerator</span><span class="w"> </span><span class="n">kpg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyPairGenerator</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;Kyber&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;BCPQC&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">kpg</span><span class="p">.</span><span class="na">initialize</span><span class="p">(</span><span class="n">KyberParameterSpec</span><span class="p">.</span><span class="na">kyber768</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">kpg</span><span class="p">.</span><span class="na">generateKeyPair</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 发送方：用接收方公钥封装共享密钥</span>
+<span class="cm">     * 返回 (封装后的密文, 共享密钥)</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">SecretKeyWithEncapsulation</span><span class="w"> </span><span class="nf">encapsulate</span><span class="p">(</span><span class="n">PublicKey</span><span class="w"> </span><span class="n">recipientPubKey</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">KeyGenerator</span><span class="w"> </span><span class="n">keyGen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyGenerator</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;Kyber&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;BCPQC&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">keyGen</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">KEMGenerateSpec</span><span class="p">(</span><span class="n">recipientPubKey</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AES&quot;</span><span class="p">),</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SecureRandom</span><span class="p">());</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">SecretKeyWithEncapsulation</span><span class="p">)</span><span class="w"> </span><span class="n">keyGen</span><span class="p">.</span><span class="na">generateKey</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 接收方：用私钥解封装，恢复共享密钥</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">SecretKeyWithEncapsulation</span><span class="w"> </span><span class="nf">decapsulate</span><span class="p">(</span>
+<span class="w">            </span><span class="n">PrivateKey</span><span class="w"> </span><span class="n">recipientPrivKey</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">encapsulation</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">KeyGenerator</span><span class="w"> </span><span class="n">keyGen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyGenerator</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;Kyber&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;BCPQC&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">keyGen</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">KEMExtractSpec</span><span class="p">(</span><span class="n">recipientPrivKey</span><span class="p">,</span><span class="w"> </span><span class="n">encapsulation</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AES&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">SecretKeyWithEncapsulation</span><span class="p">)</span><span class="w"> </span><span class="n">keyGen</span><span class="p">.</span><span class="na">generateKey</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * 完整示例：Kyber KEM + AES-GCM 加密通信</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;=== ML-KEM-768 (Kyber) 密钥封装示例 ===\n&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 1. Alice 生成密钥对</span>
+<span class="w">        </span><span class="n">KeyPair</span><span class="w"> </span><span class="n">aliceKeyPair</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generateKyberKeyPair</span><span class="p">();</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;Alice 公钥大小: %d bytes%n&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">aliceKeyPair</span><span class="p">.</span><span class="na">getPublic</span><span class="p">().</span><span class="na">getEncoded</span><span class="p">().</span><span class="na">length</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 2. Bob 用 Alice 的公钥封装共享密钥</span>
+<span class="w">        </span><span class="n">SecretKeyWithEncapsulation</span><span class="w"> </span><span class="n">bobKem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encapsulate</span><span class="p">(</span><span class="n">aliceKeyPair</span><span class="p">.</span><span class="na">getPublic</span><span class="p">());</span>
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">encapsulation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bobKem</span><span class="p">.</span><span class="na">getEncapsulation</span><span class="p">();</span>
+<span class="w">        </span><span class="n">SecretKey</span><span class="w"> </span><span class="n">bobAesKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bobKem</span><span class="p">;</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;封装密文大小: %d bytes%n&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">encapsulation</span><span class="p">.</span><span class="na">length</span><span class="p">);</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;Bob 共享密钥: %s...%n&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">HexFormat</span><span class="p">.</span><span class="na">of</span><span class="p">().</span><span class="na">formatHex</span><span class="p">(</span><span class="n">bobAesKey</span><span class="p">.</span><span class="na">getEncoded</span><span class="p">()).</span><span class="na">substring</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">));</span>
+
+<span class="w">        </span><span class="c1">// 3. Alice 解封装，得到相同的共享密钥</span>
+<span class="w">        </span><span class="n">SecretKeyWithEncapsulation</span><span class="w"> </span><span class="n">aliceKem</span><span class="w"> </span><span class="o">=</span>
+<span class="w">            </span><span class="n">decapsulate</span><span class="p">(</span><span class="n">aliceKeyPair</span><span class="p">.</span><span class="na">getPrivate</span><span class="p">(),</span><span class="w"> </span><span class="n">encapsulation</span><span class="p">);</span>
+<span class="w">        </span><span class="n">SecretKey</span><span class="w"> </span><span class="n">aliceAesKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">aliceKem</span><span class="p">;</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;Alice 共享密钥: %s...%n&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">HexFormat</span><span class="p">.</span><span class="na">of</span><span class="p">().</span><span class="na">formatHex</span><span class="p">(</span><span class="n">aliceAesKey</span><span class="p">.</span><span class="na">getEncoded</span><span class="p">()).</span><span class="na">substring</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">));</span>
+
+<span class="w">        </span><span class="c1">// 4. 验证密钥一致</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="n">Arrays</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">bobAesKey</span><span class="p">.</span><span class="na">getEncoded</span><span class="p">(),</span><span class="w"> </span><span class="n">aliceAesKey</span><span class="p">.</span><span class="na">getEncoded</span><span class="p">())</span>
+<span class="w">            </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;密钥不匹配!&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;\n✅ 后量子密钥交换成功!&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 5. 用共享密钥进行 AES-GCM 加密</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">plaintext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello, Post-Quantum World! 后量子时代你好!&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">iv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[</span><span class="mi">12</span><span class="o">]</span><span class="p">;</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">SecureRandom</span><span class="p">().</span><span class="na">nextBytes</span><span class="p">(</span><span class="n">iv</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">Cipher</span><span class="w"> </span><span class="n">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cipher</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;AES/GCM/NoPadding&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">cipher</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">Cipher</span><span class="p">.</span><span class="na">ENCRYPT_MODE</span><span class="p">,</span><span class="w"> </span><span class="n">bobAesKey</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">GCMParameterSpec</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="n">iv</span><span class="p">));</span>
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">ciphertext</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cipher</span><span class="p">.</span><span class="na">doFinal</span><span class="p">(</span><span class="n">plaintext</span><span class="p">.</span><span class="na">getBytes</span><span class="p">(</span><span class="s">&quot;UTF-8&quot;</span><span class="p">));</span>
+
+<span class="w">        </span><span class="n">cipher</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">Cipher</span><span class="p">.</span><span class="na">DECRYPT_MODE</span><span class="p">,</span><span class="w"> </span><span class="n">aliceAesKey</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">GCMParameterSpec</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="n">iv</span><span class="p">));</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">decrypted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="na">doFinal</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;UTF-8&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;加密后: %s...%n&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">HexFormat</span><span class="p">.</span><span class="na">of</span><span class="p">().</span><span class="na">formatHex</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">).</span><span class="na">substring</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">40</span><span class="p">));</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;解密后: %s%n&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">decrypted</span><span class="p">);</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;✅ Kyber KEM + AES-GCM 端到端加密成功!&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="go-http-webhook-ip">
+<h3>Go 示例：自动化安全响应 — HTTP Webhook 接收告警并自动封禁 IP<a class="headerlink" href="#go-http-webhook-ip" title="Link to this heading"></a></h3>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;encoding/json&quot;</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;log&quot;</span>
+<span class="w">	</span><span class="s">&quot;net/http&quot;</span>
+<span class="w">	</span><span class="s">&quot;os/exec&quot;</span>
+<span class="w">	</span><span class="s">&quot;regexp&quot;</span>
+<span class="w">	</span><span class="s">&quot;sync&quot;</span>
+<span class="w">	</span><span class="s">&quot;time&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// ThreatAlert 安全告警结构</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ThreatAlert</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">AlertID</span><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;alert_id&quot;`</span>
+<span class="w">	</span><span class="nx">SourceIP</span><span class="w">   </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;source_ip&quot;`</span>
+<span class="w">	</span><span class="nx">ThreatType</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;threat_type&quot;`</span><span class="w"> </span><span class="c1">// brute_force, port_scan, malware_c2, etc.</span>
+<span class="w">	</span><span class="nx">Severity</span><span class="w">   </span><span class="kt">int</span><span class="w">    </span><span class="s">`json:&quot;severity&quot;`</span><span class="w">    </span><span class="c1">// 1-10</span>
+<span class="w">	</span><span class="nx">Confidence</span><span class="w"> </span><span class="kt">int</span><span class="w">    </span><span class="s">`json:&quot;confidence&quot;`</span><span class="w">  </span><span class="c1">// 0-100</span>
+<span class="w">	</span><span class="nx">Message</span><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;message&quot;`</span>
+<span class="p">}</span>
+
+<span class="c1">// BlockEntry 封禁记录</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">BlockEntry</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">IP</span><span class="w">        </span><span class="kt">string</span><span class="w">    </span><span class="s">`json:&quot;ip&quot;`</span>
+<span class="w">	</span><span class="nx">Reason</span><span class="w">    </span><span class="kt">string</span><span class="w">    </span><span class="s">`json:&quot;reason&quot;`</span>
+<span class="w">	</span><span class="nx">BlockedAt</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="w"> </span><span class="s">`json:&quot;blocked_at&quot;`</span>
+<span class="w">	</span><span class="nx">ExpiresAt</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="w"> </span><span class="s">`json:&quot;expires_at&quot;`</span>
+<span class="w">	</span><span class="nx">AlertID</span><span class="w">   </span><span class="kt">string</span><span class="w">    </span><span class="s">`json:&quot;alert_id&quot;`</span>
+<span class="p">}</span>
+
+<span class="c1">// AutoResponder 自动化安全响应器</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">AutoResponder</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">mu</span><span class="w">         </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
+<span class="w">	</span><span class="nx">blocked</span><span class="w">    </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">BlockEntry</span>
+<span class="w">	</span><span class="nx">dryRun</span><span class="w">     </span><span class="kt">bool</span><span class="w"> </span><span class="c1">// true = 仅记录不执行, 用于测试</span>
+<span class="w">	</span><span class="nx">ipPattern</span><span class="w">  </span><span class="o">*</span><span class="nx">regexp</span><span class="p">.</span><span class="nx">Regexp</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">NewAutoResponder</span><span class="p">(</span><span class="nx">dryRun</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">AutoResponder</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">r</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">AutoResponder</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">blocked</span><span class="p">:</span><span class="w">   </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">BlockEntry</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">dryRun</span><span class="p">:</span><span class="w">    </span><span class="nx">dryRun</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">ipPattern</span><span class="p">:</span><span class="w"> </span><span class="nx">regexp</span><span class="p">.</span><span class="nx">MustCompile</span><span class="p">(</span><span class="s">`^(\d{1,3}\.){3}\d{1,3}$`</span><span class="p">),</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">go</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">expiryLoop</span><span class="p">()</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">r</span>
+<span class="p">}</span>
+
+<span class="c1">// shouldAutoBlock 判断是否应自动封禁</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">AutoResponder</span><span class="p">)</span><span class="w"> </span><span class="nx">shouldAutoBlock</span><span class="p">(</span><span class="nx">alert</span><span class="w"> </span><span class="nx">ThreatAlert</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="c1">// 高严重度 + 高置信度 → 自动封禁</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Severity</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Confidence</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">80</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="c1">// 特定威胁类型直接封禁</span>
+<span class="w">	</span><span class="nx">autoBlockTypes</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">bool</span><span class="p">{</span>
+<span class="w">		</span><span class="s">&quot;brute_force&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;malware_c2&quot;</span><span class="p">:</span><span class="w">  </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;sql_injection&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">		</span><span class="s">&quot;ransomware&quot;</span><span class="p">:</span><span class="w">  </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">autoBlockTypes</span><span class="p">[</span><span class="nx">alert</span><span class="p">.</span><span class="nx">ThreatType</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Confidence</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">70</span>
+<span class="p">}</span>
+
+<span class="c1">// blockIP 封禁 IP (通过 nftables)</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">AutoResponder</span><span class="p">)</span><span class="w"> </span><span class="nx">blockIP</span><span class="p">(</span><span class="nx">alert</span><span class="w"> </span><span class="nx">ThreatAlert</span><span class="p">,</span><span class="w"> </span><span class="nx">duration</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ip</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">SourceIP</span>
+
+<span class="w">	</span><span class="c1">// 验证 IP 格式，防止命令注入</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">r</span><span class="p">.</span><span class="nx">ipPattern</span><span class="p">.</span><span class="nx">MatchString</span><span class="p">(</span><span class="nx">ip</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;invalid IP format: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="c1">// 检查是否已封禁</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">blocked</span><span class="p">[</span><span class="nx">ip</span><span class="p">];</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;⏭️  IP %s 已在封禁列表中, 跳过&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+
+<span class="w">	</span><span class="c1">// 执行封禁</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">r</span><span class="p">.</span><span class="nx">dryRun</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="c1">// 使用 nftables 添加封禁规则</span>
+<span class="w">		</span><span class="nx">cmd</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">exec</span><span class="p">.</span><span class="nx">Command</span><span class="p">(</span><span class="s">&quot;nft&quot;</span><span class="p">,</span>
+<span class="w">			</span><span class="s">&quot;add&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;element&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;inet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;filter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;blocklist&quot;</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;{ %s timeout %ds }&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="nx">duration</span><span class="p">.</span><span class="nx">Seconds</span><span class="p">())))</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">output</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">CombinedOutput</span><span class="p">();</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;❌ nftables 封禁失败: %v, output: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="nx">output</span><span class="p">)</span>
+<span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nx">err</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">entry</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">BlockEntry</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">IP</span><span class="p">:</span><span class="w">        </span><span class="nx">ip</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Reason</span><span class="p">:</span><span class="w">    </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;[%s] %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">ThreatType</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Message</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">BlockedAt</span><span class="p">:</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">(),</span>
+<span class="w">		</span><span class="nx">ExpiresAt</span><span class="p">:</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">().</span><span class="nx">Add</span><span class="p">(</span><span class="nx">duration</span><span class="p">),</span>
+<span class="w">		</span><span class="nx">AlertID</span><span class="p">:</span><span class="w">   </span><span class="nx">alert</span><span class="p">.</span><span class="nx">AlertID</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">blocked</span><span class="p">[</span><span class="nx">ip</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">entry</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+<span class="w">	</span><span class="nx">mode</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;LIVE&quot;</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">dryRun</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">mode</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;DRY-RUN&quot;</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;🚫 [%s] 封禁 IP=%s 时长=%v 原因=%s&quot;</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">mode</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">,</span><span class="w"> </span><span class="nx">duration</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">ThreatType</span><span class="p">)</span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// unblockIP 解封 IP</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">AutoResponder</span><span class="p">)</span><span class="w"> </span><span class="nx">unblockIP</span><span class="p">(</span><span class="nx">ip</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">r</span><span class="p">.</span><span class="nx">dryRun</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">exec</span><span class="p">.</span><span class="nx">Command</span><span class="p">(</span><span class="s">&quot;nft&quot;</span><span class="p">,</span>
+<span class="w">			</span><span class="s">&quot;delete&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;element&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;inet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;filter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;blocklist&quot;</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;{ %s }&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">)).</span><span class="nx">Run</span><span class="p">()</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+<span class="w">	</span><span class="nb">delete</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">blocked</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;🔓 解封 IP=%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">AutoResponder</span><span class="p">)</span><span class="w"> </span><span class="nx">expiryLoop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ticker</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">NewTicker</span><span class="p">(</span><span class="mi">30</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+<span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">ticker</span><span class="p">.</span><span class="nx">Stop</span><span class="p">()</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">		</span><span class="kd">var</span><span class="w"> </span><span class="nx">expired</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">ip</span><span class="p">,</span><span class="w"> </span><span class="nx">entry</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">blocked</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">().</span><span class="nx">After</span><span class="p">(</span><span class="nx">entry</span><span class="p">.</span><span class="nx">ExpiresAt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">expired</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">expired</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="p">)</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">r</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">ip</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">expired</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">r</span><span class="p">.</span><span class="nx">unblockIP</span><span class="p">(</span><span class="nx">ip</span><span class="p">)</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">responder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">NewAutoResponder</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="c1">// dry-run 模式用于演示</span>
+
+<span class="w">	</span><span class="c1">// Webhook 端点: 接收安全告警</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/webhook/security-alert&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Method</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">MethodPost</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Method not allowed&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusMethodNotAllowed</span><span class="p">)</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="kd">var</span><span class="w"> </span><span class="nx">alert</span><span class="w"> </span><span class="nx">ThreatAlert</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">json</span><span class="p">.</span><span class="nx">NewDecoder</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Body</span><span class="p">).</span><span class="nx">Decode</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">alert</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">http</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid payload&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusBadRequest</span><span class="p">)</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;📨 收到告警: id=%s type=%s ip=%s severity=%d confidence=%d&quot;</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">alert</span><span class="p">.</span><span class="nx">AlertID</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">ThreatType</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">SourceIP</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">alert</span><span class="p">.</span><span class="nx">Severity</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Confidence</span><span class="p">)</span>
+
+<span class="w">		</span><span class="nx">response</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}{</span>
+<span class="w">			</span><span class="s">&quot;alert_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">AlertID</span><span class="p">,</span>
+<span class="w">			</span><span class="s">&quot;received&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">responder</span><span class="p">.</span><span class="nx">shouldAutoBlock</span><span class="p">(</span><span class="nx">alert</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="c1">// 根据严重度决定封禁时长</span>
+<span class="w">			</span><span class="nx">duration</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Severity</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">9</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">duration</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">24</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span>
+<span class="w">			</span><span class="p">}</span>
+
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">responder</span><span class="p">.</span><span class="nx">blockIP</span><span class="p">(</span><span class="nx">alert</span><span class="p">,</span><span class="w"> </span><span class="nx">duration</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">response</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;block_failed&quot;</span>
+<span class="w">				</span><span class="nx">response</span><span class="p">[</span><span class="s">&quot;error&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">err</span><span class="p">.</span><span class="nx">Error</span><span class="p">()</span>
+<span class="w">			</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">response</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;auto_blocked&quot;</span>
+<span class="w">				</span><span class="nx">response</span><span class="p">[</span><span class="s">&quot;duration&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">duration</span><span class="p">.</span><span class="nx">String</span><span class="p">()</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">response</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;monitored&quot;</span>
+<span class="w">			</span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;👁️  告警已记录，未触发自动封禁 (severity=%d, confidence=%d)&quot;</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">alert</span><span class="p">.</span><span class="nx">Severity</span><span class="p">,</span><span class="w"> </span><span class="nx">alert</span><span class="p">.</span><span class="nx">Confidence</span><span class="p">)</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">json</span><span class="p">.</span><span class="nx">NewEncoder</span><span class="p">(</span><span class="nx">w</span><span class="p">).</span><span class="nx">Encode</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="c1">// 查询封禁列表</span>
+<span class="w">	</span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/api/v1/blocked&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">responder</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">		</span><span class="k">defer</span><span class="w"> </span><span class="nx">responder</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+<span class="w">		</span><span class="nx">w</span><span class="p">.</span><span class="nx">Header</span><span class="p">().</span><span class="nx">Set</span><span class="p">(</span><span class="s">&quot;Content-Type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">json</span><span class="p">.</span><span class="nx">NewEncoder</span><span class="p">(</span><span class="nx">w</span><span class="p">).</span><span class="nx">Encode</span><span class="p">(</span><span class="nx">responder</span><span class="p">.</span><span class="nx">blocked</span><span class="p">)</span>
+<span class="w">	</span><span class="p">})</span>
+
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;🛡️ Auto-Responder Webhook listening on :9090 (dry-run mode)&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ListenAndServe</span><span class="p">(</span><span class="s">&quot;:9090&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id10">
+<h2>30.6 隐私增强技术<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>技术</p></th>
+<th class="head"><p>原理</p></th>
+<th class="head"><p>应用场景</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>同态加密</p></td>
+<td><p>在加密数据上直接计算</p></td>
+<td><p>云计算隐私保护</p></td>
+</tr>
+<tr class="row-odd"><td><p>MPC</p></td>
+<td><p>多方联合计算，不暴露各自数据</p></td>
+<td><p>联合风控、隐私求交</p></td>
+</tr>
+<tr class="row-even"><td><p>差分隐私</p></td>
+<td><p>添加噪声保护个体隐私</p></td>
+<td><p>数据分析、ML 训练</p></td>
+</tr>
+<tr class="row-odd"><td><p>ZKP</p></td>
+<td><p>证明知道某事而不泄露内容</p></td>
+<td><p>身份验证、区块链</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id11">
+<h2>30.7 供应链安全<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<pre  class="mermaid">
+        flowchart TB
+    subgraph attacks[&quot;供应链攻击案例&quot;]
+        A1[&quot;💥 SolarWinds 2020&lt;br/&gt;构建系统被植入后门&quot;]
+        A2[&quot;💥 Log4Shell 2021&lt;br/&gt;开源依赖漏洞&quot;]
+        A3[&quot;💥 XZ Utils 2024&lt;br/&gt;维护者社工攻击&quot;]
+    end
+
+    subgraph slsa[&quot;SLSA 框架&lt;br/&gt;Supply-chain Levels for Software Artifacts&quot;]
+        L1[&quot;Level 1: 有构建记录&quot;]
+        L2[&quot;Level 2: 有签名的构建记录&quot;]
+        L3[&quot;Level 3: 安全的构建平台&quot;]
+        L4[&quot;Level 4: 双人审查 + 可重现构建&quot;]
+        L1 --&gt; L2 --&gt; L3 --&gt; L4
+    end
+
+    subgraph tools[&quot;防御工具链&quot;]
+        T1[&quot;🔏 Sigstore&lt;br/&gt;Cosign 容器签名&lt;br/&gt;Fulcio 短期证书&lt;br/&gt;Rekor 透明日志&quot;]
+        T2[&quot;📋 SBOM&lt;br/&gt;SPDX / CycloneDX&lt;br/&gt;列出所有依赖及版本&lt;br/&gt;漏洞追踪和合规&quot;]
+    end
+
+    attacks --&gt;|&quot;驱动&quot;| slsa
+    slsa --&gt;|&quot;落地&quot;| tools
+
+    style attacks fill:#ffebee
+    style slsa fill:#e3f2fd
+    style tools fill:#e8f5e9
+    </pre></section>
+<section id="id12">
+<h2>30.8 安全工程师学习路线图<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<pre  class="mermaid">
+        flowchart LR
+    subgraph junior[&quot;🌱 初级 (0-2年)&quot;]
+        J1[&quot;网络安全基础&lt;br/&gt;TCP/IP, TLS, DNS&quot;]
+        J2[&quot;Web 安全&lt;br/&gt;OWASP Top 10&quot;]
+        J3[&quot;密码学基础&quot;]
+        J4[&quot;Linux 安全&quot;]
+        J5[&quot;🎓 CompTIA Security+&quot;]
+    end
+
+    subgraph mid[&quot;🌿 中级 (2-5年)&quot;]
+        M1[&quot;身份认证与授权&lt;br/&gt;OAuth2, OIDC, SPIFFE&quot;]
+        M2[&quot;云安全&lt;br/&gt;AWS/GCP/Azure&quot;]
+        M3[&quot;容器和 K8s 安全&quot;]
+        M4[&quot;威胁建模&quot;]
+        M5[&quot;🎓 CISSP / CKS&quot;]
+    end
+
+    subgraph senior[&quot;🌳 高级 (5年+)&quot;]
+        S1[&quot;零信任架构设计&quot;]
+        S2[&quot;安全架构评审&quot;]
+        S3[&quot;安全团队建设&quot;]
+        S4[&quot;合规与治理&quot;]
+        S5[&quot;🎓 OSCP / CCSP&quot;]
+    end
+
+    junior --&gt; mid --&gt; senior
+    </pre></section>
+<section id="id13">
+<h2>30.9 安全工程师 2026 技能清单<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>技能领域</p></th>
+<th class="head"><p>核心技能</p></th>
+<th class="head"><p>重要程度</p></th>
+<th class="head"><p>学习建议</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>AI 安全</strong></p></td>
+<td><p>LLM 安全评估、Prompt Injection 防御、AI 模型安全</p></td>
+<td><p>⭐⭐⭐⭐⭐</p></td>
+<td><p>实践 OWASP LLM Top 10，搭建 AI Red Team</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>后量子密码</strong></p></td>
+<td><p>PQC 算法理解、密码敏捷性设计、混合密钥交换</p></td>
+<td><p>⭐⭐⭐⭐</p></td>
+<td><p>学习 NIST PQC 标准，用 liboqs 实验</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>云原生安全</strong></p></td>
+<td><p>K8s 安全、Service Mesh、容器运行时安全</p></td>
+<td><p>⭐⭐⭐⭐⭐</p></td>
+<td><p>CKS 认证，实操 Falco/OPA/Cilium</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>零信任架构</strong></p></td>
+<td><p>SPIFFE/SPIRE、BeyondCorp、微分段</p></td>
+<td><p>⭐⭐⭐⭐⭐</p></td>
+<td><p>部署 SPIRE，设计零信任 PoC</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>供应链安全</strong></p></td>
+<td><p>SLSA、Sigstore、SBOM 生成与消费</p></td>
+<td><p>⭐⭐⭐⭐</p></td>
+<td><p>在 CI/CD 中集成 Cosign + SBOM</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>安全自动化</strong></p></td>
+<td><p>SOAR 编排、IaC 安全扫描、安全 Pipeline</p></td>
+<td><p>⭐⭐⭐⭐</p></td>
+<td><p>用 Terraform Sentinel / OPA 实践</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>隐私工程</strong></p></td>
+<td><p>差分隐私、同态加密、数据脱敏</p></td>
+<td><p>⭐⭐⭐</p></td>
+<td><p>学习 Google DP 库，了解 GDPR 技术要求</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>威胁建模</strong></p></td>
+<td><p>STRIDE、PASTA、Attack Tree、数据流图</p></td>
+<td><p>⭐⭐⭐⭐</p></td>
+<td><p>每个项目启动时做威胁建模</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>安全编码</strong></p></td>
+<td><p>内存安全 (Rust)、类型安全、输入验证</p></td>
+<td><p>⭐⭐⭐⭐</p></td>
+<td><p>学习 Rust 基础，理解内存安全原理</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>合规与治理</strong></p></td>
+<td><p>SOC 2、ISO 27001、等保 2.0、PCI-DSS 4.0</p></td>
+<td><p>⭐⭐⭐</p></td>
+<td><p>参与一次完整的合规审计</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id14">
+<h2>30.10 推荐学习资源<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
+<section id="id15">
+<h3>书籍<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>书名</p></th>
+<th class="head"><p>作者</p></th>
+<th class="head"><p>主题</p></th>
+<th class="head"><p>推荐理由</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>《零信任网络》</p></td>
+<td><p>Evan Gilman</p></td>
+<td><p>零信任架构</p></td>
+<td><p>零信任理论与实践的经典</p></td>
+</tr>
+<tr class="row-odd"><td><p>《Web 应用安全》</p></td>
+<td><p>Andrew Hoffman</p></td>
+<td><p>Web 安全</p></td>
+<td><p>现代 Web 安全全面指南</p></td>
+</tr>
+<tr class="row-even"><td><p>《密码学工程》</p></td>
+<td><p>Bruce Schneier</p></td>
+<td><p>密码学实践</p></td>
+<td><p>密码学工程师必读</p></td>
+</tr>
+<tr class="row-odd"><td><p>《Kubernetes 安全》</p></td>
+<td><p>Liz Rice</p></td>
+<td><p>K8s 安全</p></td>
+<td><p>云原生安全入门首选</p></td>
+</tr>
+<tr class="row-even"><td><p>《Designing Secure Software》</p></td>
+<td><p>Loren Kohnfelder</p></td>
+<td><p>安全设计</p></td>
+<td><p>安全开发生命周期实践</p></td>
+</tr>
+<tr class="row-odd"><td><p>《Threat Modeling》</p></td>
+<td><p>Adam Shostack</p></td>
+<td><p>威胁建模</p></td>
+<td><p>威胁建模方法论权威</p></td>
+</tr>
+<tr class="row-even"><td><p>《Post-Quantum Cryptography》</p></td>
+<td><p>Daniel J. Bernstein</p></td>
+<td><p>后量子密码</p></td>
+<td><p>PQC 学术基础</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id16">
+<h3>在线课程与认证<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>课程/认证</p></th>
+<th class="head"><p>提供方</p></th>
+<th class="head"><p>级别</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CompTIA Security+</p></td>
+<td><p>CompTIA</p></td>
+<td><p>初级</p></td>
+<td><p>安全基础认证，行业入门标配</p></td>
+</tr>
+<tr class="row-odd"><td><p>CISSP</p></td>
+<td><p>(ISC)²</p></td>
+<td><p>中高级</p></td>
+<td><p>安全管理与架构，含金量最高</p></td>
+</tr>
+<tr class="row-even"><td><p>CKS (Certified Kubernetes Security)</p></td>
+<td><p>CNCF</p></td>
+<td><p>中级</p></td>
+<td><p>K8s 安全专项认证</p></td>
+</tr>
+<tr class="row-odd"><td><p>OSCP</p></td>
+<td><p>Offensive Security</p></td>
+<td><p>高级</p></td>
+<td><p>渗透测试实操认证</p></td>
+</tr>
+<tr class="row-even"><td><p>CCSP</p></td>
+<td><p>(ISC)²</p></td>
+<td><p>高级</p></td>
+<td><p>云安全架构认证</p></td>
+</tr>
+<tr class="row-odd"><td><p>Google Cybersecurity Certificate</p></td>
+<td><p>Google / Coursera</p></td>
+<td><p>初级</p></td>
+<td><p>免费入门，适合转行</p></td>
+</tr>
+<tr class="row-even"><td><p>SANS SEC504 / SEC560</p></td>
+<td><p>SANS Institute</p></td>
+<td><p>中高级</p></td>
+<td><p>事件响应与渗透测试顶级课程</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id17">
+<h3>在线资源与社区<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>资源</p></th>
+<th class="head"><p>链接</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>OWASP</p></td>
+<td><p>https://owasp.org</p></td>
+<td><p>Web 安全标准与工具</p></td>
+</tr>
+<tr class="row-odd"><td><p>SPIFFE/SPIRE</p></td>
+<td><p>https://spiffe.io</p></td>
+<td><p>零信任工作负载身份</p></td>
+</tr>
+<tr class="row-even"><td><p>OpenFGA</p></td>
+<td><p>https://openfga.dev</p></td>
+<td><p>细粒度授权引擎</p></td>
+</tr>
+<tr class="row-odd"><td><p>OPA</p></td>
+<td><p>https://www.openpolicyagent.org</p></td>
+<td><p>通用策略引擎</p></td>
+</tr>
+<tr class="row-even"><td><p>Open Quantum Safe</p></td>
+<td><p>https://openquantumsafe.org</p></td>
+<td><p>后量子密码开源实现</p></td>
+</tr>
+<tr class="row-odd"><td><p>MITRE ATT&amp;CK</p></td>
+<td><p>https://attack.mitre.org</p></td>
+<td><p>攻击技术知识库</p></td>
+</tr>
+<tr class="row-even"><td><p>CIS Benchmarks</p></td>
+<td><p>https://www.cisecurity.org</p></td>
+<td><p>安全基线配置指南</p></td>
+</tr>
+<tr class="row-odd"><td><p>Trail of Bits Blog</p></td>
+<td><p>https://blog.trailofbits.com</p></td>
+<td><p>高质量安全研究博客</p></td>
+</tr>
+<tr class="row-even"><td><p>r/netsec</p></td>
+<td><p>https://reddit.com/r/netsec</p></td>
+<td><p>网络安全社区讨论</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id18">
+<h2>30.11 给安全工程师的建议<a class="headerlink" href="#id18" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>安全是一个过程，不是一个产品</strong> — 持续改进，永不停歇</p></li>
+<li><p><strong>理解业务</strong> — 安全服务于业务，不是阻碍业务</p></li>
+<li><p><strong>自动化一切</strong> — 手动安全检查无法扩展</p></li>
+<li><p><strong>假设会被攻破</strong> — 设计系统时考虑”被攻破后怎么办”</p></li>
+<li><p><strong>保持学习</strong> — 安全领域变化极快，持续学习是必须的</p></li>
+<li><p><strong>与开发者合作</strong> — Security Champion 模式比安全审查更有效</p></li>
+<li><p><strong>度量安全</strong> — 无法度量就无法改进</p></li>
+<li><p><strong>分享知识</strong> — 安全不是一个人的事，是整个组织的事</p></li>
+</ol>
+</section>
+<section id="id19">
+<h2>30.12 小结<a class="headerlink" href="#id19" title="Link to this heading"></a></h2>
+<p>安全工程的未来充满机遇和挑战：</p>
+<ul class="simple">
+<li><p><strong>无密码认证</strong>（Passkey）将彻底改变用户认证体验</p></li>
+<li><p><strong>去中心化身份</strong>（DID/VC）让用户重新掌控自己的身份</p></li>
+<li><p><strong>AI</strong> 既是安全的利器，也带来新的威胁（Prompt Injection）</p></li>
+<li><p><strong>后量子密码学</strong> 需要提前准备，密码敏捷性是关键</p></li>
+<li><p><strong>供应链安全</strong>（SLSA/Sigstore/SBOM）应对日益增多的供应链攻击</p></li>
+<li><p><strong>零信任</strong> 从理念走向实践，SPIFFE/SPIRE + Service Mesh 是技术基石</p></li>
+</ul>
+<p>安全工程的核心始终不变：<strong>保护用户、保护数据、保护系统</strong>。技术在变，原则不变。</p>
+<hr class="docutils" />
+<p><em>感谢你阅读本书。安全之路，道阻且长，行则将至。</em></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch29.html" class="btn btn-neutral float-left" title="第二十九章：DevSecOps — 安全左移" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../appendix/index.html" class="btn btn-neutral float-right" title="附录：专题笔记" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

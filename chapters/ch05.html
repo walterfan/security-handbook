@@ -1,0 +1,1083 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第五章：身份与访问管理（IAM）概论 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch05.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第六章：TLS 协议深入解析" href="ch06.html" />
+    <link rel="prev" title="第四章：威胁建模与风险评估" href="ch04.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第五章：身份与访问管理（IAM）概论</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">5.1 IAM 的核心概念</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#iaaa">IAAA 模型</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#authn-vs-authz">5.2 认证（AuthN）vs 授权（AuthZ）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">常见误区</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">5.3 身份生命周期管理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vs">人类身份 vs 机器身份</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">5.4 IAM 架构模式</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">集中式 IAM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">联邦式 IAM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#did">去中心化身份（DID）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">5.5 云 IAM 对比</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#aws-iam">AWS IAM 策略示例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">5.6 从 IAM 到零信任</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">零信任 IAM 技术栈</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">5.7 本书技术路线图</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">5.8 小结</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第五章：身份与访问管理（IAM）概论</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch05.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="iam">
+<h1>第五章：身份与访问管理（IAM）概论<a class="headerlink" href="#iam" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“在数字世界中，身份是新的安全边界。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((IAM 概论))
+    核心概念
+      身份 Identity
+      认证 AuthN
+      授权 AuthZ
+      审计 Accounting
+    身份类型
+      人类身份
+      机器身份
+      工作负载身份
+    架构模式
+      集中式
+      联邦式
+      去中心化
+    云 IAM
+      AWS IAM
+      Azure AD
+      GCP IAM
+    </pre><section id="id1">
+<h2>5.1 IAM 的核心概念<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>IAM（Identity and Access Management）是信息安全的核心支柱，回答三个基本问题：</p>
+<ol class="arabic simple">
+<li><p><strong>你是谁？</strong>（身份识别 + 认证）</p></li>
+<li><p><strong>你能做什么？</strong>（授权）</p></li>
+<li><p><strong>你做了什么？</strong>（审计）</p></li>
+</ol>
+<section id="iaaa">
+<h3>IAAA 模型<a class="headerlink" href="#iaaa" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────────┐
+│                    IAAA 模型                          │
+├──────────────┬──────────────────────────────────────┤
+│ Identification │ 身份识别：声明&quot;我是谁&quot;              │
+│ (身份识别)     │ 用户名、邮箱、SPIFFE ID            │
+├──────────────┼──────────────────────────────────────┤
+│ Authentication │ 身份认证：证明&quot;你确实是你&quot;          │
+│ (认证)         │ 密码、MFA、证书、生物识别           │
+├──────────────┼──────────────────────────────────────┤
+│ Authorization  │ 访问授权：决定&quot;你能做什么&quot;          │
+│ (授权)         │ RBAC、ABAC、ReBAC、策略引擎        │
+├──────────────┼──────────────────────────────────────┤
+│ Accounting     │ 审计记录：记录&quot;你做了什么&quot;          │
+│ (审计)         │ 访问日志、操作审计、合规报告        │
+└──────────────┴──────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+</section>
+<section id="authn-vs-authz">
+<h2>5.2 认证（AuthN）vs 授权（AuthZ）<a class="headerlink" href="#authn-vs-authz" title="Link to this heading"></a></h2>
+<p>这是安全领域最重要的区分之一：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>认证（Authentication）</p></th>
+<th class="head"><p>授权（Authorization）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>问题</p></td>
+<td><p>你是谁？</p></td>
+<td><p>你能做什么？</p></td>
+</tr>
+<tr class="row-odd"><td><p>时机</p></td>
+<td><p>先于授权</p></td>
+<td><p>后于认证</p></td>
+</tr>
+<tr class="row-even"><td><p>输入</p></td>
+<td><p>凭证（密码、证书、Token）</p></td>
+<td><p>身份 + 资源 + 操作</p></td>
+</tr>
+<tr class="row-odd"><td><p>输出</p></td>
+<td><p>身份确认（是/否）</p></td>
+<td><p>权限决策（允许/拒绝）</p></td>
+</tr>
+<tr class="row-even"><td><p>协议</p></td>
+<td><p>OIDC、SAML、FIDO2</p></td>
+<td><p>OAuth2、XACML、OPA</p></td>
+</tr>
+<tr class="row-odd"><td><p>数据</p></td>
+<td><p>用户目录、证书库</p></td>
+<td><p>策略库、关系图</p></td>
+</tr>
+<tr class="row-even"><td><p>变更频率</p></td>
+<td><p>较低（身份不常变）</p></td>
+<td><p>较高（权限经常调整）</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>请求处理流程：
+┌──────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│ 请求  │───▶│  认证     │───▶│  授权     │───▶│  资源     │
+│      │    │ 你是谁？  │    │ 你能做？  │    │ 访问成功  │
+└──────┘    └────┬─────┘    └────┬─────┘    └──────────┘
+                 │ 失败          │ 拒绝
+                 ▼               ▼
+            401 Unauthorized  403 Forbidden
+</pre></div>
+</div>
+<section id="id2">
+<h3>常见误区<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ❌ 错误：把认证当授权</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/admin/users&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_users</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">verify_token</span><span class="p">)):</span>
+    <span class="c1"># 只验证了 Token 有效（认证），没检查是否有管理员权限（授权）</span>
+    <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">get_all_users</span><span class="p">()</span>
+
+<span class="c1"># ✅ 正确：认证 + 授权</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/admin/users&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_users</span><span class="p">(</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">verify_token</span><span class="p">),</span>        <span class="c1"># 认证</span>
+    <span class="n">_</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">require_role</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">))</span>    <span class="c1"># 授权</span>
+<span class="p">):</span>
+    <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">get_all_users</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id3">
+<h2>5.3 身份生命周期管理<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│  创建     │───▶│  使用     │───▶│  变更     │───▶│  撤销     │
+│ Provision │    │  Active   │    │  Modify   │    │  Revoke   │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘
+     │               │               │               │
+     ▼               ▼               ▼               ▼
+  注册/入职      日常访问       角色变更/转岗     离职/过期
+  分配角色       认证授权       权限调整          回收权限
+  初始密码       审计日志       重新认证          归档数据
+</pre></div>
+</div>
+<section id="vs">
+<h3>人类身份 vs 机器身份<a class="headerlink" href="#vs" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>人类身份</p></th>
+<th class="head"><p>机器身份（工作负载身份）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>标识符</p></td>
+<td><p>用户名、邮箱</p></td>
+<td><p>Service Account、SPIFFE ID</p></td>
+</tr>
+<tr class="row-odd"><td><p>认证方式</p></td>
+<td><p>密码 + MFA</p></td>
+<td><p>证书、Token、密钥</p></td>
+</tr>
+<tr class="row-even"><td><p>生命周期</p></td>
+<td><p>入职到离职</p></td>
+<td><p>部署到下线</p></td>
+</tr>
+<tr class="row-odd"><td><p>数量级</p></td>
+<td><p>数千</p></td>
+<td><p>数十万到数百万</p></td>
+</tr>
+<tr class="row-even"><td><p>管理方式</p></td>
+<td><p>HR 流程驱动</p></td>
+<td><p>自动化（IaC）</p></td>
+</tr>
+<tr class="row-odd"><td><p>凭证轮换</p></td>
+<td><p>90 天密码策略</p></td>
+<td><p>短生命周期（小时级）</p></td>
+</tr>
+<tr class="row-even"><td><p>交互方式</p></td>
+<td><p>交互式登录</p></td>
+<td><p>API 调用</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>身份数量的增长趋势：
+┌─────────────────────────────────────────┐
+│  人类身份：   ████ (数千)               │
+│  服务账号：   ████████████ (数万)       │
+│  工作负载：   ████████████████████ (数十万) │
+│  API 密钥：   ██████████████████████████ (数百万) │
+└─────────────────────────────────────────┘
+机器身份的数量已远超人类身份！
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id4">
+<h2>5.4 IAM 架构模式<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="id5">
+<h3>集中式 IAM<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌──────────────────────────────────────┐
+│          集中式 IAM 服务              │
+│  ┌──────────┐  ┌──────────────────┐ │
+│  │ 用户目录  │  │ 策略引擎          │ │
+│  │ (LDAP/AD) │  │ (RBAC/ABAC)     │ │
+│  └──────────┘  └──────────────────┘ │
+└──────────┬───────────────────────────┘
+           │
+     ┌─────┼─────┐
+     ▼     ▼     ▼
+  ┌────┐ ┌────┐ ┌────┐
+  │App1│ │App2│ │App3│
+  └────┘ └────┘ └────┘
+</pre></div>
+</div>
+<p><strong>优点</strong>：统一管理、一致的策略
+<strong>缺点</strong>：单点故障、扩展性受限</p>
+</section>
+<section id="id6">
+<h3>联邦式 IAM<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌──────────┐    ┌──────────┐    ┌──────────┐
+│  IdP A    │    │  IdP B    │    │  IdP C    │
+│ (Google)  │    │ (Okta)    │    │ (Azure AD)│
+└─────┬────┘    └─────┬────┘    └─────┬────┘
+      │               │               │
+      │    信任关系     │    信任关系    │
+      ▼               ▼               ▼
+┌─────────────────────────────────────────┐
+│              服务提供者（SP）             │
+│         接受多个 IdP 的身份断言          │
+│         SAML / OIDC Federation          │
+└─────────────────────────────────────────┘
+</pre></div>
+</div>
+<p><strong>优点</strong>：跨组织协作、用户体验好（SSO）
+<strong>缺点</strong>：信任关系管理复杂</p>
+</section>
+<section id="did">
+<h3>去中心化身份（DID）<a class="headerlink" href="#did" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌──────────┐                    ┌──────────┐
+│  持有者   │                    │  验证者   │
+│ (Holder)  │                    │(Verifier) │
+│          │  出示可验证凭证      │          │
+│          │───────────────────▶│          │
+└─────┬────┘                    └─────┬────┘
+      │                               │
+      │  获取凭证                      │  验证签名
+      ▼                               ▼
+┌──────────┐                    ┌──────────┐
+│  签发者   │                    │ 区块链/   │
+│ (Issuer)  │                    │ DID 注册表│
+└──────────┘                    └──────────┘
+</pre></div>
+</div>
+<p><strong>优点</strong>：用户自主控制、隐私保护
+<strong>缺点</strong>：生态不成熟、标准化进行中</p>
+</section>
+</section>
+<section id="id7">
+<h2>5.5 云 IAM 对比<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>特性</p></th>
+<th class="head"><p>AWS IAM</p></th>
+<th class="head"><p>Azure AD (Entra ID)</p></th>
+<th class="head"><p>GCP IAM</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>身份类型</p></td>
+<td><p>User、Role、Group</p></td>
+<td><p>User、Group、SP</p></td>
+<td><p>User、SA、Group</p></td>
+</tr>
+<tr class="row-odd"><td><p>策略模型</p></td>
+<td><p>JSON 策略文档</p></td>
+<td><p>RBAC + 条件访问</p></td>
+<td><p>IAM Policy</p></td>
+</tr>
+<tr class="row-even"><td><p>工作负载身份</p></td>
+<td><p>IAM Role + IRSA</p></td>
+<td><p>Managed Identity</p></td>
+<td><p>Workload Identity</p></td>
+</tr>
+<tr class="row-odd"><td><p>联邦</p></td>
+<td><p>SAML/OIDC</p></td>
+<td><p>SAML/OIDC/WS-Fed</p></td>
+<td><p>OIDC</p></td>
+</tr>
+<tr class="row-even"><td><p>细粒度授权</p></td>
+<td><p>IAM Policy + SCP</p></td>
+<td><p>Conditional Access</p></td>
+<td><p>IAM Conditions</p></td>
+</tr>
+<tr class="row-odd"><td><p>审计</p></td>
+<td><p>CloudTrail</p></td>
+<td><p>Azure Monitor</p></td>
+<td><p>Cloud Audit Logs</p></td>
+</tr>
+<tr class="row-even"><td><p>SPIFFE 支持</p></td>
+<td><p>SPIRE Node Attestor</p></td>
+<td><p>SPIRE Node Attestor</p></td>
+<td><p>SPIRE Node Attestor</p></td>
+</tr>
+</tbody>
+</table>
+<section id="aws-iam">
+<h3>AWS IAM 策略示例<a class="headerlink" href="#aws-iam" title="Link to this heading"></a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;s3:GetObject&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;s3:ListBucket&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;arn:aws:s3:::my-bucket&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;arn:aws:s3:::my-bucket/*&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;Condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;StringEquals&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;aws:PrincipalTag/department&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;engineering&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="nt">&quot;IpAddress&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;aws:SourceIp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10.0.0.0/8&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id8">
+<h2>5.6 从 IAM 到零信任<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>传统 IAM 和零信任 IAM 的对比：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>传统 IAM</p></th>
+<th class="head"><p>零信任 IAM</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>信任模型</p></td>
+<td><p>内网可信</p></td>
+<td><p>永不信任</p></td>
+</tr>
+<tr class="row-odd"><td><p>认证时机</p></td>
+<td><p>登录时一次</p></td>
+<td><p>每次请求</p></td>
+</tr>
+<tr class="row-even"><td><p>授权粒度</p></td>
+<td><p>粗粒度（角色）</p></td>
+<td><p>细粒度（属性+关系）</p></td>
+</tr>
+<tr class="row-odd"><td><p>网络依赖</p></td>
+<td><p>VPN + 防火墙</p></td>
+<td><p>身份驱动</p></td>
+</tr>
+<tr class="row-even"><td><p>凭证类型</p></td>
+<td><p>长期密码</p></td>
+<td><p>短期 Token/证书</p></td>
+</tr>
+<tr class="row-odd"><td><p>设备信任</p></td>
+<td><p>不考虑</p></td>
+<td><p>设备健康度</p></td>
+</tr>
+<tr class="row-even"><td><p>上下文</p></td>
+<td><p>静态</p></td>
+<td><p>动态（时间、位置、行为）</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id9">
+<h3>零信任 IAM 技术栈<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────┐
+│                零信任 IAM 技术栈                  │
+├─────────────────────────────────────────────────┤
+│  身份认证层                                      │
+│  ├── 人类身份：OIDC + MFA (Passkey)             │
+│  ├── 工作负载身份：SPIFFE/SPIRE                  │
+│  └── 设备身份：MDM + 设备证书                    │
+├─────────────────────────────────────────────────┤
+│  访问授权层                                      │
+│  ├── 粗粒度：RBAC (角色)                        │
+│  ├── 细粒度：OpenFGA (关系) + OPA (策略)        │
+│  └── 动态：风险引擎 + 自适应策略                 │
+├─────────────────────────────────────────────────┤
+│  策略执行层                                      │
+│  ├── API Gateway：认证卸载 + 速率限制            │
+│  ├── Service Mesh：mTLS + AuthorizationPolicy   │
+│  └── 应用层：中间件 + 装饰器                     │
+├─────────────────────────────────────────────────┤
+│  审计与监控层                                    │
+│  ├── 访问日志：结构化日志 + 关联 ID             │
+│  ├── SIEM：异常检测 + 告警                      │
+│  └── 合规报告：SOC 2 / ISO 27001               │
+└─────────────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id10">
+<h2>5.7 本书技术路线图<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>第二部分：身份认证（AuthN）
+┌──────────────────────────────────────────────┐
+│  TLS → OAuth2 → OIDC → JWT → MFA → SSO      │
+│  &quot;证明你是谁&quot;                                 │
+└──────────────────────────────────────────────┘
+                    │
+                    ▼
+第三部分：访问授权（AuthZ）
+┌──────────────────────────────────────────────┐
+│  RBAC/ABAC/ReBAC → OpenFGA → OPA → 策略即代码│
+│  &quot;决定你能做什么&quot;                              │
+└──────────────────────────────────────────────┘
+                    │
+                    ▼
+第四部分：工作负载身份与零信任
+┌──────────────────────────────────────────────┐
+│  SPIFFE → SPIRE → WIMSE → 零信任 → Service Mesh│
+│  &quot;机器如何证明自己&quot;                            │
+└──────────────────────────────────────────────┘
+                    │
+                    ▼
+第五部分：实战与展望
+┌──────────────────────────────────────────────┐
+│  安全框架 → API安全 → 密钥管理 → DevSecOps    │
+│  &quot;如何落地实践&quot;                                │
+└──────────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h2>5.8 小结<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<p>本章介绍了身份与访问管理的核心概念：</p>
+<ul class="simple">
+<li><p><strong>IAAA 模型</strong>（识别、认证、授权、审计）是 IAM 的四大支柱</p></li>
+<li><p><strong>认证（AuthN）和授权（AuthZ）</strong> 是两个不同的概念，不能混淆</p></li>
+<li><p><strong>身份生命周期</strong>需要从创建到撤销的全流程管理</p></li>
+<li><p><strong>机器身份</strong>的数量已远超人类身份，需要自动化管理</p></li>
+<li><p><strong>IAM 架构</strong>从集中式演进到联邦式，再到去中心化</p></li>
+<li><p><strong>零信任 IAM</strong> 是未来趋势：永不信任、始终验证、最小权限</p></li>
+</ul>
+<p>从下一章开始，我们将深入探讨身份认证的具体技术，从 TLS 协议开始，逐步学习 OAuth2、OIDC、JWT 等核心协议。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch04.html" class="btn btn-neutral float-left" title="第四章：威胁建模与风险评估" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch06.html" class="btn btn-neutral float-right" title="第六章：TLS 协议深入解析" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

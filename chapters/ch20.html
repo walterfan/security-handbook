@@ -1,0 +1,990 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第二十章：SPIRE — SPIFFE 的参考实现 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch20.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第二十一章：SPIFFE 联邦与跨域信任" href="ch21.html" />
+    <link rel="prev" title="第十九章：SPIFFE — 通用工作负载身份框架" href="ch19.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第二十章：SPIRE — SPIFFE 的参考实现</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#spire">20.1 SPIRE 架构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#node-attestation">20.2 Node Attestation（节点证明）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workload-registration">20.3 Workload Registration（工作负载注册）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#selector">选择器（Selector）类型</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#workload-attestation">20.4 Workload Attestation（工作负载证明）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ca-manager">20.5 CA Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kubernetes">20.6 Kubernetes 部署</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mtls">20.7 完整实战：两个服务间 mTLS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">注册工作负载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python">Python 应用代码</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">20.8 常用命令</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">20.9 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第二十章：SPIRE — SPIFFE 的参考实现</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch20.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spire-spiffe">
+<h1>第二十章：SPIRE — SPIFFE 的参考实现<a class="headerlink" href="#spire-spiffe" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“SPIRE 让 SPIFFE 从标准变为现实，让工作负载身份从理论走向生产。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((SPIRE))
+    Server
+      CA Manager
+      Registry
+      DataStore
+      Node Attestation
+    Agent
+      Workload API
+      Cache Manager
+      Workload Attestation
+      SDS
+    证明机制
+      Node Attestation
+      Workload Attestation
+    部署
+      Kubernetes
+      裸机
+      Docker
+    </pre><section id="spire">
+<h2>20.1 SPIRE 架构<a class="headerlink" href="#spire" title="Link to this heading"></a></h2>
+<p>SPIRE（SPIFFE Runtime Environment）是 SPIFFE 标准的参考实现：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────┐
+│                  SPIRE Server                    │
+│  ┌────────────┐ ┌────────────┐ ┌─────────────┐ │
+│  │ CA Manager │ │  Registry  │ │  DataStore  │ │
+│  │ 签发 SVID  │ │ 注册项管理  │ │ SQLite/PG  │ │
+│  └────────────┘ └────────────┘ └─────────────┘ │
+│  ┌────────────────────────────────────────────┐ │
+│  │         Node Attestation Plugins           │ │
+│  │  AWS IID │ GCP IIT │ K8s PSAT │ Join Token│ │
+│  └────────────────────────────────────────────┘ │
+└──────────────────┬──────────────────────────────┘
+                   │ mTLS (Node SVID)
+┌──────────────────▼──────────────────────────────┐
+│                  SPIRE Agent                     │
+│  ┌────────────┐ ┌────────────┐ ┌─────────────┐ │
+│  │ Workload   │ │   Cache    │ │  Workload   │ │
+│  │ API Server │ │  Manager   │ │  Attestor   │ │
+│  └────────────┘ └────────────┘ └─────────────┘ │
+│  ┌────────────────────────────────────────────┐ │
+│  │              SDS Server                    │ │
+│  │         (Envoy 集成接口)                   │ │
+│  └────────────────────────────────────────────┘ │
+└──────────────────┬──────────────────────────────┘
+                   │ Unix Domain Socket
+┌──────────────────▼──────────────────────────────┐
+│              Workload (应用)                      │
+│         通过 Workload API 获取 SVID              │
+└─────────────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="node-attestation">
+<h2>20.2 Node Attestation（节点证明）<a class="headerlink" href="#node-attestation" title="Link to this heading"></a></h2>
+<p>Node Attestation 验证”这个 Agent 运行在哪个节点上”：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>插件</p></th>
+<th class="head"><p>平台</p></th>
+<th class="head"><p>原理</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>aws_iid</p></td>
+<td><p>AWS</p></td>
+<td><p>使用 EC2 Instance Identity Document</p></td>
+</tr>
+<tr class="row-odd"><td><p>gcp_iit</p></td>
+<td><p>GCP</p></td>
+<td><p>使用 GCE Instance Identity Token</p></td>
+</tr>
+<tr class="row-even"><td><p>azure_msi</p></td>
+<td><p>Azure</p></td>
+<td><p>使用 Managed Service Identity</p></td>
+</tr>
+<tr class="row-odd"><td><p>k8s_psat</p></td>
+<td><p>Kubernetes</p></td>
+<td><p>使用 Projected ServiceAccount Token</p></td>
+</tr>
+<tr class="row-even"><td><p>k8s_sat</p></td>
+<td><p>Kubernetes</p></td>
+<td><p>使用 ServiceAccount Token（旧版）</p></td>
+</tr>
+<tr class="row-odd"><td><p>join_token</p></td>
+<td><p>通用</p></td>
+<td><p>使用预共享的一次性 Token</p></td>
+</tr>
+<tr class="row-even"><td><p>x509pop</p></td>
+<td><p>通用</p></td>
+<td><p>使用已有的 X.509 证书</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 Join Token 进行节点证明</span>
+<span class="c1"># 1. Server 端生成 Token</span>
+spire-server<span class="w"> </span>token<span class="w"> </span>generate<span class="w"> </span>-spiffeID<span class="w"> </span>spiffe://example.org/agent/node1
+<span class="c1"># Token: aaaabbbb-cccc-dddd-eeee-ffffffffffff</span>
+
+<span class="c1"># 2. Agent 端使用 Token 加入</span>
+spire-agent<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-joinToken<span class="w"> </span>aaaabbbb-cccc-dddd-eeee-ffffffffffff<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-serverAddress<span class="w"> </span>spire-server:8081
+</pre></div>
+</div>
+</section>
+<section id="workload-registration">
+<h2>20.3 Workload Registration（工作负载注册）<a class="headerlink" href="#workload-registration" title="Link to this heading"></a></h2>
+<p>注册项（Registration Entry）定义了”什么工作负载应该获得什么 SPIFFE ID”：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 注册一个 Kubernetes 工作负载</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-spiffeID<span class="w"> </span>spiffe://example.org/ns/production/sa/web-server<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-parentID<span class="w"> </span>spiffe://example.org/agent/node1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-selector<span class="w"> </span>k8s:ns:production<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-selector<span class="w"> </span>k8s:sa:web-server<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-ttl<span class="w"> </span><span class="m">3600</span>
+
+<span class="c1"># 注册一个 Docker 工作负载</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-spiffeID<span class="w"> </span>spiffe://example.org/service/api<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-parentID<span class="w"> </span>spiffe://example.org/agent/node1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-selector<span class="w"> </span>docker:label:app:api-server
+
+<span class="c1"># 注册一个 Unix 进程</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-spiffeID<span class="w"> </span>spiffe://example.org/service/database<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-parentID<span class="w"> </span>spiffe://example.org/agent/node1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-selector<span class="w"> </span>unix:uid:1000
+
+<span class="c1"># 查看所有注册项</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>show
+
+<span class="c1"># 删除注册项</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>delete<span class="w"> </span>-entryID<span class="w"> </span>&lt;entry-id&gt;
+</pre></div>
+</div>
+<section id="selector">
+<h3>选择器（Selector）类型<a class="headerlink" href="#selector" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>选择器</p></th>
+<th class="head"><p>格式</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>k8s:ns</p></td>
+<td><p>k8s:ns:production</p></td>
+<td><p>Kubernetes 命名空间</p></td>
+</tr>
+<tr class="row-odd"><td><p>k8s:sa</p></td>
+<td><p>k8s:sa:web-server</p></td>
+<td><p>Kubernetes ServiceAccount</p></td>
+</tr>
+<tr class="row-even"><td><p>k8s:pod-label</p></td>
+<td><p>k8s:pod-label:app:web</p></td>
+<td><p>Pod 标签</p></td>
+</tr>
+<tr class="row-odd"><td><p>docker:label</p></td>
+<td><p>docker:label:app:api</p></td>
+<td><p>Docker 容器标签</p></td>
+</tr>
+<tr class="row-even"><td><p>unix:uid</p></td>
+<td><p>unix:uid:1000</p></td>
+<td><p>Unix 用户 ID</p></td>
+</tr>
+<tr class="row-odd"><td><p>unix:gid</p></td>
+<td><p>unix:gid:1000</p></td>
+<td><p>Unix 组 ID</p></td>
+</tr>
+<tr class="row-even"><td><p>unix:path</p></td>
+<td><p>unix:path:/usr/bin/app</p></td>
+<td><p>可执行文件路径</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="workload-attestation">
+<h2>20.4 Workload Attestation（工作负载证明）<a class="headerlink" href="#workload-attestation" title="Link to this heading"></a></h2>
+<p>当工作负载通过 Workload API 请求 SVID 时，Agent 需要验证”谁在调用”：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>工作负载证明流程：
+┌──────────┐    ┌──────────────┐    ┌──────────────┐
+│ 工作负载  │───▶│  SPIRE Agent │───▶│ 工作负载证明  │
+│ (进程)    │    │              │    │ 插件         │
+│          │    │ 1. 接收连接   │    │              │
+│          │    │ 2. 获取 PID  │    │ 3. 查询进程   │
+│          │    │              │    │    信息       │
+│          │    │              │    │ 4. 匹配选择器 │
+│          │    │              │◀───│ 5. 返回匹配   │
+│          │    │              │    │    的 SPIFFE ID│
+│          │◀───│ 6. 签发 SVID │    │              │
+└──────────┘    └──────────────┘    └──────────────┘
+</pre></div>
+</div>
+</section>
+<section id="ca-manager">
+<h2>20.5 CA Manager<a class="headerlink" href="#ca-manager" title="Link to this heading"></a></h2>
+<p>SPIRE Server 内置 CA，也可以对接外部 CA：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>CA 类型</p></th>
+<th class="head"><p>说明</p></th>
+<th class="head"><p>适用场景</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>内置 CA</p></td>
+<td><p>SPIRE 自己管理根密钥</p></td>
+<td><p>开发/测试、小规模</p></td>
+</tr>
+<tr class="row-odd"><td><p>Vault CA</p></td>
+<td><p>使用 HashiCorp Vault PKI</p></td>
+<td><p>已有 Vault 基础设施</p></td>
+</tr>
+<tr class="row-even"><td><p>AWS PCA</p></td>
+<td><p>使用 AWS Private CA</p></td>
+<td><p>AWS 环境</p></td>
+</tr>
+<tr class="row-odd"><td><p>Disk CA</p></td>
+<td><p>从磁盘加载 CA 密钥</p></td>
+<td><p>自定义 CA</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="kubernetes">
+<h2>20.6 Kubernetes 部署<a class="headerlink" href="#kubernetes" title="Link to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># values.yaml (Helm Chart)</span>
+<span class="nt">global</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">spire</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">trustDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example.org</span>
+
+<span class="nt">spire-server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w">  </span><span class="c1"># 高可用</span>
+<span class="w">  </span><span class="nt">dataStore</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">sql</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">databaseType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
+<span class="w">      </span><span class="nt">connectionString</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;postgres://spire:password@postgres:5432/spire&quot;</span>
+<span class="w">  </span><span class="nt">nodeAttestor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">k8sPsat</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">caManager</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">upstreamAuthority</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w">  </span><span class="c1"># 使用内置 CA</span>
+
+<span class="nt">spire-agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">workloadAttestors</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k8s</span><span class="w">  </span><span class="c1"># Kubernetes 工作负载证明</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 Helm 部署</span>
+helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>spiffe<span class="w"> </span>https://spiffe.github.io/helm-charts-hardened/
+helm<span class="w"> </span>install<span class="w"> </span>spire<span class="w"> </span>spiffe/spire<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--namespace<span class="w"> </span>spire-system<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--create-namespace<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-f<span class="w"> </span>values.yaml
+</pre></div>
+</div>
+</section>
+<section id="mtls">
+<h2>20.7 完整实战：两个服务间 mTLS<a class="headerlink" href="#mtls" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>目标：Service A ←→ Service B 通过 SPIFFE mTLS 通信
+
+1. 部署 SPIRE Server + Agent
+2. 注册两个工作负载
+3. 应用通过 Workload API 获取 SVID
+4. 使用 SVID 建立 mTLS 连接
+</pre></div>
+</div>
+<section id="id1">
+<h3>注册工作负载<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 注册 Service A</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-spiffeID<span class="w"> </span>spiffe://example.org/service-a<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-parentID<span class="w"> </span>spiffe://example.org/agent/node1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-selector<span class="w"> </span>k8s:ns:default<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-selector<span class="w"> </span>k8s:sa:service-a
+
+<span class="c1"># 注册 Service B</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-spiffeID<span class="w"> </span>spiffe://example.org/service-b<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-parentID<span class="w"> </span>spiffe://example.org/agent/node1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-selector<span class="w"> </span>k8s:ns:default<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-selector<span class="w"> </span>k8s:sa:service-b
+</pre></div>
+</div>
+</section>
+<section id="python">
+<h3>Python 应用代码<a class="headerlink" href="#python" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Service A (客户端)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspiffe.spiffe_id.spiffe_id</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpiffeId</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspiffe.workloadapi.default_workload_api_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultWorkloadApiClient</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ssl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+
+<span class="n">SPIRE_AGENT_SOCKET</span> <span class="o">=</span> <span class="s2">&quot;unix:///run/spire/sockets/agent.sock&quot;</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">call_service_b</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;使用 SPIFFE mTLS 调用 Service B&quot;&quot;&quot;</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">DefaultWorkloadApiClient</span><span class="p">(</span><span class="n">SPIRE_AGENT_SOCKET</span><span class="p">)</span>
+    
+    <span class="c1"># 获取 X.509 SVID</span>
+    <span class="n">x509_context</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">fetch_x509_context</span><span class="p">()</span>
+    <span class="n">svid</span> <span class="o">=</span> <span class="n">x509_context</span><span class="o">.</span><span class="n">default_svid</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;My SPIFFE ID: </span><span class="si">{</span><span class="n">svid</span><span class="o">.</span><span class="n">spiffe_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Certificate expires: </span><span class="si">{</span><span class="n">svid</span><span class="o">.</span><span class="n">leaf</span><span class="o">.</span><span class="n">not_valid_after</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 构建 TLS 配置</span>
+    <span class="n">ssl_context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">PROTOCOL_TLS_CLIENT</span><span class="p">)</span>
+    <span class="c1"># 加载自己的证书（客户端证书）</span>
+    <span class="n">ssl_context</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span>
+        <span class="n">certfile</span><span class="o">=</span><span class="n">svid</span><span class="o">.</span><span class="n">cert_chain_pem</span><span class="p">,</span>
+        <span class="n">keyfile</span><span class="o">=</span><span class="n">svid</span><span class="o">.</span><span class="n">private_key_pem</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># 加载信任的 CA（Trust Bundle）</span>
+    <span class="k">for</span> <span class="n">bundle</span> <span class="ow">in</span> <span class="n">x509_context</span><span class="o">.</span><span class="n">x509_bundles</span><span class="p">:</span>
+        <span class="n">ssl_context</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="n">cadata</span><span class="o">=</span><span class="n">bundle</span><span class="o">.</span><span class="n">x509_authorities_pem</span><span class="p">)</span>
+    
+    <span class="c1"># 发起 mTLS 请求</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">verify</span><span class="o">=</span><span class="n">ssl_context</span><span class="p">)</span> <span class="k">as</span> <span class="n">http_client</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">http_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://service-b:8443/api/data&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id2">
+<h2>20.8 常用命令<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># === SPIRE Server ===</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>create<span class="w"> </span>...<span class="w">     </span><span class="c1"># 创建注册项</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>show<span class="w">           </span><span class="c1"># 查看所有注册项</span>
+spire-server<span class="w"> </span>entry<span class="w"> </span>delete<span class="w"> </span>-entryID<span class="w"> </span>xxx<span class="w">  </span><span class="c1"># 删除注册项</span>
+spire-server<span class="w"> </span>token<span class="w"> </span>generate<span class="w"> </span>...<span class="w">   </span><span class="c1"># 生成 Join Token</span>
+spire-server<span class="w"> </span>bundle<span class="w"> </span>show<span class="w">          </span><span class="c1"># 查看 Trust Bundle</span>
+spire-server<span class="w"> </span>healthcheck<span class="w">          </span><span class="c1"># 健康检查</span>
+
+<span class="c1"># === SPIRE Agent ===</span>
+spire-agent<span class="w"> </span>api<span class="w"> </span>fetch<span class="w"> </span>x509<span class="w">        </span><span class="c1"># 获取 X.509 SVID</span>
+spire-agent<span class="w"> </span>api<span class="w"> </span>fetch<span class="w"> </span>jwt<span class="w"> </span>-audience<span class="w"> </span>myapp<span class="w">  </span><span class="c1"># 获取 JWT SVID</span>
+spire-agent<span class="w"> </span>healthcheck<span class="w">           </span><span class="c1"># 健康检查</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>20.9 小结<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>SPIRE</strong> 是 SPIFFE 的参考实现，提供完整的工作负载身份管理</p></li>
+<li><p><strong>Server</strong> 负责注册管理和 SVID 签发，<strong>Agent</strong> 负责工作负载证明和 SVID 分发</p></li>
+<li><p><strong>Node Attestation</strong> 验证节点身份，<strong>Workload Attestation</strong> 验证进程身份</p></li>
+<li><p>支持多种平台：Kubernetes、AWS、GCP、Azure、Docker、裸机</p></li>
+<li><p>通过 <strong>Workload API</strong> 实现零配置的 SVID 获取和自动轮换</p></li>
+<li><p>生产部署建议：高可用 Server + PostgreSQL + 外部 CA</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch19.html" class="btn btn-neutral float-left" title="第十九章：SPIFFE — 通用工作负载身份框架" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch21.html" class="btn btn-neutral float-right" title="第二十一章：SPIFFE 联邦与跨域信任" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

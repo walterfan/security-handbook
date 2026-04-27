@@ -1,0 +1,1198 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第一章：安全工程概论 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch01.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第二章：密码学基础" href="ch02.html" />
+    <link rel="prev" title="安全工程手册：从身份认证到零信任架构" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第一章：安全工程概论</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cia">1.1 信息安全的 CIA 三要素</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#confidentiality">机密性（Confidentiality）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integrity">完整性（Integrity）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#availability">可用性（Availability）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">CIA 的平衡</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">1.2 安全工程的发展历程</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#castle-and-moat">城堡模型（Castle-and-Moat）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defense-in-depth">纵深防御（Defense in Depth）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zero-trust">零信任（Zero Trust）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#shift-left-security">1.3 安全左移（Shift Left Security）</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">各阶段的安全活动</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">修复成本的指数增长</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">1.4 安全设计原则</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#principle-of-least-privilege">最小权限原则（Principle of Least Privilege）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">纵深防御原则（Defense in Depth）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#secure-by-default">默认安全原则（Secure by Default）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#separation-of-duties">职责分离原则（Separation of Duties）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fail-secure">失败安全原则（Fail Secure）</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">1.5 安全与可用性的平衡</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">风险驱动的安全决策</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">自适应安全</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">1.6 本书结构与阅读指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id12">阅读建议</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id13">1.7 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第一章：安全工程概论</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch01.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>第一章：安全工程概论<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“安全不是产品，而是过程。” —— Bruce Schneier</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((安全工程概论))
+    CIA 三要素
+      机密性
+      完整性
+      可用性
+    发展历程
+      城堡模型
+      边界防御
+      纵深防御
+      零信任
+    设计原则
+      最小权限
+      纵深防御
+      默认安全
+      职责分离
+    安全左移
+      需求阶段
+      设计阶段
+      编码阶段
+      测试阶段
+    </pre><section id="cia">
+<h2>1.1 信息安全的 CIA 三要素<a class="headerlink" href="#cia" title="Link to this heading"></a></h2>
+<p>信息安全的核心目标可以用三个字母概括：<strong>CIA</strong>。这不是美国中央情报局，而是信息安全领域最基本的三个属性：</p>
+<section id="confidentiality">
+<h3>机密性（Confidentiality）<a class="headerlink" href="#confidentiality" title="Link to this heading"></a></h3>
+<p>机密性确保信息只能被授权的人访问。就像你的日记本上了锁，只有你有钥匙。</p>
+<p>在技术层面，机密性通过以下手段实现：</p>
+<ul class="simple">
+<li><p><strong>加密</strong>：对数据进行加密，使未授权者无法读取</p></li>
+<li><p><strong>访问控制</strong>：限制谁可以访问什么资源</p></li>
+<li><p><strong>数据分类</strong>：根据敏感程度对数据进行分级管理</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────┐
+│           机密性保护层次                  │
+├─────────────────────────────────────────┤
+│  传输层加密    │  TLS/mTLS              │
+│  存储层加密    │  AES-256-GCM           │
+│  应用层加密    │  端到端加密             │
+│  访问控制      │  RBAC/ABAC             │
+│  数据脱敏      │  掩码/令牌化            │
+└─────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="integrity">
+<h3>完整性（Integrity）<a class="headerlink" href="#integrity" title="Link to this heading"></a></h3>
+<p>完整性确保信息在传输和存储过程中不被篡改。就像你寄出的信件，收件人收到时内容应该和你写的一模一样。</p>
+<p>实现完整性的技术手段：</p>
+<ul class="simple">
+<li><p><strong>哈希函数</strong>：SHA-256、SHA-3 等，用于验证数据未被修改</p></li>
+<li><p><strong>数字签名</strong>：证明数据来源可信且未被篡改</p></li>
+<li><p><strong>消息认证码（MAC）</strong>：HMAC，确保消息的完整性和真实性</p></li>
+</ul>
+</section>
+<section id="availability">
+<h3>可用性（Availability）<a class="headerlink" href="#availability" title="Link to this heading"></a></h3>
+<p>可用性确保授权用户在需要时能够访问信息和资源。一个安全但无法使用的系统毫无价值。</p>
+<p>保障可用性的措施：</p>
+<ul class="simple">
+<li><p><strong>冗余设计</strong>：多副本、多区域部署</p></li>
+<li><p><strong>DDoS 防护</strong>：流量清洗、CDN</p></li>
+<li><p><strong>灾难恢复</strong>：备份策略、RTO/RPO 目标</p></li>
+<li><p><strong>容量规划</strong>：确保系统能承受预期负载</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>CIA 的平衡<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>三个要素之间存在天然的张力：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>场景</p></th>
+<th class="head"><p>侧重</p></th>
+<th class="head"><p>牺牲</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>军事系统</p></td>
+<td><p>机密性 &gt; 可用性</p></td>
+<td><p>宁可不可用，也不能泄密</p></td>
+</tr>
+<tr class="row-odd"><td><p>医疗急救系统</p></td>
+<td><p>可用性 &gt; 机密性</p></td>
+<td><p>紧急情况下可突破权限</p></td>
+</tr>
+<tr class="row-even"><td><p>金融交易系统</p></td>
+<td><p>完整性 &gt; 一切</p></td>
+<td><p>数据不能有任何差错</p></td>
+</tr>
+<tr class="row-odd"><td><p>公共网站</p></td>
+<td><p>可用性 &gt; 机密性</p></td>
+<td><p>信息本身就是公开的</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id3">
+<h2>1.2 安全工程的发展历程<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="castle-and-moat">
+<h3>城堡模型（Castle-and-Moat）<a class="headerlink" href="#castle-and-moat" title="Link to this heading"></a></h3>
+<p>早期的网络安全采用”城堡与护城河”模型：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                    互联网（不可信）
+                         │
+                    ┌────▼────┐
+                    │ 防火墙   │  ← 护城河
+                    └────┬────┘
+                         │
+              ┌──────────▼──────────┐
+              │    内部网络（可信）    │  ← 城堡内部
+              │                      │
+              │  ┌────┐  ┌────┐     │
+              │  │服务A│  │服务B│     │
+              │  └────┘  └────┘     │
+              │  ┌────┐  ┌────┐     │
+              │  │数据库│  │文件│     │
+              │  └────┘  └────┘     │
+              └──────────────────────┘
+</pre></div>
+</div>
+<p>这个模型的核心假设是：<strong>内部网络是可信的，外部网络是不可信的</strong>。只要守住边界（防火墙），内部就是安全的。</p>
+<p>问题在于：一旦攻击者突破了边界，就可以在内部网络中横向移动，如入无人之境。</p>
+</section>
+<section id="defense-in-depth">
+<h3>纵深防御（Defense in Depth）<a class="headerlink" href="#defense-in-depth" title="Link to this heading"></a></h3>
+<p>纵深防御借鉴了军事战略，在多个层次部署安全措施：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────┐
+│  第1层：物理安全（机房门禁、监控）         │
+│  ┌─────────────────────────────────────┐ │
+│  │  第2层：网络安全（防火墙、IDS/IPS）   │ │
+│  │  ┌─────────────────────────────────┐ │ │
+│  │  │  第3层：主机安全（补丁、杀毒）    │ │ │
+│  │  │  ┌─────────────────────────────┐ │ │ │
+│  │  │  │  第4层：应用安全（WAF、认证） │ │ │ │
+│  │  │  │  ┌─────────────────────────┐ │ │ │ │
+│  │  │  │  │  第5层：数据安全（加密）  │ │ │ │ │
+│  │  │  │  └─────────────────────────┘ │ │ │ │
+│  │  │  └─────────────────────────────┘ │ │ │
+│  │  └─────────────────────────────────┘ │ │
+│  └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="zero-trust">
+<h3>零信任（Zero Trust）<a class="headerlink" href="#zero-trust" title="Link to this heading"></a></h3>
+<p>2010 年，Forrester 的 John Kindervag 提出了零信任模型。其核心原则：</p>
+<ol class="arabic simple">
+<li><p><strong>永不信任，始终验证</strong>（Never Trust, Always Verify）</p></li>
+<li><p><strong>假设已被入侵</strong>（Assume Breach）</p></li>
+<li><p><strong>最小权限</strong>（Least Privilege）</p></li>
+<li><p><strong>显式验证</strong>（Verify Explicitly）</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌──────────────────────────────────────────────┐
+│              零信任架构                        │
+│                                               │
+│  ┌─────┐    ┌──────────┐    ┌──────────┐    │
+│  │用户/ │───▶│ 策略引擎  │───▶│ 策略执行  │    │
+│  │工作负│    │(身份验证  │    │  点(PEP) │    │
+│  │载    │    │ 风险评估  │    │          │    │
+│  └─────┘    │ 权限检查) │    └────┬─────┘    │
+│              └──────────┘         │           │
+│                                   ▼           │
+│              ┌──────────────────────┐         │
+│              │   受保护的资源        │         │
+│              │  (每次访问都需验证)   │         │
+│              └──────────────────────┘         │
+└──────────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+</section>
+<section id="shift-left-security">
+<h2>1.3 安全左移（Shift Left Security）<a class="headerlink" href="#shift-left-security" title="Link to this heading"></a></h2>
+<p>传统的安全实践是在开发完成后进行安全测试，这就像房子建好后才发现地基有问题。<strong>安全左移</strong>意味着在软件开发生命周期的早期就引入安全实践。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>传统模式：
+需求 → 设计 → 编码 → 测试 → 部署 → [安全测试] → 运维
+                                        ↑
+                                    发现问题，修复成本高
+
+安全左移：
+[安全需求] → [安全设计] → [安全编码] → [安全测试] → [安全部署] → [安全运维]
+     ↑            ↑           ↑           ↑            ↑           ↑
+  威胁建模    安全架构    SAST/SCA     DAST/渗透    安全配置    监控告警
+</pre></div>
+</div>
+<section id="id4">
+<h3>各阶段的安全活动<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>阶段</p></th>
+<th class="head"><p>安全活动</p></th>
+<th class="head"><p>工具/方法</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>需求</p></td>
+<td><p>安全需求分析、合规要求</p></td>
+<td><p>STRIDE 威胁建模</p></td>
+</tr>
+<tr class="row-odd"><td><p>设计</p></td>
+<td><p>安全架构评审、威胁建模</p></td>
+<td><p>数据流图、攻击树</p></td>
+</tr>
+<tr class="row-even"><td><p>编码</p></td>
+<td><p>安全编码规范、代码审查</p></td>
+<td><p>SAST（Semgrep、CodeQL）</p></td>
+</tr>
+<tr class="row-odd"><td><p>构建</p></td>
+<td><p>依赖漏洞扫描、镜像扫描</p></td>
+<td><p>SCA（Snyk、Trivy）</p></td>
+</tr>
+<tr class="row-even"><td><p>测试</p></td>
+<td><p>渗透测试、动态扫描</p></td>
+<td><p>DAST（OWASP ZAP）</p></td>
+</tr>
+<tr class="row-odd"><td><p>部署</p></td>
+<td><p>安全配置、密钥管理</p></td>
+<td><p>IaC 扫描（Checkov）</p></td>
+</tr>
+<tr class="row-even"><td><p>运维</p></td>
+<td><p>监控、告警、应急响应</p></td>
+<td><p>SIEM、SOC</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id5">
+<h3>修复成本的指数增长<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>安全问题发现得越晚，修复成本越高：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>修复成本
+  │
+  │                                          ★ 生产环境
+  │                                     ★    ($15,000)
+  │                                ★
+  │                           ★
+  │                      ★  测试阶段
+  │                 ★    ($5,000)
+  │            ★
+  │       ★  编码阶段
+  │  ★    ($500)
+  │★ 设计阶段
+  │  ($50)
+  └──────────────────────────────────────── 时间
+    需求  设计  编码  测试  部署  运维
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>1.4 安全设计原则<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<section id="principle-of-least-privilege">
+<h3>最小权限原则（Principle of Least Privilege）<a class="headerlink" href="#principle-of-least-privilege" title="Link to this heading"></a></h3>
+<p>每个用户、进程或系统组件只应拥有完成其任务所需的最小权限。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ❌ 反模式：给所有用户管理员权限</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_user_role</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;admin&quot;</span>  <span class="c1"># 简单粗暴，但极其危险</span>
+
+<span class="c1"># ✅ 正确做法：基于角色的最小权限</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Permission</span><span class="p">:</span>
+    <span class="n">READ</span> <span class="o">=</span> <span class="s2">&quot;read&quot;</span>
+    <span class="n">WRITE</span> <span class="o">=</span> <span class="s2">&quot;write&quot;</span>
+    <span class="n">DELETE</span> <span class="o">=</span> <span class="s2">&quot;delete&quot;</span>
+    <span class="n">ADMIN</span> <span class="o">=</span> <span class="s2">&quot;admin&quot;</span>
+
+<span class="n">ROLE_PERMISSIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;viewer&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">Permission</span><span class="o">.</span><span class="n">READ</span><span class="p">],</span>
+    <span class="s2">&quot;editor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">Permission</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">Permission</span><span class="o">.</span><span class="n">WRITE</span><span class="p">],</span>
+    <span class="s2">&quot;admin&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">Permission</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">Permission</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">Permission</span><span class="o">.</span><span class="n">DELETE</span><span class="p">,</span> <span class="n">Permission</span><span class="o">.</span><span class="n">ADMIN</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_permission</span><span class="p">(</span><span class="n">user_role</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">required_permission</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;检查用户角色是否拥有所需权限&quot;&quot;&quot;</span>
+    <span class="n">permissions</span> <span class="o">=</span> <span class="n">ROLE_PERMISSIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_role</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">return</span> <span class="n">required_permission</span> <span class="ow">in</span> <span class="n">permissions</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h3>纵深防御原则（Defense in Depth）<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>不依赖单一安全措施，而是在多个层次部署防御：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPBearer</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="c1"># 第1层：API Gateway（速率限制、IP 白名单）</span>
+<span class="c1"># 第2层：认证中间件</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">HTTPBearer</span><span class="p">())):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验证 JWT Token&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">credentials</span><span class="p">,</span> <span class="n">SECRET_KEY</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;RS256&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">payload</span>
+    <span class="k">except</span> <span class="n">jwt</span><span class="o">.</span><span class="n">InvalidTokenError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Invalid token&quot;</span><span class="p">)</span>
+
+<span class="c1"># 第3层：授权检查</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_authorization</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_token</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;检查用户权限&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;admin&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;roles&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">403</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Insufficient permissions&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">user</span>
+
+<span class="c1"># 第4层：输入验证</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">validator</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CreateUserRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">email</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_username</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid username&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span>
+
+<span class="c1"># 第5层：审计日志</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="n">audit_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;audit&quot;</span><span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/admin/users&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_user</span><span class="p">(</span>
+    <span class="n">request</span><span class="p">:</span> <span class="n">CreateUserRequest</span><span class="p">,</span>
+    <span class="n">user</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">check_authorization</span><span class="p">)</span>
+<span class="p">):</span>
+    <span class="n">audit_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User </span><span class="si">{</span><span class="n">user</span><span class="p">[</span><span class="s1">&#39;sub&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> created user </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># ... 创建用户逻辑</span>
+</pre></div>
+</div>
+</section>
+<section id="secure-by-default">
+<h3>默认安全原则（Secure by Default）<a class="headerlink" href="#secure-by-default" title="Link to this heading"></a></h3>
+<p>系统的默认配置应该是安全的，用户需要显式地降低安全级别。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>设置项</p></th>
+<th class="head"><p>不安全默认值</p></th>
+<th class="head"><p>安全默认值</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>密码策略</p></td>
+<td><p>无要求</p></td>
+<td><p>最少 12 位，含大小写和特殊字符</p></td>
+</tr>
+<tr class="row-odd"><td><p>Session 超时</p></td>
+<td><p>永不过期</p></td>
+<td><p>30 分钟</p></td>
+</tr>
+<tr class="row-even"><td><p>CORS</p></td>
+<td><p>允许所有来源</p></td>
+<td><p>仅允许白名单域名</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cookie</p></td>
+<td><p>无标志</p></td>
+<td><p>HttpOnly + Secure + SameSite</p></td>
+</tr>
+<tr class="row-even"><td><p>TLS 版本</p></td>
+<td><p>支持 TLS 1.0+</p></td>
+<td><p>仅 TLS 1.2+</p></td>
+</tr>
+<tr class="row-odd"><td><p>日志级别</p></td>
+<td><p>DEBUG</p></td>
+<td><p>WARN</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="separation-of-duties">
+<h3>职责分离原则（Separation of Duties）<a class="headerlink" href="#separation-of-duties" title="Link to this heading"></a></h3>
+<p>关键操作需要多人协作完成，防止单点滥用：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>代码变更流程（职责分离）：
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│  开发者   │───▶│  审查者   │───▶│  安全团队 │───▶│  运维团队 │
+│ 编写代码  │    │ 代码审查  │    │ 安全审查  │    │ 部署上线  │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘
+     │               │               │               │
+     ▼               ▼               ▼               ▼
+  不能自己      不能审查自己     不能跳过安全     不能修改代码
+  审查代码      的代码          检查直接部署     直接部署
+</pre></div>
+</div>
+</section>
+<section id="fail-secure">
+<h3>失败安全原则（Fail Secure）<a class="headerlink" href="#fail-secure" title="Link to this heading"></a></h3>
+<p>当系统发生故障时，应该默认拒绝访问，而不是默认允许：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">authorize_request</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;授权检查 — 失败时默认拒绝&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="n">permissions</span> <span class="o">=</span> <span class="n">get_permissions</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">permissions</span>
+    <span class="k">except</span> <span class="n">TokenExpiredError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Token 过期，拒绝</span>
+    <span class="k">except</span> <span class="ne">ConnectionError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># 无法连接授权服务，拒绝（而非允许）</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># 任何未知错误，拒绝</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id8">
+<h2>1.5 安全与可用性的平衡<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>安全和可用性之间存在天然的矛盾。过度的安全措施会降低用户体验，而过于宽松的安全策略则会带来风险。</p>
+<section id="id9">
+<h3>风险驱动的安全决策<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>风险 = 威胁 × 脆弱性 × 影响
+
+安全投入应与风险成正比：
+┌─────────────────────────────────────────┐
+│  高风险（核心数据、支付系统）             │
+│  → 强认证 + 细粒度授权 + 加密 + 审计    │
+├─────────────────────────────────────────┤
+│  中风险（内部工具、管理后台）             │
+│  → SSO + RBAC + 日志                    │
+├─────────────────────────────────────────┤
+│  低风险（公开信息、静态页面）             │
+│  → 基本防护 + CDN                       │
+└─────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>自适应安全<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>现代安全系统采用自适应策略，根据风险动态调整安全级别：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">adaptive_authentication</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;自适应认证：根据风险等级决定认证强度&quot;&quot;&quot;</span>
+    <span class="n">risk_score</span> <span class="o">=</span> <span class="n">calculate_risk</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">risk_score</span> <span class="o">&lt;</span> <span class="mf">0.3</span><span class="p">:</span>
+        <span class="c1"># 低风险：正常登录即可</span>
+        <span class="k">return</span> <span class="n">require_password</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">risk_score</span> <span class="o">&lt;</span> <span class="mf">0.7</span><span class="p">:</span>
+        <span class="c1"># 中风险：需要 MFA</span>
+        <span class="k">return</span> <span class="n">require_password</span><span class="p">(</span><span class="n">user</span><span class="p">)</span> <span class="ow">and</span> <span class="n">require_mfa</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># 高风险：需要额外验证</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">require_password</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">require_mfa</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">require_identity_verification</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_risk</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;计算风险分数&quot;&quot;&quot;</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">ip</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user</span><span class="o">.</span><span class="n">known_ips</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mf">0.3</span>  <span class="c1"># 新 IP 地址</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">device</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user</span><span class="o">.</span><span class="n">known_devices</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mf">0.3</span>  <span class="c1"># 新设备</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">location</span> <span class="o">!=</span> <span class="n">user</span><span class="o">.</span><span class="n">usual_location</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mf">0.2</span>  <span class="c1"># 异常地理位置</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">hour</span> <span class="o">&lt;</span> <span class="mi">6</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">hour</span> <span class="o">&gt;</span> <span class="mi">22</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mf">0.1</span>  <span class="c1"># 异常时间</span>
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">recent_failed_attempts</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mf">0.3</span>  <span class="c1"># 近期多次失败</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id11">
+<h2>1.6 本书结构与阅读指南<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<p>本书分为五个部分，共 30 章：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>第一部分：安全基础（第1-5章）
+├── 第1章：安全工程概论 ← 你在这里
+├── 第2章：密码学基础
+├── 第3章：PKI 与证书体系
+├── 第4章：威胁建模与风险评估
+└── 第5章：身份与访问管理概论
+
+第二部分：身份认证 Authentication（第6-12章）
+├── 第6章：TLS 协议深入解析
+├── 第7章：OAuth 2.0 授权框架
+├── 第8章：OpenID Connect 身份认证
+├── 第9章：JWT 深入解析
+├── 第10章：多因素认证（MFA）
+├── 第11章：单点登录与联邦身份
+└── 第12章：API 认证模式
+
+第三部分：访问授权 Authorization（第13-18章）
+├── 第13章：访问控制模型
+├── 第14章：OpenFGA — 细粒度授权引擎
+├── 第15章：OPA — 通用策略引擎
+├── 第16章：策略即代码
+├── 第17章：授权架构模式
+└── 第18章：授权系统实战
+
+第四部分：工作负载身份与零信任（第19-24章）
+├── 第19章：SPIFFE — 通用工作负载身份框架
+├── 第20章：SPIRE — SPIFFE 的参考实现
+├── 第21章：SPIFFE 联邦与跨域信任
+├── 第22章：WIMSE — 多系统环境中的工作负载身份
+├── 第23章：零信任架构
+└── 第24章：Service Mesh 安全
+
+第五部分：实战与展望（第25-30章）
+├── 第25章：安全框架与库实战
+├── 第26章：API 安全设计
+├── 第27章：密钥与凭证管理
+├── 第28章：云原生安全
+├── 第29章：DevSecOps — 安全左移
+└── 第30章：安全工程的未来
+</pre></div>
+</div>
+<section id="id12">
+<h3>阅读建议<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>读者类型</p></th>
+<th class="head"><p>推荐路径</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>安全新手</p></td>
+<td><p>第1-5章 → 第7-9章 → 第13章 → 第23章</p></td>
+</tr>
+<tr class="row-odd"><td><p>后端开发者</p></td>
+<td><p>第6-9章 → 第12-14章 → 第18章 → 第25-26章</p></td>
+</tr>
+<tr class="row-even"><td><p>平台工程师</p></td>
+<td><p>第19-24章 → 第27-28章 → 第29章</p></td>
+</tr>
+<tr class="row-odd"><td><p>安全工程师</p></td>
+<td><p>全书通读，重点关注第13-24章</p></td>
+</tr>
+<tr class="row-even"><td><p>架构师</p></td>
+<td><p>第1章 → 第5章 → 第13-17章 → 第19-24章 → 第30章</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id13">
+<h2>1.7 小结<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
+<p>本章介绍了安全工程的基本概念和原则：</p>
+<ul class="simple">
+<li><p><strong>CIA 三要素</strong>是信息安全的基石：机密性、完整性、可用性</p></li>
+<li><p>安全模型从<strong>城堡模型</strong>演进到<strong>零信任</strong>，反映了威胁环境的变化</p></li>
+<li><p><strong>安全左移</strong>将安全实践融入开发生命周期的每个阶段</p></li>
+<li><p>安全设计原则（最小权限、纵深防御、默认安全、职责分离）是构建安全系统的指导方针</p></li>
+<li><p>安全与可用性需要<strong>平衡</strong>，风险驱动的决策是关键</p></li>
+</ul>
+<p>在接下来的章节中，我们将深入探讨密码学基础、证书体系、威胁建模等核心主题，为后续的身份认证和访问授权打下坚实的基础。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="安全工程手册：从身份认证到零信任架构" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch02.html" class="btn btn-neutral float-right" title="第二章：密码学基础" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,1215 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第四章：威胁建模与风险评估 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch04.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第五章：身份与访问管理（IAM）概论" href="ch05.html" />
+    <link rel="prev" title="第三章：PKI 与证书体系" href="ch03.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第四章：威胁建模与风险评估</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">4.1 为什么需要威胁建模</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stride">4.2 STRIDE 威胁模型</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">STRIDE 与系统组件的映射</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dfd">4.3 数据流图（DFD）与信任边界</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">DFD 元素</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#web-dfd">示例：Web 应用的 DFD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">对每个数据流应用 STRIDE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dread">4.4 DREAD 风险评分</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">示例评估</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pasta">4.5 PASTA 威胁建模</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#attack-tree">4.6 攻击树（Attack Tree）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#owasp-top-10-2021">4.7 OWASP Top 10（2021）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">4.8 威胁建模实战</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">系统架构</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">STRIDE 分析结果</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">缓解措施优先级</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">4.9 风险评估矩阵</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">4.10 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch19.html">第十九章：SPIFFE — 通用工作负载身份框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第四章：威胁建模与风险评估</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch04.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>第四章：威胁建模与风险评估<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“如果你不知道你在防御什么，你就无法有效地防御。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((威胁建模))
+    方法论
+      STRIDE
+      DREAD
+      PASTA
+      Attack Tree
+    数据流图
+      信任边界
+      数据流
+      处理过程
+      数据存储
+    OWASP Top 10
+      注入
+      认证失败
+      访问控制
+    风险评估
+      可能性
+      影响
+      优先级
+    </pre><section id="id2">
+<h2>4.1 为什么需要威胁建模<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>威胁建模是一种<strong>结构化的方法</strong>，用于识别、量化和解决与应用程序安全相关的威胁。它回答四个核心问题：</p>
+<ol class="arabic simple">
+<li><p><strong>我们在构建什么？</strong>（系统架构）</p></li>
+<li><p><strong>什么可能出错？</strong>（威胁识别）</p></li>
+<li><p><strong>我们该怎么办？</strong>（缓解措施）</p></li>
+<li><p><strong>我们做得够好吗？</strong>（验证）</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>威胁建模的时机：
+┌─────────────────────────────────────────────┐
+│  需求阶段  │  识别安全需求和合规要求          │
+│  设计阶段  │  ★ 威胁建模的最佳时机 ★         │
+│  开发阶段  │  增量威胁建模（新功能）           │
+│  测试阶段  │  验证威胁缓解措施                │
+│  运维阶段  │  更新威胁模型（新威胁）           │
+└─────────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="stride">
+<h2>4.2 STRIDE 威胁模型<a class="headerlink" href="#stride" title="Link to this heading"></a></h2>
+<p>STRIDE 是微软提出的威胁分类方法，每个字母代表一种威胁类型：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>威胁</p></th>
+<th class="head"><p>全称</p></th>
+<th class="head"><p>描述</p></th>
+<th class="head"><p>违反的安全属性</p></th>
+<th class="head"><p>示例</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>S</strong></p></td>
+<td><p>Spoofing</p></td>
+<td><p>身份伪造</p></td>
+<td><p>认证</p></td>
+<td><p>伪造 JWT Token</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>T</strong></p></td>
+<td><p>Tampering</p></td>
+<td><p>数据篡改</p></td>
+<td><p>完整性</p></td>
+<td><p>修改 API 请求参数</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>R</strong></p></td>
+<td><p>Repudiation</p></td>
+<td><p>否认</p></td>
+<td><p>不可否认性</p></td>
+<td><p>否认执行过删除操作</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>I</strong></p></td>
+<td><p>Information Disclosure</p></td>
+<td><p>信息泄露</p></td>
+<td><p>机密性</p></td>
+<td><p>API 返回敏感数据</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>D</strong></p></td>
+<td><p>Denial of Service</p></td>
+<td><p>拒绝服务</p></td>
+<td><p>可用性</p></td>
+<td><p>DDoS 攻击</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>E</strong></p></td>
+<td><p>Elevation of Privilege</p></td>
+<td><p>权限提升</p></td>
+<td><p>授权</p></td>
+<td><p>普通用户获取管理员权限</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id3">
+<h3>STRIDE 与系统组件的映射<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件类型</p></th>
+<th class="head"><p>常见威胁</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>外部实体（用户/外部系统）</p></td>
+<td><p>S（身份伪造）</p></td>
+</tr>
+<tr class="row-odd"><td><p>数据流（网络通信）</p></td>
+<td><p>T（篡改）、I（信息泄露）</p></td>
+</tr>
+<tr class="row-even"><td><p>处理过程（服务/API）</p></td>
+<td><p>S、T、R、I、D、E（全部）</p></td>
+</tr>
+<tr class="row-odd"><td><p>数据存储（数据库/文件）</p></td>
+<td><p>T（篡改）、I（信息泄露）、D（拒绝服务）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="dfd">
+<h2>4.3 数据流图（DFD）与信任边界<a class="headerlink" href="#dfd" title="Link to this heading"></a></h2>
+<p>数据流图是威胁建模的基础工具，用于可视化系统的数据流动。</p>
+<section id="id4">
+<h3>DFD 元素<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────┐
+│ 外部实体 │  矩形：用户、外部系统
+└─────────┘
+
+(  处理过程  )  圆形：服务、API、函数
+
+═══════════   双线：数据存储（数据库、文件）
+
+──────────▶   箭头：数据流
+
+┄┄┄┄┄┄┄┄┄┄   虚线：信任边界
+</pre></div>
+</div>
+</section>
+<section id="web-dfd">
+<h3>示例：Web 应用的 DFD<a class="headerlink" href="#web-dfd" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                    信任边界
+                   ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+                   ┄                                    ┄
+┌──────────┐       ┄   ┌──────────┐    ┌──────────┐    ┄
+│          │  HTTPS ┄   │          │    │          │    ┄
+│  浏览器   │──────▶┄──▶│ API 网关  │───▶│ 认证服务  │    ┄
+│ (用户)    │◀──────┄──◀│          │◀───│          │    ┄
+│          │       ┄   └────┬─────┘    └──────────┘    ┄
+└──────────┘       ┄        │                           ┄
+                   ┄        ▼                           ┄
+                   ┄   ┌──────────┐    ┌──────────┐    ┄
+                   ┄   │          │    │          │    ┄
+                   ┄   │ 业务服务  │───▶│  数据库   │    ┄
+                   ┄   │          │◀───│          │    ┄
+                   ┄   └──────────┘    └──────────┘    ┄
+                   ┄                                    ┄
+                   ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>对每个数据流应用 STRIDE<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>数据流</p></th>
+<th class="head"><p>S</p></th>
+<th class="head"><p>T</p></th>
+<th class="head"><p>R</p></th>
+<th class="head"><p>I</p></th>
+<th class="head"><p>D</p></th>
+<th class="head"><p>E</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>浏览器 → API 网关</p></td>
+<td><p>✅ 伪造身份</p></td>
+<td><p>✅ 篡改请求</p></td>
+<td><p>✅ 否认操作</p></td>
+<td><p>✅ 窃听</p></td>
+<td><p>✅ 洪水攻击</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-odd"><td><p>API 网关 → 认证服务</p></td>
+<td><p>✅ 伪造请求</p></td>
+<td><p>✅ 篡改 Token</p></td>
+<td><p>—</p></td>
+<td><p>✅ Token 泄露</p></td>
+<td><p>✅ 服务不可用</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-even"><td><p>业务服务 → 数据库</p></td>
+<td><p>—</p></td>
+<td><p>✅ SQL 注入</p></td>
+<td><p>—</p></td>
+<td><p>✅ 数据泄露</p></td>
+<td><p>✅ 资源耗尽</p></td>
+<td><p>✅ 权限提升</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="dread">
+<h2>4.4 DREAD 风险评分<a class="headerlink" href="#dread" title="Link to this heading"></a></h2>
+<p>DREAD 用于量化每个威胁的风险等级：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>含义</p></th>
+<th class="head"><p>评分（1-10）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>D</strong>amage</p></td>
+<td><p>造成的损害程度</p></td>
+<td><p>10 = 完全系统被攻破</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>R</strong>eproducibility</p></td>
+<td><p>攻击的可重复性</p></td>
+<td><p>10 = 每次都能成功</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>E</strong>xploitability</p></td>
+<td><p>利用的难易程度</p></td>
+<td><p>10 = 无需技术知识</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>A</strong>ffected Users</p></td>
+<td><p>受影响的用户范围</p></td>
+<td><p>10 = 所有用户</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>D</strong>iscoverability</p></td>
+<td><p>漏洞的可发现性</p></td>
+<td><p>10 = 公开已知</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>风险分数 = (D + R + E + A + D) / 5</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>分数范围</p></th>
+<th class="head"><p>风险等级</p></th>
+<th class="head"><p>处理优先级</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1-3</p></td>
+<td><p>低</p></td>
+<td><p>可接受，记录并监控</p></td>
+</tr>
+<tr class="row-odd"><td><p>4-6</p></td>
+<td><p>中</p></td>
+<td><p>计划修复</p></td>
+</tr>
+<tr class="row-even"><td><p>7-9</p></td>
+<td><p>高</p></td>
+<td><p>尽快修复</p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>极高</p></td>
+<td><p>立即修复</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id6">
+<h3>示例评估<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>威胁：SQL 注入攻击
+┌──────────────────┬───────┬──────────────────────┐
+│ 维度              │ 评分  │ 理由                  │
+├──────────────────┼───────┼──────────────────────┤
+│ Damage           │  9    │ 可获取全部数据         │
+│ Reproducibility  │  8    │ 一旦发现，容易重复     │
+│ Exploitability   │  7    │ 有现成工具（sqlmap）   │
+│ Affected Users   │  10   │ 所有用户数据受影响     │
+│ Discoverability  │  8    │ 自动化扫描可发现       │
+├──────────────────┼───────┼──────────────────────┤
+│ 平均分            │  8.4  │ 高风险 → 尽快修复     │
+└──────────────────┴───────┴──────────────────────┘
+</pre></div>
+</div>
+</section>
+</section>
+<section id="pasta">
+<h2>4.5 PASTA 威胁建模<a class="headerlink" href="#pasta" title="Link to this heading"></a></h2>
+<p>PASTA（Process for Attack Simulation and Threat Analysis）是一个以风险为中心的七步威胁建模方法：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────┐
+│  第1步：定义业务目标                          │
+│  → 识别关键业务流程和合规要求                 │
+├─────────────────────────────────────────────┤
+│  第2步：定义技术范围                          │
+│  → 绘制架构图、识别技术组件                   │
+├─────────────────────────────────────────────┤
+│  第3步：应用分解                              │
+│  → 绘制 DFD、识别信任边界                    │
+├─────────────────────────────────────────────┤
+│  第4步：威胁分析                              │
+│  → 收集威胁情报、识别攻击者画像              │
+├─────────────────────────────────────────────┤
+│  第5步：漏洞分析                              │
+│  → 识别已知漏洞、弱点                        │
+├─────────────────────────────────────────────┤
+│  第6步：攻击建模                              │
+│  → 构建攻击树、模拟攻击路径                   │
+├─────────────────────────────────────────────┤
+│  第7步：风险与影响分析                        │
+│  → 量化风险、确定缓解优先级                   │
+└─────────────────────────────────────────────┘
+</pre></div>
+</div>
+</section>
+<section id="attack-tree">
+<h2>4.6 攻击树（Attack Tree）<a class="headerlink" href="#attack-tree" title="Link to this heading"></a></h2>
+<p>攻击树是一种自顶向下的威胁分析方法，根节点是攻击目标，叶节点是具体的攻击手段：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                    窃取用户数据
+                    [攻击目标]
+                   /     |      \
+                  /      |       \
+           SQL注入    API漏洞    社会工程
+           /    \       |        /    \
+          /      \      |       /      \
+      搜索框   登录表单  未授权  钓鱼邮件  电话诈骗
+      注入     注入     API端点
+      ($100)   ($100)   ($500)   ($50)    ($200)
+      [AND]    [AND]    [OR]     [OR]     [OR]
+       |        |
+    无输入    无参数
+    验证      化查询
+</pre></div>
+</div>
+</section>
+<section id="owasp-top-10-2021">
+<h2>4.7 OWASP Top 10（2021）<a class="headerlink" href="#owasp-top-10-2021" title="Link to this heading"></a></h2>
+<p>OWASP Top 10 是最权威的 Web 应用安全风险列表：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>排名</p></th>
+<th class="head"><p>风险</p></th>
+<th class="head"><p>描述</p></th>
+<th class="head"><p>防御</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A01</p></td>
+<td><p>访问控制失效</p></td>
+<td><p>未正确实施访问控制</p></td>
+<td><p>RBAC/ABAC、默认拒绝</p></td>
+</tr>
+<tr class="row-odd"><td><p>A02</p></td>
+<td><p>加密失败</p></td>
+<td><p>敏感数据未加密或加密不当</p></td>
+<td><p>TLS、AES-GCM、密钥管理</p></td>
+</tr>
+<tr class="row-even"><td><p>A03</p></td>
+<td><p>注入</p></td>
+<td><p>SQL/NoSQL/OS/LDAP 注入</p></td>
+<td><p>参数化查询、输入验证</p></td>
+</tr>
+<tr class="row-odd"><td><p>A04</p></td>
+<td><p>不安全设计</p></td>
+<td><p>架构级安全缺陷</p></td>
+<td><p>威胁建模、安全设计模式</p></td>
+</tr>
+<tr class="row-even"><td><p>A05</p></td>
+<td><p>安全配置错误</p></td>
+<td><p>默认配置、不必要的功能</p></td>
+<td><p>安全基线、自动化检查</p></td>
+</tr>
+<tr class="row-odd"><td><p>A06</p></td>
+<td><p>脆弱和过时组件</p></td>
+<td><p>使用有漏洞的依赖</p></td>
+<td><p>SCA、依赖更新</p></td>
+</tr>
+<tr class="row-even"><td><p>A07</p></td>
+<td><p>认证和识别失败</p></td>
+<td><p>弱密码、Session 管理不当</p></td>
+<td><p>MFA、安全 Session</p></td>
+</tr>
+<tr class="row-odd"><td><p>A08</p></td>
+<td><p>软件和数据完整性失败</p></td>
+<td><p>不安全的 CI/CD、反序列化</p></td>
+<td><p>签名验证、SBOM</p></td>
+</tr>
+<tr class="row-even"><td><p>A09</p></td>
+<td><p>安全日志和监控失败</p></td>
+<td><p>缺乏审计日志和告警</p></td>
+<td><p>集中日志、SIEM</p></td>
+</tr>
+<tr class="row-odd"><td><p>A10</p></td>
+<td><p>SSRF</p></td>
+<td><p>服务端请求伪造</p></td>
+<td><p>URL 白名单、网络隔离</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id7">
+<h2>4.8 威胁建模实战<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>以一个典型的微服务电商系统为例：</p>
+<section id="id8">
+<h3>系统架构<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌──────────┐     ┌──────────┐     ┌──────────┐
+│  移动端   │     │  Web 端   │     │ 第三方    │
+└────┬─────┘     └────┬─────┘     └────┬─────┘
+     │                │                │
+┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄┄┄┄┄┄┄┄┄┄┼┄┄┄┄┄ 信任边界
+     │                │                │
+     ▼                ▼                ▼
+┌─────────────────────────────────────────┐
+│              API Gateway                 │
+│         (认证、限流、路由)               │
+└────┬──────────┬──────────┬──────────────┘
+     │          │          │
+     ▼          ▼          ▼
+┌────────┐ ┌────────┐ ┌────────┐
+│用户服务 │ │订单服务 │ │支付服务 │
+└───┬────┘ └───┬────┘ └───┬────┘
+    │          │          │
+    ▼          ▼          ▼
+┌────────┐ ┌────────┐ ┌────────┐
+│用户 DB  │ │订单 DB  │ │支付网关 │
+└────────┘ └────────┘ └────────┘
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>STRIDE 分析结果<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>威胁</p></th>
+<th class="head"><p>风险</p></th>
+<th class="head"><p>缓解措施</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>API Gateway</p></td>
+<td><p>S: 伪造 Token</p></td>
+<td><p>高</p></td>
+<td><p>JWT 验证 + Token 黑名单</p></td>
+</tr>
+<tr class="row-odd"><td><p>API Gateway</p></td>
+<td><p>D: DDoS</p></td>
+<td><p>高</p></td>
+<td><p>速率限制 + WAF + CDN</p></td>
+</tr>
+<tr class="row-even"><td><p>用户服务</p></td>
+<td><p>I: 用户数据泄露</p></td>
+<td><p>高</p></td>
+<td><p>数据加密 + 最小权限</p></td>
+</tr>
+<tr class="row-odd"><td><p>用户服务</p></td>
+<td><p>E: 权限提升</p></td>
+<td><p>高</p></td>
+<td><p>RBAC + 输入验证</p></td>
+</tr>
+<tr class="row-even"><td><p>订单服务</p></td>
+<td><p>T: 订单篡改</p></td>
+<td><p>高</p></td>
+<td><p>数字签名 + 审计日志</p></td>
+</tr>
+<tr class="row-odd"><td><p>支付服务</p></td>
+<td><p>S: 支付伪造</p></td>
+<td><p>极高</p></td>
+<td><p>mTLS + 双重验证</p></td>
+</tr>
+<tr class="row-even"><td><p>支付服务</p></td>
+<td><p>R: 否认交易</p></td>
+<td><p>高</p></td>
+<td><p>审计日志 + 数字签名</p></td>
+</tr>
+<tr class="row-odd"><td><p>数据库</p></td>
+<td><p>T: SQL 注入</p></td>
+<td><p>高</p></td>
+<td><p>参数化查询 + ORM</p></td>
+</tr>
+<tr class="row-even"><td><p>数据库</p></td>
+<td><p>I: 数据泄露</p></td>
+<td><p>高</p></td>
+<td><p>加密存储 + 访问控制</p></td>
+</tr>
+<tr class="row-odd"><td><p>服务间通信</p></td>
+<td><p>I: 窃听</p></td>
+<td><p>中</p></td>
+<td><p>mTLS（SPIFFE/SPIRE）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id10">
+<h3>缓解措施优先级<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 威胁建模结果的代码化管理</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Severity</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">LOW</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MEDIUM</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">HIGH</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">CRITICAL</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Status</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">OPEN</span> <span class="o">=</span> <span class="s2">&quot;open&quot;</span>
+    <span class="n">IN_PROGRESS</span> <span class="o">=</span> <span class="s2">&quot;in_progress&quot;</span>
+    <span class="n">MITIGATED</span> <span class="o">=</span> <span class="s2">&quot;mitigated&quot;</span>
+    <span class="n">ACCEPTED</span> <span class="o">=</span> <span class="s2">&quot;accepted&quot;</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Threat</span><span class="p">:</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># STRIDE</span>
+    <span class="n">component</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="n">Severity</span>
+    <span class="n">mitigation</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">Status</span>
+
+<span class="c1"># 威胁清单</span>
+<span class="n">threats</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Threat</span><span class="p">(</span><span class="s2">&quot;T001&quot;</span><span class="p">,</span> <span class="s2">&quot;Spoofing&quot;</span><span class="p">,</span> <span class="s2">&quot;API Gateway&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;伪造 JWT Token 访问受保护资源&quot;</span><span class="p">,</span>
+           <span class="n">Severity</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span>
+           <span class="s2">&quot;使用 RS256 签名 + Token 黑名单 + 短过期时间&quot;</span><span class="p">,</span>
+           <span class="n">Status</span><span class="o">.</span><span class="n">IN_PROGRESS</span><span class="p">),</span>
+    <span class="n">Threat</span><span class="p">(</span><span class="s2">&quot;T002&quot;</span><span class="p">,</span> <span class="s2">&quot;Injection&quot;</span><span class="p">,</span> <span class="s2">&quot;用户服务&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;SQL 注入获取用户数据&quot;</span><span class="p">,</span>
+           <span class="n">Severity</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+           <span class="s2">&quot;使用 ORM + 参数化查询 + 输入验证&quot;</span><span class="p">,</span>
+           <span class="n">Status</span><span class="o">.</span><span class="n">MITIGATED</span><span class="p">),</span>
+    <span class="n">Threat</span><span class="p">(</span><span class="s2">&quot;T003&quot;</span><span class="p">,</span> <span class="s2">&quot;Information Disclosure&quot;</span><span class="p">,</span> <span class="s2">&quot;服务间通信&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;明文通信被窃听&quot;</span><span class="p">,</span>
+           <span class="n">Severity</span><span class="o">.</span><span class="n">MEDIUM</span><span class="p">,</span>
+           <span class="s2">&quot;部署 SPIRE 实现自动 mTLS&quot;</span><span class="p">,</span>
+           <span class="n">Status</span><span class="o">.</span><span class="n">OPEN</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="c1"># 按严重程度排序</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">threats</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">severity</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">severity</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id11">
+<h2>4.9 风险评估矩阵<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>影响程度
+  │
+高│  ┌─────────┐  ┌─────────┐  ┌─────────┐
+  │  │  中风险  │  │  高风险  │  │ 极高风险 │
+  │  │         │  │         │  │         │
+  │  └─────────┘  └─────────┘  └─────────┘
+中│  ┌─────────┐  ┌─────────┐  ┌─────────┐
+  │  │  低风险  │  │  中风险  │  │  高风险  │
+  │  │         │  │         │  │         │
+  │  └─────────┘  └─────────┘  └─────────┘
+低│  ┌─────────┐  ┌─────────┐  ┌─────────┐
+  │  │ 极低风险 │  │  低风险  │  │  中风险  │
+  │  │         │  │         │  │         │
+  │  └─────────┘  └─────────┘  └─────────┘
+  └──────────────────────────────────────── 可能性
+        低            中            高
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h2>4.10 小结<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<p>本章介绍了威胁建模的核心方法和实践：</p>
+<ul class="simple">
+<li><p><strong>STRIDE</strong> 提供了系统化的威胁分类框架</p></li>
+<li><p><strong>数据流图（DFD）</strong> 帮助可视化系统架构和信任边界</p></li>
+<li><p><strong>DREAD</strong> 和风险矩阵用于量化和优先排序威胁</p></li>
+<li><p><strong>PASTA</strong> 提供了完整的七步威胁建模流程</p></li>
+<li><p><strong>OWASP Top 10</strong> 是 Web 应用安全的权威参考</p></li>
+<li><p>威胁建模应该在<strong>设计阶段</strong>进行，并在整个生命周期中持续更新</p></li>
+</ul>
+<p>在下一章中，我们将学习身份与访问管理（IAM）的概论，为后续深入探讨认证和授权技术打下基础。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch03.html" class="btn btn-neutral float-left" title="第三章：PKI 与证书体系" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch05.html" class="btn btn-neutral float-right" title="第五章：身份与访问管理（IAM）概论" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

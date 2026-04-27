@@ -1,0 +1,951 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第十九章：SPIFFE — 通用工作负载身份框架 &mdash; Security Handbook</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e536ea0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+    <link rel="canonical" href="https://walterfan.github.io/security-handbook/chapters/ch19.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=29a6c3e3"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../_static/togglebutton.js?v=b8b12719"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="第二十章：SPIRE — SPIFFE 的参考实现" href="ch20.html" />
+    <link rel="prev" title="第十八章：授权系统实战 — OpenFGA + FastAPI" href="ch18.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Security Handbook
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">第一部分：安全基础</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch01.html">第一章：安全工程概论</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch02.html">第二章：密码学基础</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch03.html">第三章：PKI 与证书体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch04.html">第四章：威胁建模与风险评估</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch05.html">第五章：身份与访问管理（IAM）概论</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第二部分：身份认证 (Authentication)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch06.html">第六章：TLS 协议深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch07.html">第七章：OAuth 2.0 授权框架</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch08.html">第八章：OpenID Connect 身份认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch09.html">第九章：JWT 深入解析</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch10.html">第十章：多因素认证（MFA）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch11.html">第十一章：单点登录（SSO）与联邦身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch12.html">第十二章：API 认证模式</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第三部分：访问授权 (Authorization)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch13.html">第十三章：访问控制模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch14.html">第十四章：OpenFGA — 细粒度授权引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch15.html">第十五章：OPA — 通用策略引擎</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch16.html">第十六章：策略即代码（Policy as Code）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch17.html">第十七章：授权架构模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch18.html">第十八章：授权系统实战 — OpenFGA + FastAPI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第四部分：工作负载身份与零信任</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">第十九章：SPIFFE — 通用工作负载身份框架</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">19.1 工作负载身份的挑战</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">19.2 SPIFFE 是什么</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spiffe-id">19.3 SPIFFE ID</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#trust-domain">Trust Domain 设计原则</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#svid">19.4 SVID — 可验证身份文档</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#x-509-svid">X.509-SVID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jwt-svid">JWT-SVID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#x-509-svid-vs-jwt-svid">X.509-SVID vs JWT-SVID</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#trust-bundle">19.5 Trust Bundle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workload-api">19.6 Workload API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">19.7 SPIFFE 与传统方案对比</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">19.8 小结</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ch20.html">第二十章：SPIRE — SPIFFE 的参考实现</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch21.html">第二十一章：SPIFFE 联邦与跨域信任</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch22.html">第二十二章：WIMSE — 多系统环境中的工作负载身份</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch23.html">第二十三章：零信任架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch24.html">第二十四章：Service Mesh 安全</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">第五部分：实战与展望</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ch25.html">第二十五章：安全框架与库实战</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch26.html">第二十六章：API 安全设计</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch27.html">第二十七章：密钥与凭证管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch28.html">第二十八章：云原生安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch29.html">第二十九章：DevSecOps — 安全左移</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ch30.html">第三十章：安全工程的未来</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">附录：专题笔记</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/index.html">附录：专题笔记</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Security Handbook</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">第十九章：SPIFFE — 通用工作负载身份框架</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/chapters/ch19.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spiffe">
+<h1>第十九章：SPIFFE — 通用工作负载身份框架<a class="headerlink" href="#spiffe" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>“人有身份证，机器也需要身份证。SPIFFE 就是机器世界的身份证标准。”</p>
+</div></blockquote>
+<pre  class="mermaid">
+        mindmap
+  root((SPIFFE))
+    SPIFFE ID
+      trust domain
+      path
+      格式规范
+    SVID
+      X.509-SVID
+      JWT-SVID
+      短生命周期
+    Trust Bundle
+      信任根
+      联邦信任
+    Workload API
+      Unix Socket
+      gRPC
+      自动轮换
+    设计哲学
+      平台无关
+      自动化
+      零配置
+    </pre><section id="id1">
+<h2>19.1 工作负载身份的挑战<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>在云原生时代，机器身份（工作负载身份）面临独特的挑战：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>挑战</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>数量级</p></td>
+<td><p>工作负载数量远超人类用户（数十万级）</p></td>
+</tr>
+<tr class="row-odd"><td><p>动态性</p></td>
+<td><p>容器随时创建和销毁，IP 地址不固定</p></td>
+</tr>
+<tr class="row-even"><td><p>异构性</p></td>
+<td><p>跨 Kubernetes、VM、裸机、多云</p></td>
+</tr>
+<tr class="row-odd"><td><p>凭证管理</p></td>
+<td><p>手动管理证书/密钥不可扩展</p></td>
+</tr>
+<tr class="row-even"><td><p>信任建立</p></td>
+<td><p>如何证明”这个进程确实是它声称的服务”</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>传统方式的问题：
+┌──────────┐    ┌──────────┐
+│ Service A │───▶│ Service B │
+│          │    │          │
+│ 如何证明  │    │ 如何验证  │
+│ &quot;我是A&quot;？ │    │ &quot;它是A&quot;？ │
+└──────────┘    └──────────┘
+
+方案1: 硬编码密钥 → 泄露风险、无法轮换
+方案2: 环境变量   → 容易被窃取
+方案3: K8s Secret → 仅限 K8s、明文存储
+方案4: Vault      → 需要先认证才能获取密钥（鸡生蛋问题）
+方案5: SPIFFE ✅  → 自动化、短生命周期、平台无关
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>19.2 SPIFFE 是什么<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>SPIFFE（Secure Production Identity Framework For Everyone）是一套开源标准，为工作负载提供统一的身份框架。它是 CNCF 毕业项目。</p>
+<p>SPIFFE 定义了三个核心规范：</p>
+<ol class="arabic simple">
+<li><p><strong>SPIFFE ID</strong>：工作负载的唯一身份标识</p></li>
+<li><p><strong>SVID</strong>：可验证的身份文档</p></li>
+<li><p><strong>Workload API</strong>：工作负载获取身份的接口</p></li>
+</ol>
+</section>
+<section id="spiffe-id">
+<h2>19.3 SPIFFE ID<a class="headerlink" href="#spiffe-id" title="Link to this heading"></a></h2>
+<p>SPIFFE ID 是一个 URI，格式为：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>spiffe://trust-domain/path
+
+示例：
+spiffe://example.org/ns/production/sa/web-server
+spiffe://example.org/region/us-east/service/payment
+spiffe://bank.com/department/trading/app/risk-engine
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组成部分</p></th>
+<th class="head"><p>说明</p></th>
+<th class="head"><p>示例</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>scheme</p></td>
+<td><p>固定为 spiffe</p></td>
+<td><p>spiffe://</p></td>
+</tr>
+<tr class="row-odd"><td><p>trust domain</p></td>
+<td><p>信任域，类似 DNS 域名</p></td>
+<td><p>example.org</p></td>
+</tr>
+<tr class="row-even"><td><p>path</p></td>
+<td><p>工作负载路径，自由定义</p></td>
+<td><p>/ns/prod/sa/web</p></td>
+</tr>
+</tbody>
+</table>
+<section id="trust-domain">
+<h3>Trust Domain 设计原则<a class="headerlink" href="#trust-domain" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>推荐的 Trust Domain 命名：
+✅ prod.example.com      — 生产环境
+✅ staging.example.com   — 预发布环境
+✅ cluster1.example.com  — 按集群划分
+❌ example.com           — 太宽泛
+❌ my-app                — 不像域名
+
+路径设计建议：
+/ns/{namespace}/sa/{service-account}     — Kubernetes 风格
+/region/{region}/service/{service-name}  — 按区域划分
+/env/{environment}/app/{app-name}        — 按环境划分
+</pre></div>
+</div>
+</section>
+</section>
+<section id="svid">
+<h2>19.4 SVID — 可验证身份文档<a class="headerlink" href="#svid" title="Link to this heading"></a></h2>
+<p>SVID（SPIFFE Verifiable Identity Document）是工作负载的”身份证”，有两种形式：</p>
+<section id="x-509-svid">
+<h3>X.509-SVID<a class="headerlink" href="#x-509-svid" title="Link to this heading"></a></h3>
+<p>最常用的形式，基于 X.509 证书：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Certificate:
+    Subject: O=SPIRE
+    Subject Alternative Name:
+        URI: spiffe://example.org/ns/prod/sa/web-server  ← SPIFFE ID
+    Issuer: O=SPIRE, CN=SPIRE CA
+    Validity:
+        Not Before: 2024-01-01 00:00:00 UTC
+        Not After:  2024-01-01 01:00:00 UTC  ← 1小时有效期！
+    Public Key Algorithm: ECDSA P-256
+</pre></div>
+</div>
+<p>关键特性：</p>
+<ul class="simple">
+<li><p>SPIFFE ID 存储在证书的 <strong>SAN URI</strong> 字段</p></li>
+<li><p><strong>短生命周期</strong>（通常 1 小时），自动轮换</p></li>
+<li><p>用于 <strong>mTLS</strong> 双向认证</p></li>
+</ul>
+</section>
+<section id="jwt-svid">
+<h3>JWT-SVID<a class="headerlink" href="#jwt-svid" title="Link to this heading"></a></h3>
+<p>基于 JWT 的身份文档，适用于 L7 场景：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{
+  &quot;alg&quot;: &quot;ES256&quot;,
+  &quot;kid&quot;: &quot;key-1&quot;,
+  &quot;typ&quot;: &quot;JWT&quot;
+}
+.
+{
+  &quot;sub&quot;: &quot;spiffe://example.org/ns/prod/sa/web-server&quot;,
+  &quot;aud&quot;: [&quot;spiffe://example.org/ns/prod/sa/api-server&quot;],
+  &quot;exp&quot;: 1709510400,
+  &quot;iat&quot;: 1709506800
+}
+.
+[signature]
+</pre></div>
+</div>
+</section>
+<section id="x-509-svid-vs-jwt-svid">
+<h3>X.509-SVID vs JWT-SVID<a class="headerlink" href="#x-509-svid-vs-jwt-svid" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>X.509-SVID</p></th>
+<th class="head"><p>JWT-SVID</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>用途</p></td>
+<td><p>mTLS（L4）</p></td>
+<td><p>HTTP Header（L7）</p></td>
+</tr>
+<tr class="row-odd"><td><p>验证方式</p></td>
+<td><p>TLS 握手</p></td>
+<td><p>Token 验证</p></td>
+</tr>
+<tr class="row-even"><td><p>受众绑定</p></td>
+<td><p>❌</p></td>
+<td><p>✅（aud claim）</p></td>
+</tr>
+<tr class="row-odd"><td><p>代理穿透</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p>性能</p></td>
+<td><p>高（TLS 层）</p></td>
+<td><p>中（应用层）</p></td>
+</tr>
+<tr class="row-odd"><td><p>适用场景</p></td>
+<td><p>服务间直连</p></td>
+<td><p>API Gateway、L7 代理</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="trust-bundle">
+<h2>19.5 Trust Bundle<a class="headerlink" href="#trust-bundle" title="Link to this heading"></a></h2>
+<p>Trust Bundle 是信任域的根证书集合，用于验证 SVID：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Trust Domain: example.org
+Trust Bundle: [Root CA Certificate]
+
+验证流程：
+1. Service A 出示 X.509-SVID
+2. Service B 用 example.org 的 Trust Bundle 验证证书链
+3. 验证 SAN 中的 SPIFFE ID
+4. 信任建立 ✅
+</pre></div>
+</div>
+</section>
+<section id="workload-api">
+<h2>19.6 Workload API<a class="headerlink" href="#workload-api" title="Link to this heading"></a></h2>
+<p>Workload API 是工作负载获取 SVID 的标准接口：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌──────────────┐    Unix Domain Socket    ┌──────────────┐
+│   工作负载    │◀────────────────────────▶│  SPIRE Agent │
+│  (应用进程)   │    /run/spire/sockets/   │              │
+│              │    agent.sock             │  自动签发     │
+│  获取 SVID   │                          │  自动轮换     │
+│  获取 Bundle │                          │  缓存管理     │
+└──────────────┘                          └──────────────┘
+</pre></div>
+</div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// Go 示例：使用 Workload API 获取 SVID</span>
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;github.com/spiffe/go-spiffe/v2/workloadapi&quot;</span>
+
+<span class="nx">ctx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Background</span><span class="p">()</span>
+<span class="nx">source</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">workloadapi</span><span class="p">.</span><span class="nx">NewX509Source</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">workloadapi</span><span class="p">.</span><span class="nx">WithClientOptions</span><span class="p">(</span>
+<span class="w">        </span><span class="nx">workloadapi</span><span class="p">.</span><span class="nx">WithAddr</span><span class="p">(</span><span class="s">&quot;unix:///run/spire/sockets/agent.sock&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="p">),</span>
+<span class="p">)</span>
+<span class="k">defer</span><span class="w"> </span><span class="nx">source</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+
+<span class="c1">// 获取 SVID</span>
+<span class="nx">svid</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">source</span><span class="p">.</span><span class="nx">GetX509SVID</span><span class="p">()</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;SPIFFE ID: %s\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">svid</span><span class="p">.</span><span class="nx">ID</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;证书有效期: %s\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">svid</span><span class="p">.</span><span class="nx">Certificates</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">NotAfter</span><span class="p">)</span>
+
+<span class="c1">// 用 SVID 建立 mTLS 连接</span>
+<span class="nx">tlsConfig</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tlsconfig</span><span class="p">.</span><span class="nx">MTLSClientConfig</span><span class="p">(</span><span class="nx">source</span><span class="p">,</span><span class="w"> </span><span class="nx">source</span><span class="p">,</span><span class="w"> </span><span class="nx">tlsconfig</span><span class="p">.</span><span class="nx">AuthorizeID</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">spiffeid</span><span class="p">.</span><span class="nx">RequireID</span><span class="p">(</span><span class="nx">spiffeid</span><span class="p">.</span><span class="nx">Must</span><span class="p">(</span><span class="s">&quot;example.org&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/ns/prod/sa/api-server&quot;</span><span class="p">)),</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>19.7 SPIFFE 与传统方案对比<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>方案</p></th>
+<th class="head"><p>平台无关</p></th>
+<th class="head"><p>自动轮换</p></th>
+<th class="head"><p>短生命周期</p></th>
+<th class="head"><p>零配置</p></th>
+<th class="head"><p>标准化</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>K8s ServiceAccount</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-odd"><td><p>AWS IAM Role</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-even"><td><p>手动 mTLS</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-odd"><td><p>HashiCorp Vault</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>SPIFFE/SPIRE</strong></p></td>
+<td><p><strong>✅</strong></p></td>
+<td><p><strong>✅</strong></p></td>
+<td><p><strong>✅</strong></p></td>
+<td><p><strong>✅</strong></p></td>
+<td><p><strong>✅</strong></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id4">
+<h2>19.8 小结<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>SPIFFE</strong> 是工作负载身份的开放标准（CNCF 毕业项目）</p></li>
+<li><p><strong>SPIFFE ID</strong> 格式：<code class="docutils literal notranslate"><span class="pre">spiffe://trust-domain/path</span></code></p></li>
+<li><p><strong>SVID</strong> 有两种形式：X.509-SVID（mTLS）和 JWT-SVID（L7）</p></li>
+<li><p><strong>短生命周期</strong>（1小时）+ <strong>自动轮换</strong> = 大幅降低凭证泄露风险</p></li>
+<li><p><strong>Workload API</strong> 通过 Unix Socket 提供零配置的身份获取</p></li>
+<li><p>SPIFFE 是<strong>平台无关</strong>的，可以跨 K8s、VM、多云使用</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ch18.html" class="btn btn-neutral float-left" title="第十八章：授权系统实战 — OpenFGA + FastAPI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ch20.html" class="btn btn-neutral float-right" title="第二十章：SPIRE — SPIFFE 的参考实现" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021 ~ 2035, Walter Fan, Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>
