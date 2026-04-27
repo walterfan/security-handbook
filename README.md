@@ -16,6 +16,20 @@
 
 ---
 
+## 构建与发布
+
+本书使用 Poetry 管理 Sphinx/MyST 文档依赖：
+
+```bash
+poetry install --only docs --no-root
+make html
+make serve
+```
+
+`make publish` 会生成 GitHub Pages artifact 到 `doc/build/html`。推送到 `master` 或 `main` 后，GitHub Actions 会自动发布到 <https://walterfan.github.io/security-handbook/>。
+
+---
+
 ## 📖 目录
 
 ### 第一部分：安全基础

@@ -33,13 +33,14 @@ release = '1'
 # ones.
 
 # refer to https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
-extensions = ['sphinx.ext.graphviz', 
-'myst_parser',
-'sphinx_design', 
-'sphinx_togglebutton', 
-'sphinxcontrib.mermaid',
-'sphinx.ext.autodoc',
-'sphinxcontrib.plantuml'
+extensions = [
+    'sphinx.ext.graphviz',
+    'myst_parser',
+    'sphinx_design',
+    'sphinx_togglebutton',
+    'sphinxcontrib.mermaid',
+    'sphinx.ext.autodoc',
+    'sphinxcontrib.plantuml',
 ]
 plantuml = 'java -jar /usr/local/bin/plantuml.jar'
 # Add any paths that contain templates here, relative to this directory.
@@ -65,7 +66,12 @@ mermaid.initialize({
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = [
+    '_build',
+    'Thumbs.db',
+    '.DS_Store',
+    'README.md',
+]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -73,9 +79,9 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-#html_theme = "alabaster"
 html_theme = "sphinx_rtd_theme"
-html_theme_path = ["_themes", ]
+html_title = "Security Handbook"
+html_baseurl = "https://walterfan.github.io/security-handbook/"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
