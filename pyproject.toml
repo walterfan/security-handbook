@@ -8,6 +8,8 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
 dependencies = [
+    "fabric (>=3.2.3,<4.0.0)",
+    "markdown (>=3.10.2,<4.0.0)"
 ]
 
 
